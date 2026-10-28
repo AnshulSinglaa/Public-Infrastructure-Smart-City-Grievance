@@ -1,0 +1,27 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "type": "ghat",
+        "name": "Kalindi Kunj ghat (Yamuna floodplain)",
+        "priority": 10,
+        "source": "Hand-drawn (no official polygon found) around the Kalindi Kunj ghat point 28.544N 77.311E, checked against OSM: Kalindi Kunj Bridge way 670037899, Yamuna riverbank way 981305625, Kalindi Kunj Park way 80511323. Retrieved 2026-10-24.",
+        "approximate": true
+      },
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [[[
+          [77.3085, 28.5405],
+          [77.3145, 28.5405],
+          [77.3150, 28.5440],
+          [77.3140, 28.5472],
+          [77.3090, 28.5470],
+          [77.3082, 28.5440],
+          [77.3085, 28.5405]
+        ]]]
+      }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+# secrets (keep only the template)
+.env
+.env.*
+!.env.example
+ui/.streamlit/secrets.toml
+.claude/settings.local.json
+
+# python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+.ipynb_checkpoints/
+nohup.out
+
+# local data / outputs
+media/
+eval/runs/
+.cache/
+*.log
+
+# editor / os
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# raw downloads (licence unclear for some; re-fetch with scripts/fetch_wards.py)
+data/raw/

@@ -1,0 +1,38 @@
+code,name_en,name_hi,group,asset,default_severity,emergency,example_hinglish,photo_cues
+POTHOLE,Pothole,सड़क में गड्ढा,roads,road,medium,no,sadak pe bada gaddha hai|road mein khadda bhar do,hole or broken asphalt in road surface; water-filled depression; vehicles swerving
+FOOTPATH_BROKEN,Broken footpath,टूटा फुटपाथ,roads,footpath,low,no,footpath ki tiles tooti hain|patri toot gayi hai,cracked or missing paver tiles; broken kerb; uneven sidewalk
+ROAD_CAVE_IN,Road cave-in,सड़क धंसना,roads,road,critical,yes,sadak beech mein dhans gayi|road andar baith gayi,deep collapse or sinkhole in road; exposed soil or pipes; barricades around a large hole
+GARBAGE_DUMP,Garbage dump,कूड़े का ढेर,waste,road,medium,no,yahan kooda pada hai|kachre ka dher laga hai,pile of mixed waste on roadside or open plot; plastic bags; scattered litter
+DHALAO_OVERFLOW,Overflowing dhalao,भरा हुआ ढलाव,waste,dhalao,high,no,dhalao bhar ke bahar kooda|kooda ghar overflow ho raha,municipal garbage enclosure or bin room with waste spilling outside; skip bins overflowing
+CD_DEBRIS,Construction debris,मलबा,waste,road,medium,no,malba sadak pe daal diya|construction ka kachra pada hai,bricks; concrete rubble; sand + broken tiles dumped on road or plot
+GARBAGE_BURNING,Burning garbage,कूड़ा जलाना,waste,open_plot,high,no,koi kooda jala raha hai|kachre mein aag lagi hai dhuan,smoke rising from a waste pile; flames or embers; charred waste
+SEWER_OVERFLOW,Sewer overflow,सीवर ओवरफ्लो,sewer,sewer,high,no,gutter ka paani bahar aa raha|sewer overflow ho raha hai,dark grey/black water flowing from a manhole; sewage on road; froth
+MANHOLE_OPEN,Open or missing manhole,खुला मैनहोल,sewer,manhole,critical,yes,manhole ka dhakkan gayab hai|khula gutter hai koi gir jayega,uncovered round/square opening in road or footpath; broken cover; makeshift sticks or tyre placed as warning
+WATERLOGGING,Waterlogging,जलभराव,drainage,drain,high,no,baarish ka paani bhar gaya|sadak pe ghutno tak paani,standing water covering road; vehicles wading; submerged kerbs
+DRAIN_BLOCKED,Blocked storm drain / nala,नाला जाम,drainage,drain,medium,no,nala kachre se band hai|naali jam ho gayi,open channel (nala) choked with silt; plastic or garbage; stagnant water in roadside drain
+WATER_NO_SUPPLY,No water supply,पानी नहीं आ रहा,water,water_pipe,high,no,teen din se paani nahi aaya|nal mein paani nahi aa raha,empty taps; people queuing at tanker; empty buckets (photo often not useful)
+WATER_LEAK,Water pipeline leakage,पानी की पाइप लीकेज,water,water_pipe,medium,no,pipeline phat gayi paani beh raha|road pe saaf paani leak ho raha,clear water gushing or bubbling from ground or pipe; wet patch on dry road
+WATER_CONTAMINATED,Contaminated water supply,गंदा पानी सप्लाई,water,water_pipe,high,no,nal se ganda paani aa raha|paani mein badbu aur kala rang,brown/yellow/black water in glass or bucket; sediment; foam
+STREETLIGHT_OUT,Streetlight not working,स्ट्रीट लाइट खराब,streetlight,streetlight,medium,no,gali ki light band hai|street light raat ko nahi jalti,dark street at night; unlit lamp head; broken pole or lamp
+LIVE_WIRE,Live wire / sparking,खुला बिजली का तार,electricity,power_line,critical,yes,bijli ka nanga taar latak raha|pole pe spark ho raha hai,hanging or fallen cable near people; sparks; exposed wires at junction box or pole
+TRANSFORMER,Transformer problem,ट्रांसफार्मर खराब,electricity,transformer,high,yes,transformer mein aag/dhuan|transformer phat gaya,distribution transformer with smoke; oil leak; burnt marks; open feeder pillar
+POWER_OUTAGE,Power cut / no electricity,बिजली नहीं है,electricity,power_line,medium,no,kal raat se light nahi hai|poore block ki bijli gayi,dark houses at night (photo often not useful; text decides)
+TREE_FALLEN,Fallen tree / branch,गिरा हुआ पेड़,trees,tree,high,yes,ped gir gaya rasta band|badi daal taar pe giri hai,tree trunk or large branch lying across road or footpath; uprooted roots; branch on wires
+TREE_CUTTING,Illegal tree cutting,पेड़ की अवैध कटाई,trees,tree,medium,no,koi hare ped kaat raha hai|bina permission ped kata,freshly cut stump; saw or axe; stacked logs; workers cutting a healthy tree
+PARK_MAINTENANCE,Park not maintained,पार्क की देखरेख नहीं,parks,park,low,no,park mein ghaas aur kooda|jhoole toote pade hain,overgrown grass; broken swings or benches; litter inside fenced park
+STRAY_CATTLE,Stray cattle on road,सड़क पर आवारा पशु,animals,road,medium,no,sadak pe gaay bail baithe hain|aawara saand road pe,cows/bulls/buffaloes standing or sitting on carriageway
+DEAD_ANIMAL,Dead animal,मरा हुआ जानवर,animals,road,high,no,road pe mara hua kutta pada|marey jaanwar se badbu,animal carcass on road; footpath or plot (blur if graphic)
+SIGNAL_BROKEN,Traffic signal not working,ट्रैफिक सिग्नल खराब,traffic,traffic_signal,high,no,signal band pada hai|traffic light kaam nahi kar rahi,dark or blinking signal head at a junction; damaged signal pole
+ILLEGAL_PARKING,Illegal parking,अवैध पार्किंग,traffic,road,low,no,gaadi galat jagah khadi hai|footpath pe car park,vehicles on footpath; double parking; parked in no-parking zone or blocking a gate
+BUS_SHELTER_DAMAGED,Damaged bus shelter,टूटा बस शेल्टर,transport,bus_shelter,low,no,bus stop ki chhat tooti|bus shelter ki seat gayab,bus queue shelter with broken roof; seats; glass or panels
+METRO_PREMISES,Metro premises issue,मेट्रो परिसर की समस्या,transport,metro,medium,no,metro station ke bahar kooda|metro lift kharab hai,metro station entry; pillar; viaduct or DMRC parking visible in frame
+NOISE,Noise pollution,ध्वनि प्रदूषण,pollution,none,medium,no,raat ko DJ bahut tez baj raha|generator ka shor,loudspeakers; DJ setup; generator set (photo rarely proves noise; text decides)
+INDUSTRIAL_SMOKE,Industrial smoke / effluent,फैक्ट्री का धुआं,pollution,factory,high,no,factory se kala dhuan|kaarkhana ganda paani naali mein,chimney with black smoke; coloured effluent into drain; industrial shed
+YAMUNA_GHAT_POLLUTION,Yamuna / ghat pollution,यमुना / घाट प्रदूषण,pollution,ghat,medium,no,ghat pe murtiyan aur pooja ka saamaan|Yamuna kinare kachra,river bank or steps; idol debris; flowers + plastic at water edge; foam on river
+ENCROACHMENT_FOOTPATH,Encroachment on footpath / road,फुटपाथ पर अतिक्रमण,encroachment,footpath,low,no,footpath pe dukaan laga li|rehri walon ne rasta gher liya,stalls; extended shop goods; ramps or structures occupying footpath or carriageway
+ILLEGAL_CONSTRUCTION,Illegal construction,अवैध निर्माण,buildings,building,medium,no,bina naksha paas makaan ban raha|extra manzil ban rahi hai,ongoing construction; new floor on top; scaffolding; building on open/public land
+DANGEROUS_BUILDING,Dangerous building,खतरनाक इमारत,buildings,building,critical,yes,building kabhi bhi gir sakti hai|deewar mein badi daraar,large cracks; leaning wall; fallen plaster; partly collapsed structure
+PUBLIC_TOILET_DIRTY,Dirty public toilet,गंदा सार्वजनिक शौचालय,other,toilet,medium,no,sulabh/shauchalay bahut ganda|public toilet mein paani nahi,toilet block; dirty floor; broken doors; overflowing urinal
+MOSQUITO_BREEDING,Mosquito breeding,मच्छरों का प्रजनन,other,none,medium,no,yahan paani jama hai machhar|khali plot mein machhar paida ho rahe,stagnant water in containers; tyres; coolers or pits
+GAS_LEAK,Gas leak (PNG / pipeline),गैस लीक,safety,gas_pipe,critical,yes,gas ki badbu aa rahi hai|IGL pipeline se gas leak,yellow IGL pipe or marker; damaged pipe at dug-up road (smell is in text not photo)
+OTHER,Other / not sure,अन्य,other,none,low,no,ye kis department ka hai pata nahi|koi aur samasya hai,nothing specific; the model returns low confidence and the user picks or general channels are shown

@@ -1,0 +1,41 @@
+services:
+  db:
+    build: ./db
+    environment:
+      POSTGRES_PASSWORD: dev
+      POSTGRES_DB: civic
+    ports: ["5433:5432"]   # 5433 on the host: 5432 is often taken by a locally installed Postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      # -h localhost (TCP) only succeeds after init.sql has run
+      test: ["CMD", "pg_isready", "-h", "localhost", "-U", "postgres", "-d", "civic"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  mailpit:
+    image: axllent/mailpit:v1.20
+    ports: ["8025:8025", "1025:1025"]
+
+  qdrant:
+    image: qdrant/qdrant:v1.20.0      # same minor as the qdrant-client package
+    ports: ["6333:6333", "6334:6334"] # 6333 REST (what we use), 6334 gRPC
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      # the image has no curl; bash can open a TCP socket by itself
+      test: ["CMD", "bash", "-c", ":> /dev/tcp/127.0.0.1/6333"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  ingest:
+    build: ./ingest
+    profiles: [tools]
+    volumes: ["../data:/data"]
+
+volumes:
+  pgdata:
+  qdrant_data:

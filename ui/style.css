@@ -1,0 +1,83 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+Devanagari:wght@400;500;600&display=swap");
+
+/* The font is picked in .streamlit/config.toml ([theme] font). A CSS rule on [class*="st-"]
+   also hit the Material icon spans and showed icon names as words (B-003). */
+body { line-height: 1.6; }
+
+/* Hide Streamlit chrome. The header and toolbar stay (made invisible, not removed) because
+   the "open sidebar" arrow lives inside the toolbar (B-002). */
+#MainMenu, footer, [data-testid="stToolbarActions"], [data-testid="stDecoration"] { display: none; }
+header[data-testid="stHeader"] { background: transparent; }
+
+/* Centred content column. */
+[data-testid="stMainBlockContainer"] { max-width: 760px; padding-top: 4rem; }
+
+/* Cards: thin border, 12px radius, no shadow. */
+.card {
+  background: #30302E;
+  border: 1px solid #3E3E3A;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.card h2 { font-size: 1.4rem; font-weight: 500; margin: 0 0 4px; padding: 0; }
+.muted { color: #A3A19A; }
+
+/* Status pill: always icon + word, never colour alone. */
+.pill {
+  display: inline-block;
+  padding: 2px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid currentColor;
+}
+.pill.ok { color: #4CAF7A; }
+.pill.down { color: #E06C5A; }
+
+/* Buttons: >= 48px touch target; primary = accent fill. */
+.stButton button { min-height: 48px; border-radius: 10px; font-weight: 500; }
+.stButton button[kind="primary"] { background: #5B9CF5; border-color: #5B9CF5; color: #1F1E1D; }
+
+/* Sidebar brand block. */
+.brand { font-size: 1.3rem; font-weight: 600; margin-bottom: 0; }
+
+/* Page heading + helper text above the cards. */
+.page-title { font-size: 1.45rem; font-weight: 500; margin: 0; padding: 0 0 2px; }
+
+/* Widget cards: st.container(border=True, key="card_...") gets the class st-key-card_... */
+[class*="st-key-card_"] {
+  background: #30302E;
+  border-color: #3E3E3A;
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+[class*="st-key-card_"] h4 { font-size: 1.05rem; font-weight: 500; padding: 0 0 4px; }
+
+/* Department card. */
+.card .label { font-size: 0.85rem; margin: 0; }
+.card .dept { font-size: 1.3rem; font-weight: 500; margin: 2px 0 0; padding: 0; }
+.pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.pill { color: #ECEAE4; border-color: #3E3E3A; }
+.pill.accent { color: #5B9CF5; border-color: currentColor; }
+.pill.warn { color: #E0A43A; border-color: currentColor; margin-top: 8px; }
+
+/* Link buttons (Call) match the primary button; 56px for the main action (UX §12). */
+.stLinkButton a { min-height: 56px; border-radius: 10px; font-weight: 500; font-size: 1.05rem; }
+.stLinkButton a[kind="primary"] { background: #5B9CF5; border-color: #5B9CF5; color: #1F1E1D; }
+.stButton button[kind="primary"] { min-height: 56px; font-size: 1.05rem; }
+
+/* Copy boxes: readable wrapped text, card-coloured. */
+[data-testid="stCode"] pre { background: #262624; font-family: inherit; font-size: 1rem; line-height: 1.6; }
+
+/* 3px focus ring (accessibility). */
+button:focus-visible, a:focus-visible, textarea:focus-visible {
+  outline: 3px solid #5B9CF5; outline-offset: 2px;
+}
+
+/* Bottom info bar for notices like "Demo: AI is simulated". */
+.notice {
+  margin-top: 16px; padding: 10px 16px;
+  border: 1px solid #3E3E3A; border-left: 3px solid #E0A43A; border-radius: 10px;
+  color: #A3A19A; font-size: 0.9rem;
+}

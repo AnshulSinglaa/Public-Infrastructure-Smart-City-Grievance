@@ -1,0 +1,39 @@
+[project]
+name = "civic-grievance-router"
+version = "0.1.0"
+description = "Civic grievance router: FastAPI backend + Streamlit UI"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "pydantic-settings",
+    "psycopg[binary]",
+    "sqlalchemy",
+    "httpx",
+    "streamlit",
+    "alembic>=1.20.1",
+    "python-multipart>=0.0.32",
+    "qdrant-client>=1.20.0",
+]
+
+[dependency-groups]
+dev = ["pytest", "ruff"]
+
+# Not a library: uv should only install the deps, not build this folder as a package.
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+# So import sorting treats `app` and `i18n` as our own code.
+src = ["backend", "ui"]
+
+[tool.pytest.ini_options]
+pythonpath = ["backend", "ui"]
+testpaths = ["backend/tests", "ui/tests"]
+
+# Alembic reads its settings from here (no alembic.ini). Run from the repo root:
+#   uv run alembic upgrade head
+[tool.alembic]
+script_location = "%(here)s/backend/migrations"
+prepend_sys_path = ["backend"]

@@ -1,0 +1,24 @@
+# Colours from docs/UX.md §13 (dark theme).
+[theme]
+base = "dark"
+primaryColor = "#5B9CF5"
+backgroundColor = "#262624"
+secondaryBackgroundColor = "#30302E"
+textColor = "#ECEAE4"
+borderColor = "#3E3E3A"
+linkColor = "#5B9CF5"
+baseRadius = "12px"
+buttonRadius = "10px"
+# Inter for Latin, Noto for Devanagari (UX §13; loaded by the @import in style.css). Set
+# here, not by a CSS rule, so Streamlit's own icon font (Material Symbols) is left alone.
+font = "Inter, Noto Sans Devanagari, sans-serif"
+showSidebarBorder = true
+
+[theme.sidebar]
+backgroundColor = "#1F1E1D"
+
+[client]
+toolbarMode = "minimal"
+
+[server]
+maxUploadSize = 5  # MB; matches the API's 5 MB photo limit (whole MB only)

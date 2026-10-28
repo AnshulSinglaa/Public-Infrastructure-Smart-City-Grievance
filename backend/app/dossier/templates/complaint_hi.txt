@@ -1,0 +1,8 @@
+विषय: वार्ड $ward_no ($ward_name) में $category_hi की शिकायत
+
+महोदय/महोदया,
+वार्ड $ward_no ($ward_name) में $category_hi की समस्या है। गंभीरता: $severity_hi।
+$user_text_hi
+कृपया $sla_days दिनों के भीतर इसे ठीक करवाएँ।
+
+धन्यवाद

@@ -1,0 +1,8 @@
+Subject: Complaint about a $category_en in Ward $ward_no ($ward_name)
+
+Sir/Madam,
+There is a $category_en in Ward $ward_no ($ward_name). Severity: $severity_en.
+$user_text_en
+Please get it fixed within $sla_days days.
+
+Thank you
