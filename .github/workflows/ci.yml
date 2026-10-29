@@ -30,6 +30,8 @@ jobs:
       - run: uv run ruff check .
       # Fresh CI database: create the tables before the tests use them.
       - run: uv run alembic upgrade head
+      # Routing tests need the ward maps (data/wards.geojson + special_zones), same as local setup.
+      - run: uv run python scripts/load_wards.py
       - run: uv run pytest -q
 
   gitleaks:

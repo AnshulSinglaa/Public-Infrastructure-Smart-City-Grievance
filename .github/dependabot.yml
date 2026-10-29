@@ -4,6 +4,10 @@ updates:
     directory: /
     schedule: { interval: weekly }
     cooldown: { default-days: 7 }   # skip brand-new releases (malicious-upload window)
+    ignore:
+      # OpenCV 5 removed CascadeClassifier + the Haar files our face/plate blur needs (D56).
+      - dependency-name: opencv-python-headless
+        versions: [">=5"]
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }
