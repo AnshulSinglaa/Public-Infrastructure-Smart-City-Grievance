@@ -1,8 +1,8 @@
-"""Download OSM roads for the 8 coverage wards and write data/osm_roads.geojson.
+"""Download OSM roads for the coverage wards and write data/osm_roads.geojson.
 
 Run from the repo root:  python scripts/import_osm.py   (add --refresh to re-download)
 
-One Overpass query for the bounding box of the coverage wards. The raw answer
+One Overpass query: the union of one bounding box per coverage ward. The raw answer
 is saved in data/raw/overpass_roads.json (data only, never executed) and reused
 on the next run, so we don't hit Overpass again.
 A way is kept if any of its points lies in a coverage ward (so boundary roads
@@ -26,8 +26,8 @@ OUT = ROOT / "data" / "osm_roads.geojson"
 OVERPASS = ["https://overpass-api.de/api/interpreter",
             "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
             "https://overpass.private.coffee/api/interpreter"]
-# trunk down to living_street / service (plus the *_link ramps of the big classes)
-HIGHWAY = "^(trunk|primary|secondary|tertiary)(_link)?$|^(unclassified|residential|living_street|service)$"
+# motorway (NH-48 expressway) down to living_street / service (plus the *_link ramps of the big classes)
+HIGHWAY = "^(motorway|trunk|primary|secondary|tertiary)(_link)?$|^(unclassified|residential|living_street|service)$"
 
 
 def coverage_wards():
@@ -36,20 +36,25 @@ def coverage_wards():
             for f in wards if f["properties"]["ward_no"] in COVERAGE}
 
 
-def bbox(wards):
-    pts = [pt for polys in wards.values() for poly in polys for pt in poly[0]]
+def bbox(polys):
+    pts = [pt for poly in polys for pt in poly[0]]
     lons, lats = [p[0] for p in pts], [p[1] for p in pts]
     return min(lats), min(lons), max(lats), max(lons)  # Overpass order: S, W, N, E
 
 
-def fetch(box):
-    if RAW.exists() and "--refresh" not in sys.argv:
-        return json.loads(RAW.read_text(encoding="utf-8"))
-    s, w, n, e = box
-    query = f'[out:json][timeout:120];way["highway"~"{HIGHWAY}"]({s},{w},{n},{e});out tags geom;'
+def fetch(wards):
+    boxes = "".join(f'way["highway"~"{HIGHWAY}"]({s},{w},{n},{e});'
+                    for s, w, n, e in (bbox(polys) for polys in wards.values()))
+    return overpass(f"[out:json][timeout:300];({boxes});out tags geom;", RAW)
+
+
+def overpass(query, raw):
+    """Run one Overpass query; the answer is cached in `raw` and reused unless --refresh."""
+    if raw.exists() and "--refresh" not in sys.argv:
+        return json.loads(raw.read_text(encoding="utf-8"))
     for url in OVERPASS:
         try:
-            r = httpx.post(url, data={"data": query}, timeout=180,
+            r = httpx.post(url, data={"data": query}, timeout=400,
                            headers={"User-Agent": "civic-grievance-student-project (one-off import)"})
             r.raise_for_status()
             break
@@ -57,8 +62,8 @@ def fetch(box):
             print(f"{url} failed ({err}), trying the next server")
     else:
         sys.exit("all Overpass servers failed, try again later")
-    RAW.parent.mkdir(parents=True, exist_ok=True)
-    RAW.write_text(r.text, encoding="utf-8")
+    raw.parent.mkdir(parents=True, exist_ok=True)
+    raw.write_text(r.text, encoding="utf-8")
     return r.json()
 
 
@@ -80,7 +85,7 @@ def ward_of(x, y, wards):
 
 def build():
     wards = coverage_wards()
-    data = fetch(bbox(wards))
+    data = fetch(wards)
     features = []
     for way in data["elements"]:
         line = [[p["lon"], p["lat"]] for p in way.get("geometry", [])]
@@ -98,6 +103,7 @@ def build():
                 "osm_way_id": way["id"],
                 "name": tags.get("name", ""),
                 "highway_class": tags["highway"],
+                "ref": tags.get("ref", ""),  # e.g. NH48; a ref alone does NOT mean NHAI (NH-2 is still PWD)
                 "width": tags.get("width", ""),
                 "ward_no": ward,
             },
@@ -105,7 +111,7 @@ def build():
         })
     OUT.write_text(json.dumps({"type": "FeatureCollection", "features": features}), encoding="utf-8")
     named = sum(1 for f in features if f["properties"]["name"])
-    print(f"wrote {OUT}: {len(features)} ways ({named} named) of {len(data['elements'])} in the bbox")
+    print(f"wrote {OUT}: {len(features)} ways ({named} named) of {len(data['elements'])} in the ward boxes")
     for no in sorted(wards):
         print(f"  ward {no}: {sum(1 for f in features if f['properties']['ward_no'] == no)} ways")
     return features

@@ -34,3 +34,6 @@ Thumbs.db
 
 # raw downloads (licence unclear for some; re-fetch with scripts/fetch_wards.py)
 data/raw/
+
+# security audit register: a map of weaknesses; this repo is PUBLIC, never commit it
+.security-audit/

@@ -1,4 +1,40 @@
 osm_way_id,osm_name,pwd_name,score,confirmed,pwd_road_id,ward_no
+681827416,W Block Road,A Block Road,0.86,,RD-01219,96
+38116092,L Block Road,A Block Road,0.86,,RD-01219,144
+202672560,Anuvrat Marg,Anuvrat Marg,1.0,,RD-01198,155
+256583522,Anuvrat Marg,Anuvrat Marg,1.0,,RD-01198,155
+560651110,Anuvrat Marg,Anuvrat Marg,1.0,,RD-01198,155
+566009665,Anuvrat Marg,Anuvrat Marg,1.0,,RD-01198,155
+571450090,Anuvrat Marg,Anuvrat Marg,1.0,,RD-01198,155
+571450094,Anuvrat Marg,Anuvrat Marg,1.0,,RD-01198,155
+571450111,Anuvrat Marg,Anuvrat Marg,1.0,,RD-01198,155
+586684197,Anuvrat Marg,Anuvrat Marg,1.0,,RD-01198,155
+610375785,Anuvrat Marg,Anuvrat Marg,1.0,,RD-01198,155
+654173103,Anuvrat Marg,Anuvrat Marg,1.0,,RD-01198,155
+654173106,Anuvrat Marg,Anuvrat Marg,1.0,,RD-01198,155
+750226393,Anuvrat Marg,Anuvrat Marg,1.0,,RD-01198,155
+758890826,Anuvrat Marg,Anuvrat Marg,1.0,,RD-01198,155
+580856051,Anuvrat Marg,Anuvrat Marg,1.0,,RD-01198,156
+710594427,Anuvrat Marg,Anuvrat Marg,1.0,,RD-01198,156
+190333636,Aruna Asaf Ali Marg,Aruna Asaf Ali Marg,1.0,,RD-01199,155
+190333640,Aruna Asaf Ali Marg,Aruna Asaf Ali Marg,1.0,,RD-01199,155
+190333641,Aruna Asaf Ali Marg,Aruna Asaf Ali Marg,1.0,,RD-01199,155
+563714777,Aruna Asaf Ali Marg,Aruna Asaf Ali Marg,1.0,,RD-01199,155
+586897210,Aruna Asaf Ali Marg,Aruna Asaf Ali Marg,1.0,,RD-01199,155
+586897211,Aruna Asaf Ali Marg,Aruna Asaf Ali Marg,1.0,,RD-01199,155
+190333630,Aruna Asaf Ali Marg,Aruna Asaf Ali Marg,1.0,,RD-01199,156
+190333631,Aruna Asaf Ali Marg,Aruna Asaf Ali Marg,1.0,,RD-01199,156
+190333639,Aruna Asaf Ali Marg,Aruna Asaf Ali Marg,1.0,,RD-01199,156
+590609981,Aruna Asaf Ali Marg,Aruna Asaf Ali Marg,1.0,,RD-01199,156
+817217664,Aruna Asaf Ali Marg,Aruna Asaf Ali Marg,1.0,,RD-01199,156
+28190430,Arya Samaj Road,Arya Samaj Marg,1.0,,RD-00855,82
+652550333,Arya Samaj Marg,Arya Samaj Marg,1.0,,RD-00855,144
+28190430,Arya Samaj Road,Arya Samaj Road,1.0,,RD-02138,82
+28190430,Arya Samaj Road,Arya Samaj Road,1.0,,RD-00209,82
+652550333,Arya Samaj Marg,Arya Samaj Road,1.0,,RD-02138,144
+652550333,Arya Samaj Marg,Arya Samaj Road,1.0,,RD-00209,144
+60882614,Auchandi Border Road,Auchandi Border to Tatesar Village,1.0,,RD-01142,30
+1078952744,Auchandi Border Road,Auchandi Border to Tatesar Village,1.0,,RD-01142,30
 265940883,August Kranti Marg,August Kranti Marg,1.0,,RD-00016,145
 577970327,August Kranti Marg,August Kranti Marg,1.0,,RD-00016,145
 590522606,August Kranti Marg,August Kranti Marg,1.0,,RD-00016,145
@@ -13,6 +49,33 @@ osm_way_id,osm_name,pwd_name,score,confirmed,pwd_road_id,ward_no
 169421732,Lala Lajpat Rai Path,BRT from Sunder Nagar Red Light to Defence Colony Flyover,1.0,,RD-01148,145
 555242577,Lala Lajpat Rai Path,BRT from Sunder Nagar Red Light to Defence Colony Flyover,1.0,,RD-01148,145
 1312784812,Lala Lajpat Rai Path,BRT from Sunder Nagar Red Light to Defence Colony Flyover,1.0,,RD-01148,145
+46323888,Balbir Saxena Marg,Balbir Saxena Marg,1.0,,RD-00545,145
+1428250896,Balbir Saxena Marg,Balbir Saxena Marg,1.0,,RD-00545,145
+38235041,Basant Road,Basant Marg-I,0.86,,RD-00778,82
+686925958,Basant Road,Basant Marg-I,0.86,,RD-00778,82
+686925959,Basant Road,Basant Marg-I,0.86,,RD-00778,82
+38235041,Basant Road,Basant Road,1.0,,RD-00425,82
+686925958,Basant Road,Basant Road,1.0,,RD-00425,82
+686925959,Basant Road,Basant Road,1.0,,RD-00425,82
+590609980,Bhagwan Mahavir Marg,Bhagwan Mahavir Marg,1.0,,RD-01342,155
+1074420043,Bhagwan Mahavir Marg,Bhagwan Mahavir Marg,1.0,,RD-01342,155
+24496907,Bhagwan Mahavir Marg,Bhagwan Mahavir Marg,1.0,,RD-01342,156
+190323307,Bhagwan Mahaveer Road,Bhagwan Mahavir Marg,0.9,,RD-01342,156
+190323324,Bhagwan Mahaveer Road,Bhagwan Mahavir Marg,0.9,,RD-01342,156
+190333643,Bhagwan Mahavir Marg,Bhagwan Mahavir Marg,1.0,,RD-01342,156
+190333644,Bhagwan Mahavir Marg,Bhagwan Mahavir Marg,1.0,,RD-01342,156
+586897213,Bhagwan Mahavir Marg,Bhagwan Mahavir Marg,1.0,,RD-01342,156
+586897214,Bhagwan Mahaveer Road,Bhagwan Mahavir Marg,0.9,,RD-01342,156
+586897216,Bhagwan Mahaveer Road,Bhagwan Mahavir Marg,0.9,,RD-01342,156
+590609978,Bhagwan Mahavir Marg,Bhagwan Mahavir Marg,1.0,,RD-01342,156
+706632515,Bhagwan Mahavir Marg,Bhagwan Mahavir Marg,1.0,,RD-01342,156
+710645775,Bhagwan Mahavir Marg,Bhagwan Mahavir Marg,1.0,,RD-01342,156
+1075678986,Bhagwan Mahavir Marg,Bhagwan Mahavir Marg,1.0,,RD-01342,156
+1075716793,Bhagwan Mahavir Marg,Bhagwan Mahavir Marg,1.0,,RD-01342,156
+1075716794,Bhagwan Mahavir Marg,Bhagwan Mahavir Marg,1.0,,RD-01342,156
+1075732522,Bhagwan Mahavir Marg,Bhagwan Mahavir Marg,1.0,,RD-01342,156
+1206075659,Bhagwan Mahavir Marg,Bhagwan Mahavir Marg,1.0,,RD-01342,156
+1206075660,Bhagwan Mahavir Marg,Bhagwan Mahavir Marg,1.0,,RD-01342,156
 176492655,Bhishma Pitamah Marg,Bhishma Pitamah Road,1.0,,RD-00490,145
 176492656,Bhishma Pitamah Marg,Bhishma Pitamah Road,1.0,,RD-00490,145
 176492657,Bhishma Pitamah Marg,Bhishma Pitamah Road,1.0,,RD-00490,145
@@ -42,18 +105,178 @@ osm_way_id,osm_name,pwd_name,score,confirmed,pwd_road_id,ward_no
 1253556402,C.V. Raman Marg,C.V. Raman Marg,1.0,,RD-00485,187
 1255454438,C.V. Raman Marg,C.V. Raman Marg,1.0,,RD-00485,187
 28153848,Central Road,"Central Road to Back of Ring Road, Lajpat Nagar-IV",1.0,,RD-00494,144
+44141357,Chandni Chowk,Chandni Chowk Road,1.0,,RD-01556,74
+80940694,Chandni Chowk,Chandni Chowk Road,1.0,,RD-01556,74
+1136687918,Chandni Chowk,Chandni Chowk Road,1.0,,RD-01556,74
+1136687919,Chandni Chowk,Chandni Chowk Road,1.0,,RD-01556,74
+1147871209,Chandni Chowk,Chandni Chowk Road,1.0,,RD-01556,74
+1147871210,Chandni Chowk,Chandni Chowk Road,1.0,,RD-01556,74
+1067100260,Chitragupta Road,Chitra Gupta Road,0.96,,RD-00427,82
+1331524579,Chitragupta Road,Chitra Gupta Road,0.96,,RD-00427,82
+1331524580,Chitragupta Road,Chitra Gupta Road,0.96,,RD-00427,82
+1343796256,Chitragupta Road,Chitra Gupta Road,0.96,,RD-00427,82
+1394089479,Chitragupta Road,Chitra Gupta Road,0.96,,RD-00427,82
+1450857030,Chitragupta Road,Chitra Gupta Road,0.96,,RD-00427,82
+169421700,Church Road,"Church Road, R.K. Puram",1.0,,RD-00340,144
+277906556,Community Center Road,"Community Centre to NDMC Colony, Sector-11, Rohini",0.94,,RD-01609,187
+1220250642,Community Center Road,"Community Centre to NDMC Colony, Sector-11, Rohini",0.94,,RD-01609,187
+1425514218,Community Center Road,"Community Centre to NDMC Colony, Sector-11, Rohini",0.94,,RD-01609,187
+681827416,W Block Road,"D-Block   Road   from   H. No.   D-27   to   C-1,   Ring Road, NDSE-II",0.86,,RD-00558,96
+38116092,L Block Road,"D-Block   Road   from   H. No.   D-27   to   C-1,   Ring Road, NDSE-II",0.86,,RD-00558,144
+77885894,Deshbandhu Gupta Road,Desh Bandu Gupta Road,0.94,,RD-00434,82
+77885903,Deshbandhu Gupta Road,Desh Bandu Gupta Road,0.94,,RD-00434,82
+77885906,Deshbandhu Gupta Road,Desh Bandu Gupta Road,0.94,,RD-00434,82
+570217341,Deshbandhu Gupta Road,Desh Bandu Gupta Road,0.94,,RD-00434,82
+1035988353,Deshbandhu Gupta Road,Desh Bandu Gupta Road,0.94,,RD-00434,82
+1102507027,Deshbandhu Gupta Road,Desh Bandu Gupta Road,0.94,,RD-00434,82
+1102507028,Deshbandhu Gupta Road,Desh Bandu Gupta Road,0.94,,RD-00434,82
+1154556339,Deshbandhu Gupta Road,Desh Bandu Gupta Road,0.94,,RD-00434,82
+1154556340,Deshbandhu Gupta Road,Desh Bandu Gupta Road,0.94,,RD-00434,82
+1387169686,Deshbandhu Gupta Road,Desh Bandu Gupta Road,0.94,,RD-00434,82
+1429564099,Deshbandhu Gupta Road,Desh Bandu Gupta Road,0.94,,RD-00434,82
+1463747349,Deshbandhu Gupta Road,Desh Bandu Gupta Road,0.94,,RD-00434,82
+427196479,Dev Prakash Shastri Road,Dev Prakash Shatri Marg,0.97,,RD-01255,139
+590610013,Dev Prakash Shastri Road,Dev Prakash Shatri Marg,0.97,,RD-01255,139
+590610014,Dev Prakash Shastri Road,Dev Prakash Shatri Marg,0.97,,RD-01255,139
+243350958,Devki Nandan Marg,Devki Nandan Marg,1.0,,RD-00863,96
+681827416,W Block Road,E Block Road,0.86,,RD-02246,96
+38116092,L Block Road,E Block Road,0.86,,RD-02246,144
+44830358,Esplande Road,Esplande Road,1.0,,RD-01560,74
+747975865,Faiz Road,Faiz Road,1.0,,RD-00436,82
 660186217,Feroze Gandhi Road,"Feroz Gandhi Road, Lajpat Nagar",0.96,,RD-00501,144
 1218724198,Feroze Gandhi Road,"Feroz Gandhi Road, Lajpat Nagar",0.96,,RD-00501,144
 1219732623,Feroze Gandhi Road,"Feroz Gandhi Road, Lajpat Nagar",0.96,,RD-00501,144
 1543216012,Feroze Gandhi Road,"Feroz Gandhi Road, Lajpat Nagar",0.96,,RD-00501,144
 38116088,Feroze Gandhi Road,"Feroz Gandhi Road, Lajpat Nagar",0.96,,RD-00501,145
+1311178906,Flagstaff Road,Flag Staff Road,0.95,,RD-02181,73
+1311178906,Flagstaff Road,Flag Staff Road,0.95,,RD-01745,73
+1410331571,Flagstaff Road,Flag Staff Road,0.95,,RD-02181,73
+1410331571,Flagstaff Road,Flag Staff Road,0.95,,RD-01745,73
+681827416,W Block Road,G-Block Road from Shani Bazar road to Bhalla factory road,0.86,,RD-00684,96
+38116092,L Block Road,G-Block Road from Shani Bazar road to Bhalla factory road,0.86,,RD-00684,144
+699660182,GT Road,G.T. Road,1.0,,RD-01458,213
+699660182,GT Road,G.T. Road,1.0,,RD-01419,213
+1392411911,GT Road,G.T. Road,1.0,,RD-01458,213
+1392411911,GT Road,G.T. Road,1.0,,RD-01419,213
+699660182,GT Road,G.T. Road from Baraf Khana chowk to Clock Tower,1.0,,RD-02202,213
+1392411911,GT Road,G.T. Road from Baraf Khana chowk to Clock Tower,1.0,,RD-02202,213
+699660182,GT Road,GT Road (from Nanak Piao Gurudwara to Clock Tower),1.0,,RD-02215,213
+1392411911,GT Road,GT Road (from Nanak Piao Gurudwara to Clock Tower),1.0,,RD-02215,213
+191213423,Gali No 10,Gali No. 10,1.0,,RD-01290,184
+191213423,Gali No 10,Gali No. 10,1.0,,RD-01289,184
+191213460,Gali No 10,Gali No. 10,1.0,,RD-01290,184
+191213460,Gali No 10,Gali No. 10,1.0,,RD-01289,184
+191213463,Gali No 14,Gali No. 10,0.9,,RD-01290,184
+191213463,Gali No 14,Gali No. 10,0.9,,RD-01289,184
+421427848,Gali no 14,Gali No. 10,0.9,,RD-01290,187
+421427848,Gali no 14,Gali No. 10,0.9,,RD-01289,187
+40253095,Girdhari Lal Goswami Marg,Girdhari Lal Goswani Marg,0.95,,RD-02126,139
+315610530,Girdhari Lal Goswami Marg,Girdhari Lal Goswani Marg,0.95,,RD-02126,139
+315610531,Girdhari Lal Goswami Marg,Girdhari Lal Goswani Marg,0.95,,RD-02126,139
+529277806,Girdhari Lal Goswami Marg,Girdhari Lal Goswani Marg,0.95,,RD-02126,139
+1312795291,Girdhari Lal Goswami Marg,Girdhari Lal Goswani Marg,0.95,,RD-02126,139
+1313152302,Girdhari Lal Goswami Marg,Girdhari Lal Goswani Marg,0.95,,RD-02126,139
+1322818625,Girdhari Lal Goswami Marg,Girdhari Lal Goswani Marg,0.95,,RD-02126,139
+1428438863,Girdhari Lal Goswami Marg,Girdhari Lal Goswani Marg,0.95,,RD-02126,139
+48532702,Gokhale Road,Gokhle Road,0.92,,RD-01547,74
+80940701,Gokhale Road,Gokhle Road,0.92,,RD-01547,74
+464312299,Gokhale Road,Gokhle Road,0.92,,RD-01547,74
+464312300,Gokhale Road,Gokhle Road,0.92,,RD-01547,74
+984675785,Gokhale Road,Gokhle Road,0.92,,RD-01547,74
+77743789,Gopal Mandir Marg,Gopal Mandir Road,1.0,,RD-01337,57
+1075747534,Gopal Mandir Marg,Gopal Mandir Road,1.0,,RD-01337,57
+1210735378,Gopal Mandir Marg,Gopal Mandir Road,1.0,,RD-01337,57
+1210735445,Gopal Mandir Marg,Gopal Mandir Road,1.0,,RD-01337,57
+1210736007,Gopal Mandir Marg,Gopal Mandir Road,1.0,,RD-01337,57
+1210736009,Gopal Mandir Marg,Gopal Mandir Road,1.0,,RD-01337,57
+1210736011,Gopal Mandir Marg,Gopal Mandir Road,1.0,,RD-01337,57
+1238298319,Gopal Mandir Marg,Gopal Mandir Road,1.0,,RD-01337,57
+1071432810,Gurudwara Road,Gurudwara Road,1.0,,RD-00475,18
+1071432810,Gurudwara Road,Gurudwara Road,1.0,,RD-00841,18
+1071432810,Gurudwara Road,Gurudwara Road,1.0,,RD-02133,18
+1071432810,Gurudwara Road,Gurudwara Road,1.0,,RD-01565,18
+1071432810,Gurudwara Road,Gurudwara Road,1.0,,RD-01401,18
+1071432810,Gurudwara Road,Gurudwara Road,1.0,,RD-01339,18
 235153817,Gurudwara Road,Gurudwara Road,1.0,,RD-00475,187
+235153817,Gurudwara Road,Gurudwara Road,1.0,,RD-00841,187
+235153817,Gurudwara Road,Gurudwara Road,1.0,,RD-02133,187
+235153817,Gurudwara Road,Gurudwara Road,1.0,,RD-01565,187
+235153817,Gurudwara Road,Gurudwara Road,1.0,,RD-01401,187
+235153817,Gurudwara Road,Gurudwara Road,1.0,,RD-01339,187
 892674900,Gurudwara Road,Gurudwara Road,1.0,,RD-00475,187
+892674900,Gurudwara Road,Gurudwara Road,1.0,,RD-00841,187
+892674900,Gurudwara Road,Gurudwara Road,1.0,,RD-02133,187
+892674900,Gurudwara Road,Gurudwara Road,1.0,,RD-01565,187
+892674900,Gurudwara Road,Gurudwara Road,1.0,,RD-01401,187
+892674900,Gurudwara Road,Gurudwara Road,1.0,,RD-01339,187
 1255470938,Gurudwara Road,Gurudwara Road,1.0,,RD-00475,187
+1255470938,Gurudwara Road,Gurudwara Road,1.0,,RD-00841,187
+1255470938,Gurudwara Road,Gurudwara Road,1.0,,RD-02133,187
+1255470938,Gurudwara Road,Gurudwara Road,1.0,,RD-01565,187
+1255470938,Gurudwara Road,Gurudwara Road,1.0,,RD-01401,187
+1255470938,Gurudwara Road,Gurudwara Road,1.0,,RD-01339,187
 1255480654,Gurudwara Road,Gurudwara Road,1.0,,RD-00475,187
+1255480654,Gurudwara Road,Gurudwara Road,1.0,,RD-00841,187
+1255480654,Gurudwara Road,Gurudwara Road,1.0,,RD-02133,187
+1255480654,Gurudwara Road,Gurudwara Road,1.0,,RD-01565,187
+1255480654,Gurudwara Road,Gurudwara Road,1.0,,RD-01401,187
+1255480654,Gurudwara Road,Gurudwara Road,1.0,,RD-01339,187
+1071432810,Gurudwara Road,Gurudwara Road (C.V. Raman Road to Zakir Nagar 'A' Block Park Corner),1.0,,RD-00484,18
+235153817,Gurudwara Road,Gurudwara Road (C.V. Raman Road to Zakir Nagar 'A' Block Park Corner),1.0,,RD-00484,187
+892674900,Gurudwara Road,Gurudwara Road (C.V. Raman Road to Zakir Nagar 'A' Block Park Corner),1.0,,RD-00484,187
+1255470938,Gurudwara Road,Gurudwara Road (C.V. Raman Road to Zakir Nagar 'A' Block Park Corner),1.0,,RD-00484,187
+1255480654,Gurudwara Road,Gurudwara Road (C.V. Raman Road to Zakir Nagar 'A' Block Park Corner),1.0,,RD-00484,187
+1071432810,Gurudwara Road,Gurudwara road from DTC Bus Depot Road No. 70 to GTB Hospital Road,1.0,,RD-01465,18
+235153817,Gurudwara Road,Gurudwara road from DTC Bus Depot Road No. 70 to GTB Hospital Road,1.0,,RD-01465,187
+892674900,Gurudwara Road,Gurudwara road from DTC Bus Depot Road No. 70 to GTB Hospital Road,1.0,,RD-01465,187
+1255470938,Gurudwara Road,Gurudwara road from DTC Bus Depot Road No. 70 to GTB Hospital Road,1.0,,RD-01465,187
+1255480654,Gurudwara Road,Gurudwara road from DTC Bus Depot Road No. 70 to GTB Hospital Road,1.0,,RD-01465,187
+681827416,W Block Road,"H- Block Road , Sultanpuri",0.86,,RD-01582,96
+38116092,L Block Road,"H- Block Road , Sultanpuri",0.86,,RD-01582,144
+44830355,H.C. Sen Marg,HC Sen Road,1.0,,RD-01545,74
+360271994,H.C. Sen Marg,HC Sen Road,1.0,,RD-01545,74
+604050025,H.C. Sen Marg,HC Sen Road,1.0,,RD-01545,74
+28153840,Hospital Road,Hospital,1.0,,RD-02113,144
+1076002266,Hospital Road,Hospital,1.0,,RD-02113,144
+1076002267,Hospital Road,Hospital,1.0,,RD-02113,144
 28153840,Hospital Road,"Hospital road, Bhogal",1.0,,RD-01349,144
 1076002266,Hospital Road,"Hospital road, Bhogal",1.0,,RD-01349,144
 1076002267,Hospital Road,"Hospital road, Bhogal",1.0,,RD-01349,144
+80519914,Fifth Avenue Road,"IVth Avenue Road, Lodhi Colony",0.87,,RD-00518,145
+729346159,Fifth Avenue Road,"IVth Avenue Road, Lodhi Colony",0.87,,RD-00518,145
+1071482500,Fifth Avenue Road,"IVth Avenue Road, Lodhi Colony",0.87,,RD-00518,145
+97228613,Idgah Road,Idgah Road,1.0,,RD-00447,155
+97228615,Idgah Road,Idgah Road,1.0,,RD-00447,155
+1074457622,Idgah Road,Idgah Road,1.0,,RD-00447,155
+1074466981,Idgah Road,Idgah Road,1.0,,RD-00447,155
+681827416,W Block Road,"J-Block Road, Saket",0.86,,RD-00578,96
+38116092,L Block Road,"J-Block Road, Saket",0.86,,RD-00578,144
+77015779,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,143
+77015834,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,143
+77349475,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,143
+584241783,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,143
+661351480,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,143
+704527734,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,143
+707163417,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,143
+707163418,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,143
+715377036,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,143
+715377038,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,143
+715377039,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,143
+1253189591,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,143
+1253189592,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,143
+1253189593,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,143
+1253189594,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,143
+1312806546,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,143
+1312807952,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,143
+1451897494,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,143
+77015802,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,144
+77349457,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,144
+77349531,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,144
+661351482,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,144
+704527733,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,144
+715377037,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,144
+1312806545,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,144
+1312806548,Jangpura Road Flyover,Jagatpur Flyover,0.88,,RD-02183,144
 172701716,Jaitpur Road,Jaitpur Road (Shaheed Bijender Singh),1.0,,RD-00474,180
 172701731,Jaitpur Road,Jaitpur Road (Shaheed Bijender Singh),1.0,,RD-00474,180
 172701732,Jaitpur Road,Jaitpur Road (Shaheed Bijender Singh),1.0,,RD-00474,180
@@ -61,14 +284,48 @@ osm_way_id,osm_name,pwd_name,score,confirmed,pwd_road_id,ward_no
 557760416,Josip Broz Tito Marg,Josip Broz Tito Marg (Old BRT Road),1.0,,RD-01717,145
 993368935,Josip Broz Tito Marg,Josip Broz Tito Marg (Old BRT Road),1.0,,RD-01717,145
 993368936,Josip Broz Tito Marg,Josip Broz Tito Marg (Old BRT Road),1.0,,RD-01717,145
+1205690963,Kabir Das Marg,Kabir das Marg,1.0,,RD-01892,57
+1482454353,Kabir Das Marg,Kabir das Marg,1.0,,RD-01892,57
+96190283,Kaifi Azmi Marg,Kafi Azami Marg,0.9,,RD-00339,152
+431886455,Kaifi Azmi Marg,Kafi Azami Marg,0.9,,RD-00339,152
+1076737239,Kaifi Azmi Marg,Kafi Azami Marg,0.9,,RD-00339,152
+312031902,Kama Koti Marg,Kama Koti Marg,1.0,,RD-00343,152
+554062542,Kama Koti Marg,Kama Koti Marg,1.0,,RD-00343,152
+1246222359,Kama Koti Marg,Kama Koti Marg,1.0,,RD-00343,152
+1246222363,Kama Koti Marg,Kama Koti Marg,1.0,,RD-00343,152
+560683844,Keshav Marg,Keshav Marg,1.0,,RD-02028,96
+560683844,Keshav Marg,Keshav Marg,1.0,,RD-01702,96
+1076741839,Keshav Marg,Keshav Marg,1.0,,RD-02028,96
+1076741839,Keshav Marg,Keshav Marg,1.0,,RD-01702,96
+44923693,Khari Baoli Road,Khari Bawali Road,0.87,,RD-01559,74
+77004699,Khudiram Bose Marg,Khudi Ram Bose Marg from Chilla Chowk to block No. 15 Trilokpuri.,0.96,,RD-01729,197
+77004704,Khudiram Bose Marg,Khudi Ram Bose Marg from Chilla Chowk to block No. 15 Trilokpuri.,0.96,,RD-01729,197
+548824584,Khudiram Bose Marg,Khudi Ram Bose Marg from Chilla Chowk to block No. 15 Trilokpuri.,0.96,,RD-01729,197
+548824585,Khudiram Bose Marg,Khudi Ram Bose Marg from Chilla Chowk to block No. 15 Trilokpuri.,0.96,,RD-01729,197
+953616602,Khudiram Bose Marg,Khudi Ram Bose Marg from Chilla Chowk to block No. 15 Trilokpuri.,0.96,,RD-01729,197
+953616603,Khudiram Bose Marg,Khudi Ram Bose Marg from Chilla Chowk to block No. 15 Trilokpuri.,0.96,,RD-01729,197
+1101506557,Khudiram Bose Marg,Khudi Ram Bose Marg from Chilla Chowk to block No. 15 Trilokpuri.,0.96,,RD-01729,197
+1186676444,Khudiram Bose Marg,Khudi Ram Bose Marg from Chilla Chowk to block No. 15 Trilokpuri.,0.96,,RD-01729,197
+1431885666,Khudiram Bose Marg,Khudi Ram Bose Marg from Chilla Chowk to block No. 15 Trilokpuri.,0.96,,RD-01729,197
+1463242688,Khudiram Bose Marg,Khudi Ram Bose Marg from Chilla Chowk to block No. 15 Trilokpuri.,0.96,,RD-01729,197
+1518783165,Khudiram Bose Marg,Khudi Ram Bose Marg from Chilla Chowk to block No. 15 Trilokpuri.,0.96,,RD-01729,197
+76849171,Kotla Road,Kotla Road from Trilokpuri Police Station to Khichirpur Bus Stand,1.0,,RD-00379,197
 44316350,Lala Lajpat Rai Path,Lala Lajpat Rai Marg,1.0,,RD-00969,144
+44316350,Lala Lajpat Rai Path,Lala Lajpat Rai Marg,1.0,,RD-01900,144
 202800230,Lala Lajpat Rai Path,Lala Lajpat Rai Marg,1.0,,RD-00969,144
+202800230,Lala Lajpat Rai Path,Lala Lajpat Rai Marg,1.0,,RD-01900,144
 24563338,Lala Lajpat Rai Path,Lala Lajpat Rai Marg,1.0,,RD-00969,145
+24563338,Lala Lajpat Rai Path,Lala Lajpat Rai Marg,1.0,,RD-01900,145
 77349533,Lala Lajpat Rai Path,Lala Lajpat Rai Marg,1.0,,RD-00969,145
+77349533,Lala Lajpat Rai Path,Lala Lajpat Rai Marg,1.0,,RD-01900,145
 169421698,Lala Lajpat Rai Path,Lala Lajpat Rai Marg,1.0,,RD-00969,145
+169421698,Lala Lajpat Rai Path,Lala Lajpat Rai Marg,1.0,,RD-01900,145
 169421732,Lala Lajpat Rai Path,Lala Lajpat Rai Marg,1.0,,RD-00969,145
+169421732,Lala Lajpat Rai Path,Lala Lajpat Rai Marg,1.0,,RD-01900,145
 555242577,Lala Lajpat Rai Path,Lala Lajpat Rai Marg,1.0,,RD-00969,145
+555242577,Lala Lajpat Rai Path,Lala Lajpat Rai Marg,1.0,,RD-01900,145
 1312784812,Lala Lajpat Rai Path,Lala Lajpat Rai Marg,1.0,,RD-00969,145
+1312784812,Lala Lajpat Rai Path,Lala Lajpat Rai Marg,1.0,,RD-01900,145
 44316350,Lala Lajpat Rai Path,Lala Lajpat Rai Marg to Raja Dheer Sen Marg (Block E & F),1.0,,RD-00962,144
 202800230,Lala Lajpat Rai Path,Lala Lajpat Rai Marg to Raja Dheer Sen Marg (Block E & F),1.0,,RD-00962,144
 24563338,Lala Lajpat Rai Path,Lala Lajpat Rai Marg to Raja Dheer Sen Marg (Block E & F),1.0,,RD-00962,145
@@ -77,6 +334,22 @@ osm_way_id,osm_name,pwd_name,score,confirmed,pwd_road_id,ward_no
 169421732,Lala Lajpat Rai Path,Lala Lajpat Rai Marg to Raja Dheer Sen Marg (Block E & F),1.0,,RD-00962,145
 555242577,Lala Lajpat Rai Path,Lala Lajpat Rai Marg to Raja Dheer Sen Marg (Block E & F),1.0,,RD-00962,145
 1312784812,Lala Lajpat Rai Path,Lala Lajpat Rai Marg to Raja Dheer Sen Marg (Block E & F),1.0,,RD-00962,145
+31058505,Link Road,Link Road,1.0,,RD-00966,82
+31058505,Link Road,Link Road,1.0,,RD-01247,82
+293523191,Link Road,Link Road,1.0,,RD-00966,82
+293523191,Link Road,Link Road,1.0,,RD-01247,82
+31058505,Link Road,Link Road (Connection Road),1.0,,RD-01225,82
+293523191,Link Road,Link Road (Connection Road),1.0,,RD-01225,82
+31058505,Link Road,Link Road (G.T. Road to Vivek Vihar ITI),1.0,,RD-01453,82
+293523191,Link Road,Link Road (G.T. Road to Vivek Vihar ITI),1.0,,RD-01453,82
+31058505,Link Road,Link Road (east Moti Bagh),1.0,,RD-01324,82
+293523191,Link Road,Link Road (east Moti Bagh),1.0,,RD-01324,82
+31058505,Link Road,Link Road(Leelawati School Road),1.0,,RD-01911,82
+293523191,Link Road,Link Road(Leelawati School Road),1.0,,RD-01911,82
+31058505,Link Road,Link road from Hanuman Mandir to Pocket 10B gate Jasola,1.0,,RD-02266,82
+293523191,Link Road,Link road from Hanuman Mandir to Pocket 10B gate Jasola,1.0,,RD-02266,82
+31058505,Link Road,Link road from sai mandir beside MCD Park to Corner point to sec-7,1.0,,RD-02262,82
+293523191,Link Road,Link road from sai mandir beside MCD Park to Corner point to sec-7,1.0,,RD-02262,82
 24563336,Lodhi Road,Lodhi Road Indian Habitat Centre To Lodhi Flyover,1.0,,RD-01365,145
 561759718,Lodhi Road,Lodhi Road Indian Habitat Centre To Lodhi Flyover,1.0,,RD-01365,145
 585446272,Lodhi Road,Lodhi Road Indian Habitat Centre To Lodhi Flyover,1.0,,RD-01365,145
@@ -85,6 +358,16 @@ osm_way_id,osm_name,pwd_name,score,confirmed,pwd_road_id,ward_no
 678397107,Lodhi Road,Lodhi Road Indian Habitat Centre To Lodhi Flyover,1.0,,RD-01365,145
 678397108,Lodhi Road,Lodhi Road Indian Habitat Centre To Lodhi Flyover,1.0,,RD-01365,145
 1187268506,Lodhi Road,Lodhi Road Indian Habitat Centre To Lodhi Flyover,1.0,,RD-01365,145
+77617169,Lothiyan Road,Lothian Road,0.93,,RD-01549,74
+77619344,Lothiyan Road,Lothian Road,0.93,,RD-01549,74
+604050023,Lothiyan Road,Lothian Road,0.93,,RD-01549,74
+658051950,Lothiyan Road,Lothian Road,0.93,,RD-01549,74
+658051951,Lothiyan Road,Lothian Road,0.93,,RD-01549,74
+658051952,Lothiyan Road,Lothian Road,0.93,,RD-01549,74
+658051953,Lothiyan Road,Lothian Road,0.93,,RD-01549,74
+982712808,Lothiyan Road,Lothian Road,0.93,,RD-01549,74
+1125152471,Lothiyan Road,Lothian Road,0.93,,RD-01549,74
+1472553264,Lothiyan Road,Lothian Road,0.93,,RD-01549,74
 77349537,MP Road,M.P Road,1.0,,RD-00483,187
 80508233,MP Road,M.P Road,1.0,,RD-00483,187
 176159973,MP Road,M.P Road,1.0,,RD-00483,187
@@ -101,7 +384,429 @@ osm_way_id,osm_name,pwd_name,score,confirmed,pwd_road_id,ward_no
 1182431275,Maharaja Agarsen Road,Maharaja Agarsain Marg,0.91,,RD-00957,187
 1236878308,Maharaja Agarsen Road,Maharaja Agarsain Marg,0.91,,RD-00957,187
 1236878309,Maharaja Agarsen Road,Maharaja Agarsain Marg,0.91,,RD-00957,187
+78474980,Maharaja Agrasen Marg,Maharaja Agarsen Marg  from Ravi Das Marg to Maa Anandmai Marg.,0.94,,RD-00599,57
+78475008,Maharaja Agrasen Marg,Maharaja Agarsen Marg  from Ravi Das Marg to Maa Anandmai Marg.,0.94,,RD-00599,57
+1430836093,Maharaja Agrasen Marg,Maharaja Agarsen Marg  from Ravi Das Marg to Maa Anandmai Marg.,0.94,,RD-00599,57
+173133317,Maharaja Agarsen Road,Maharaja Agarsen Marg  from Ravi Das Marg to Maa Anandmai Marg.,1.0,,RD-00599,187
+704739958,Maharaja Agarsen Road,Maharaja Agarsen Marg  from Ravi Das Marg to Maa Anandmai Marg.,1.0,,RD-00599,187
+1182431275,Maharaja Agarsen Road,Maharaja Agarsen Marg  from Ravi Das Marg to Maa Anandmai Marg.,1.0,,RD-00599,187
+1236878308,Maharaja Agarsen Road,Maharaja Agarsen Marg  from Ravi Das Marg to Maa Anandmai Marg.,1.0,,RD-00599,187
+1236878309,Maharaja Agarsen Road,Maharaja Agarsen Marg  from Ravi Das Marg to Maa Anandmai Marg.,1.0,,RD-00599,187
+78474980,Maharaja Agrasen Marg,Maharaja Agarsen Road,0.94,,RD-01335,57
+78475008,Maharaja Agrasen Marg,Maharaja Agarsen Road,0.94,,RD-01335,57
+1430836093,Maharaja Agrasen Marg,Maharaja Agarsen Road,0.94,,RD-01335,57
+173133317,Maharaja Agarsen Road,Maharaja Agarsen Road,1.0,,RD-01335,187
+704739958,Maharaja Agarsen Road,Maharaja Agarsen Road,1.0,,RD-01335,187
+1182431275,Maharaja Agarsen Road,Maharaja Agarsen Road,1.0,,RD-01335,187
+1236878308,Maharaja Agarsen Road,Maharaja Agarsen Road,1.0,,RD-01335,187
+1236878309,Maharaja Agarsen Road,Maharaja Agarsen Road,1.0,,RD-01335,187
+78474980,Maharaja Agrasen Marg,Maharaja Aggarsen Marg ( Road No. 42-A),0.91,,RD-01575,57
+78475008,Maharaja Agrasen Marg,Maharaja Aggarsen Marg ( Road No. 42-A),0.91,,RD-01575,57
+1430836093,Maharaja Agrasen Marg,Maharaja Aggarsen Marg ( Road No. 42-A),0.91,,RD-01575,57
+173133317,Maharaja Agarsen Road,Maharaja Aggarsen Marg ( Road No. 42-A),0.97,,RD-01575,187
+704739958,Maharaja Agarsen Road,Maharaja Aggarsen Marg ( Road No. 42-A),0.97,,RD-01575,187
+1182431275,Maharaja Agarsen Road,Maharaja Aggarsen Marg ( Road No. 42-A),0.97,,RD-01575,187
+1236878308,Maharaja Agarsen Road,Maharaja Aggarsen Marg ( Road No. 42-A),0.97,,RD-01575,187
+1236878309,Maharaja Agarsen Road,Maharaja Aggarsen Marg ( Road No. 42-A),0.97,,RD-01575,187
+291872454,Maharishi Dayanand Marg,Maharishi Dayanand Marg,1.0,,RD-01341,96
+1182008746,Maharishi Dayanand Marg,Maharishi Dayanand Marg,1.0,,RD-01341,96
+1250763747,Maharishi Dayanand Marg,Maharishi Dayanand Marg,1.0,,RD-01341,96
+1250763748,Maharishi Dayanand Marg,Maharishi Dayanand Marg,1.0,,RD-01341,96
+1251020202,Maharishi Dayanand Marg,Maharishi Dayanand Marg,1.0,,RD-01341,96
+1251021911,Maharishi Dayanand Marg,Maharishi Dayanand Marg,1.0,,RD-01341,96
+1251022254,Maharishi Dayanand Marg,Maharishi Dayanand Marg,1.0,,RD-01341,96
+1251024540,Maharishi Dayanand Marg,Maharishi Dayanand Marg,1.0,,RD-01341,96
+77766235,Mahatma Gandhi Road,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,57
+1510332181,Mahatma Gandhi Road,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,57
+5873630,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+36807194,Mahatma Gandhi Road,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+38699434,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+70214104,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+77617232,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+77629911,Mahatma Gandhi Road,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+175800210,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+189610307,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+189610310,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+202762525,Mahatma Gandhi Road,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+202830264,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+297086687,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+395885025,Mahatma Gandhi Road,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+615472620,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+679552311,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+679552314,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+1324343885,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+1324343886,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+1413413917,Mahatma Gandhi Road,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+1413449425,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+1499142541,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+1499142542,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,73
+77617250,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,74
+175800212,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,74
+175800233,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,74
+320354820,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,74
+395885023,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,74
+870450047,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,74
+1275187235,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,74
+1287276618,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,74
+1287276619,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,74
+77862392,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,96
+77862398,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,96
+77862411,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,96
+619116050,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,96
+619116074,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,96
+1285857339,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,96
+1488543569,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,96
+77862370,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,139
+665150669,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,139
+1454403276,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,139
+1454403277,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,139
+39013523,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,143
+70258955,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,143
+70258963,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,143
+70258965,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,143
+77349469,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,143
+77349483,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,143
+77349489,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,143
+77349510,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,143
+170767287,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,143
+555197196,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,143
+581239050,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,143
+657413479,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,143
+984806477,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,143
+985796729,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,143
+985796730,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,143
+1491586818,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,143
+37751255,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,144
+312031901,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,144
+566680388,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,144
+584241795,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,144
+586156365,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,144
+586156366,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,144
+28412404,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,145
+44316341,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,145
+44316342,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,145
+44316344,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,145
+44316346,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,145
+561759724,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,145
+562340224,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,145
+563679826,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,145
+563679829,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,145
+565347502,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,145
+565938869,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,145
+590522605,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,145
+759020451,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,145
+28412397,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,152
+555197199,Mahatma Gandhi Marg,Mahatma Gandhi Marg (Ring road) from Raja Garden Chowk to Mayapuri Chowk,1.0,,RD-00796,187
+77766235,Mahatma Gandhi Road,Mahatma Gandhi Road,1.0,,RD-01809,57
+1510332181,Mahatma Gandhi Road,Mahatma Gandhi Road,1.0,,RD-01809,57
+5873630,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,73
+36807194,Mahatma Gandhi Road,Mahatma Gandhi Road,1.0,,RD-01809,73
+38699434,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,73
+70214104,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,73
+77617232,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,73
+77629911,Mahatma Gandhi Road,Mahatma Gandhi Road,1.0,,RD-01809,73
+175800210,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,73
+189610307,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,73
+189610310,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,73
+202762525,Mahatma Gandhi Road,Mahatma Gandhi Road,1.0,,RD-01809,73
+202830264,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,73
+297086687,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,73
+395885025,Mahatma Gandhi Road,Mahatma Gandhi Road,1.0,,RD-01809,73
+615472620,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,73
+679552311,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,73
+679552314,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,73
+1324343885,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,73
+1324343886,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,73
+1413413917,Mahatma Gandhi Road,Mahatma Gandhi Road,1.0,,RD-01809,73
+1413449425,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,73
+1499142541,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,73
+1499142542,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,73
+77617250,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,74
+175800212,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,74
+175800233,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,74
+320354820,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,74
+395885023,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,74
+870450047,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,74
+1275187235,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,74
+1287276618,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,74
+1287276619,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,74
+77862392,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,96
+77862398,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,96
+77862411,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,96
+619116050,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,96
+619116074,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,96
+1285857339,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,96
+1488543569,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,96
+77862370,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,139
+665150669,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,139
+1454403276,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,139
+1454403277,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,139
+39013523,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,143
+70258955,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,143
+70258963,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,143
+70258965,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,143
+77349469,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,143
+77349483,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,143
+77349489,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,143
+77349510,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,143
+170767287,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,143
+555197196,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,143
+581239050,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,143
+657413479,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,143
+984806477,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,143
+985796729,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,143
+985796730,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,143
+1491586818,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,143
+37751255,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,144
+312031901,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,144
+566680388,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,144
+584241795,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,144
+586156365,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,144
+586156366,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,144
+28412404,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,145
+44316341,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,145
+44316342,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,145
+44316344,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,145
+44316346,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,145
+561759724,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,145
+562340224,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,145
+563679826,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,145
+563679829,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,145
+565347502,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,145
+565938869,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,145
+590522605,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,145
+759020451,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,145
+28412397,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,152
+555197199,Mahatma Gandhi Marg,Mahatma Gandhi Road,1.0,,RD-01809,187
+77766235,Mahatma Gandhi Road,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,57
+1510332181,Mahatma Gandhi Road,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,57
+5873630,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+36807194,Mahatma Gandhi Road,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+38699434,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+70214104,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+77617232,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+77629911,Mahatma Gandhi Road,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+175800210,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+189610307,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+189610310,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+202762525,Mahatma Gandhi Road,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+202830264,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+297086687,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+395885025,Mahatma Gandhi Road,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+615472620,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+679552311,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+679552314,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+1324343885,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+1324343886,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+1413413917,Mahatma Gandhi Road,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+1413449425,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+1499142541,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+1499142542,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,73
+77617250,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,74
+175800212,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,74
+175800233,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,74
+320354820,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,74
+395885023,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,74
+870450047,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,74
+1275187235,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,74
+1287276618,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,74
+1287276619,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,74
+77862392,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,96
+77862398,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,96
+77862411,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,96
+619116050,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,96
+619116074,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,96
+1285857339,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,96
+1488543569,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,96
+77862370,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,139
+665150669,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,139
+1454403276,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,139
+1454403277,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,139
+39013523,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,143
+70258955,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,143
+70258963,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,143
+70258965,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,143
+77349469,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,143
+77349483,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,143
+77349489,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,143
+77349510,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,143
+170767287,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,143
+555197196,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,143
+581239050,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,143
+657413479,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,143
+984806477,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,143
+985796729,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,143
+985796730,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,143
+1491586818,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,143
+37751255,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,144
+312031901,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,144
+566680388,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,144
+584241795,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,144
+586156365,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,144
+586156366,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,144
+28412404,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,145
+44316341,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,145
+44316342,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,145
+44316344,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,145
+44316346,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,145
+561759724,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,145
+562340224,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,145
+563679826,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,145
+563679829,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,145
+565347502,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,145
+565938869,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,145
+590522605,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,145
+759020451,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,145
+28412397,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,152
+555197199,Mahatma Gandhi Marg,Mahatma Gandhi Road  (Ring Road),1.0,,RD-02189,187
+77766235,Mahatma Gandhi Road,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,57
+1510332181,Mahatma Gandhi Road,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,57
+5873630,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+36807194,Mahatma Gandhi Road,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+38699434,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+70214104,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+77617232,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+77629911,Mahatma Gandhi Road,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+175800210,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+189610307,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+189610310,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+202762525,Mahatma Gandhi Road,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+202830264,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+297086687,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+395885025,Mahatma Gandhi Road,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+615472620,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+679552311,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+679552314,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+1324343885,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+1324343886,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+1413413917,Mahatma Gandhi Road,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+1413449425,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+1499142541,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+1499142542,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,73
+77617250,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,74
+175800212,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,74
+175800233,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,74
+320354820,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,74
+395885023,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,74
+870450047,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,74
+1275187235,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,74
+1287276618,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,74
+1287276619,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,74
+77862392,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,96
+77862398,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,96
+77862411,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,96
+619116050,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,96
+619116074,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,96
+1285857339,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,96
+1488543569,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,96
+77862370,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,139
+665150669,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,139
+1454403276,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,139
+1454403277,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,139
+39013523,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,143
+70258955,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,143
+70258963,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,143
+70258965,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,143
+77349469,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,143
+77349483,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,143
+77349489,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,143
+77349510,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,143
+170767287,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,143
+555197196,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,143
+581239050,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,143
+657413479,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,143
+984806477,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,143
+985796729,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,143
+985796730,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,143
+1491586818,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,143
+37751255,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,144
+312031901,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,144
+566680388,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,144
+584241795,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,144
+586156365,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,144
+586156366,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,144
+28412404,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,145
+44316341,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,145
+44316342,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,145
+44316344,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,145
+44316346,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,145
+561759724,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,145
+562340224,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,145
+563679826,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,145
+563679829,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,145
+565347502,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,145
+565938869,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,145
+590522605,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,145
+759020451,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,145
+28412397,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,152
+555197199,Mahatma Gandhi Marg,Mahatma Gandhi Road (Ring Road),1.0,,RD-01407,187
+291151607,Mahatma Hansraj Marg,Mahatma Hans Raj Marg,0.97,,RD-01690,73
+267447262,Main Bazar Road,Main Bazar Road,1.0,,RD-00426,82
+1343796255,Main Bazar Road,Main Bazar Road,1.0,,RD-00426,82
+275868704,Major Somnath Marg,Major Som Nath Marg,0.96,,RD-00338,152
+554554046,Major Somnath Marg,Major Som Nath Marg,0.96,,RD-00338,152
+554554047,Major Somnath Marg,Major Som Nath Marg,0.96,,RD-00338,152
+554554048,Major Somnath Marg,Major Som Nath Marg,0.96,,RD-00338,152
+554554049,Major Somnath Marg,Major Som Nath Marg,0.96,,RD-00338,152
+554554050,Major Somnath Marg,Major Som Nath Marg,0.96,,RD-00338,152
+555517574,Major Somnath Marg,Major Som Nath Marg,0.96,,RD-00338,152
+563714785,Major Somnath Marg,Major Som Nath Marg,0.96,,RD-00338,152
+567831182,Major Somnath Marg,Major Som Nath Marg,0.96,,RD-00338,152
+567831183,Major Somnath Marg,Major Som Nath Marg,0.96,,RD-00338,152
+567831189,Major Somnath Marg,Major Som Nath Marg,0.96,,RD-00338,152
+567831202,Major Somnath Marg,Major Som Nath Marg,0.96,,RD-00338,152
+567831203,Major Somnath Marg,Major Som Nath Marg,0.96,,RD-00338,152
+567831205,Major Somnath Marg,Major Som Nath Marg,0.96,,RD-00338,152
+567831206,Major Somnath Marg,Major Som Nath Marg,0.96,,RD-00338,152
+567831212,Major Somnath Marg,Major Som Nath Marg,0.96,,RD-00338,152
+690037614,Major Somnath Marg,Major Som Nath Marg,0.96,,RD-00338,152
+1145573500,Major Somnath Marg,Major Som Nath Marg,0.96,,RD-00338,152
+1145573504,Major Somnath Marg,Major Som Nath Marg,0.96,,RD-00338,152
+1145573505,Major Somnath Marg,Major Som Nath Marg,0.96,,RD-00338,152
+1250279803,Major Somnath Marg,Major Som Nath Marg,0.96,,RD-00338,152
+235103616,Major Sudesh Marg,Major Sudesh Marg,1.0,,RD-01566,96
+1043320373,Major Sudesh Marg,Major Sudesh Marg,1.0,,RD-01566,96
+1043320376,Major Sudesh Marg,Major Sudesh Marg,1.0,,RD-01566,96
+1043320377,Major Sudesh Marg,Major Sudesh Marg,1.0,,RD-01566,96
+1043320379,Major Sudesh Marg,Major Sudesh Marg,1.0,,RD-01566,96
+1043320385,Major Sudesh Marg,Major Sudesh Marg,1.0,,RD-01566,96
+1043320386,Major Sudesh Marg,Major Sudesh Marg,1.0,,RD-01566,96
+1153805891,Major Sudesh Marg,Major Sudesh Marg,1.0,,RD-01566,96
+1251026899,Major Sudesh Marg,Major Sudesh Marg,1.0,,RD-01566,96
+1539685720,Major Sudesh Marg,Major Sudesh Marg,1.0,,RD-01566,96
+173133387,Mall Road,Mall Road,1.0,,RD-01370,187
+173133387,Mall Road,Mall Road,1.0,,RD-01157,187
+423619202,Mandir Marg,Mandi Road,0.91,,RD-00548,18
+31056646,Mandir Marg,Mandi Road,0.91,,RD-00548,82
+590609973,Mandir Marg,Mandi Road,0.91,,RD-00548,82
+423619202,Mandir Marg,Mandir Marg,1.0,,RD-00568,18
+31056646,Mandir Marg,Mandir Marg,1.0,,RD-00568,82
+590609973,Mandir Marg,Mandir Marg,1.0,,RD-00568,82
 1469358539,Mata Mandir Road,Mata Mandir Road,1.0,,RD-00486,187
+77349488,Mathura Road,Mathura Road,1.0,,RD-02225,143
+584241782,Mathura Road,Mathura Road,1.0,,RD-02225,143
+730237457,Mathura Road,Mathura Road,1.0,,RD-02225,143
+77339657,Mathura Road,Mathura Road,1.0,,RD-02225,144
+202645529,Mathura Road,Mathura Road,1.0,,RD-02225,144
+584241794,Mathura Road,Mathura Road,1.0,,RD-02225,144
+760525681,Mathura Road,Mathura Road,1.0,,RD-02225,144
+1090402162,Mathura Road,Mathura Road,1.0,,RD-02225,144
+170455027,Mathura Road,Mathura Road,1.0,,RD-02225,180
+170455204,Mathura Road,Mathura Road,1.0,,RD-02225,180
+702121786,Mathura Road,Mathura Road,1.0,,RD-02225,180
+1164727874,Mathura Road,Mathura Road,1.0,,RD-02225,180
+1184653690,Mathura Road,Mathura Road,1.0,,RD-02225,180
+1224002859,Mathura Road,Mathura Road,1.0,,RD-02225,180
+1224002860,Mathura Road,Mathura Road,1.0,,RD-02225,180
+1313016354,Mathura Road,Mathura Road,1.0,,RD-02225,180
+1550504115,Mathura Road,Mathura Road,1.0,,RD-02225,180
+1550504116,Mathura Road,Mathura Road,1.0,,RD-02225,180
+1550504120,Mathura Road,Mathura Road,1.0,,RD-02225,180
+258237309,Mathura Road,Mathura Road,1.0,,RD-02225,186
+1078707438,Mathura Road,Mathura Road,1.0,,RD-02225,186
+202645528,Mathura Road,Mathura Road,1.0,,RD-02225,187
+258237313,Mathura Road,Mathura Road,1.0,,RD-02225,187
+1078707437,Mathura Road,Mathura Road,1.0,,RD-02225,187
 77349488,Mathura Road,Mathura Road DPS to Ashram Chowk i/c Oberoi Flyover,1.0,,RD-01391,143
 584241782,Mathura Road,Mathura Road DPS to Ashram Chowk i/c Oberoi Flyover,1.0,,RD-01391,143
 730237457,Mathura Road,Mathura Road DPS to Ashram Chowk i/c Oberoi Flyover,1.0,,RD-01391,143
@@ -161,6 +866,13 @@ osm_way_id,osm_name,pwd_name,score,confirmed,pwd_road_id,ward_no
 557760418,Moolchand Flyover,Moolchand Flyover Lala Lajpat Rai Marg,1.0,,RD-01270,145
 1312775637,Moolchand Flyover,Moolchand Flyover Lala Lajpat Rai Marg,1.0,,RD-01270,145
 1312775640,Moolchand Flyover,Moolchand Flyover Lala Lajpat Rai Marg,1.0,,RD-01270,145
+77619341,Mori Gate Road,Mori Gate Road,1.0,,RD-01562,74
+77619348,Mori Gate Road,Mori Gate Road,1.0,,RD-01562,74
+80940700,Mori Gate Road,Mori Gate Road,1.0,,RD-01562,74
+80940703,Mori Gate Road,Mori Gate Road,1.0,,RD-01562,74
+669014870,Mori Gate Road,Mori Gate Road,1.0,,RD-01562,74
+669014871,Mori Gate Road,Mori Gate Road,1.0,,RD-01562,74
+1430790174,Mori Gate Road,Mori Gate Road,1.0,,RD-01562,74
 77349488,Mathura Road,NH-2 Mathura Road,1.0,,RD-00961,143
 584241782,Mathura Road,NH-2 Mathura Road,1.0,,RD-00961,143
 730237457,Mathura Road,NH-2 Mathura Road,1.0,,RD-00961,143
@@ -185,6 +897,355 @@ osm_way_id,osm_name,pwd_name,score,confirmed,pwd_road_id,ward_no
 202645528,Mathura Road,NH-2 Mathura Road,1.0,,RD-00961,187
 258237313,Mathura Road,NH-2 Mathura Road,1.0,,RD-00961,187
 1078707437,Mathura Road,NH-2 Mathura Road,1.0,,RD-00961,187
+164823272,Najafgarh Bahadurgarh Road,Najafgarh Bahadurgarh Road,1.0,,RD-01231,127
+278977032,Najafgarh Bahadurgarh Road,Najafgarh Bahadurgarh Road,1.0,,RD-01231,127
+278977033,Najafgarh Bahadurgarh Road,Najafgarh Bahadurgarh Road,1.0,,RD-01231,127
+314638639,Najafgarh Bahadurgarh Road,Najafgarh Bahadurgarh Road,1.0,,RD-01231,127
+1264448404,Najafgarh Bahadurgarh Road,Najafgarh Bahadurgarh Road,1.0,,RD-01231,127
+1264448405,Najafgarh Bahadurgarh Road,Najafgarh Bahadurgarh Road,1.0,,RD-01231,127
+1271396045,Najafgarh Bahadurgarh Road,Najafgarh Bahadurgarh Road,1.0,,RD-01231,127
+1271396046,Najafgarh Bahadurgarh Road,Najafgarh Bahadurgarh Road,1.0,,RD-01231,127
+1271396047,Najafgarh Bahadurgarh Road,Najafgarh Bahadurgarh Road,1.0,,RD-01231,127
+1271396850,Najafgarh Bahadurgarh Road,Najafgarh Bahadurgarh Road,1.0,,RD-01231,127
+1271396851,Najafgarh Bahadurgarh Road,Najafgarh Bahadurgarh Road,1.0,,RD-01231,127
+1272740220,Najafgarh Bahadurgarh Road,Najafgarh Bahadurgarh Road,1.0,,RD-01231,127
+1306294894,Najafgarh Bahadurgarh Road,Najafgarh Bahadurgarh Road,1.0,,RD-01231,127
+1306294895,Najafgarh Bahadurgarh Road,Najafgarh Bahadurgarh Road,1.0,,RD-01231,127
+1306565369,Najafgarh Bahadurgarh Road,Najafgarh Bahadurgarh Road,1.0,,RD-01231,127
+1511891099,Najafgarh Bahadurgarh Road,Najafgarh Bahadurgarh Road,1.0,,RD-01231,127
+1511891100,Najafgarh Bahadurgarh Road,Najafgarh Bahadurgarh Road,1.0,,RD-01231,127
+1511891101,Najafgarh Bahadurgarh Road,Najafgarh Bahadurgarh Road,1.0,,RD-01231,127
+1511891103,Najafgarh Bahadurgarh Road,Najafgarh Bahadurgarh Road,1.0,,RD-01231,127
+314638640,Najafgarh Dhansa Road,Najafgarh Dhansa Road,1.0,,RD-01227,127
+314638641,Najafgarh Dhansa Road,Najafgarh Dhansa Road,1.0,,RD-01227,127
+1076797460,Najafgarh Dhansa Road,Najafgarh Dhansa Road,1.0,,RD-01227,127
+1162641619,Najafgarh Dhansa Road,Najafgarh Dhansa Road,1.0,,RD-01227,127
+1162641620,Najafgarh Dhansa Road,Najafgarh Dhansa Road,1.0,,RD-01227,127
+1224760275,Najafgarh Dhansa Road,Najafgarh Dhansa Road,1.0,,RD-01227,127
+206138918,Narela - Bawana Road,Narela Bawana Road From CRPF Camp to Singhu Border,1.0,,RD-01832,30
+206138918,Narela - Bawana Road,Narela bawana Road to Holambi Kalan Railway Crossing,1.0,,RD-02122,30
+264615171,Naya Bazar Road,Naya Bazar Road,1.0,,RD-01561,74
+190278390,Nelson Mandela Marg,Nelson Mandela Marg (Road No.17),1.0,,RD-00021,133
+190278391,Nelson Mandela Marg,Nelson Mandela Marg (Road No.17),1.0,,RD-00021,133
+533569872,Nelson Mandela Marg,Nelson Mandela Marg (Road No.17),1.0,,RD-00021,133
+533569873,Nelson Mandela Marg,Nelson Mandela Marg (Road No.17),1.0,,RD-00021,133
+1425985949,Nelson Mandela Marg,Nelson Mandela Marg (Road No.17),1.0,,RD-00021,133
+560463182,Nelson Mandela Marg,Nelson Mandela Marg (Road No.17),1.0,,RD-00021,152
+590609974,Nelson Mandela Marg,Nelson Mandela Marg (Road No.17),1.0,,RD-00021,152
+37751252,Nelson Mandela Marg,Nelson Mandela Marg (Road No.17),1.0,,RD-00021,156
+312126319,Nelson Mandela Marg,Nelson Mandela Marg (Road No.17),1.0,,RD-00021,156
+586897217,Nelson Mandela Marg,Nelson Mandela Marg (Road No.17),1.0,,RD-00021,156
+590609977,Nelson Mandela Marg,Nelson Mandela Marg (Road No.17),1.0,,RD-00021,156
+1429564104,New Rohtak Road,New Rohtak Road,1.0,,RD-00435,82
+1559869158,New Rohtak Road,New Rohtak Road,1.0,,RD-00435,82
+1559869162,New Rohtak Road,New Rohtak Road,1.0,,RD-00435,82
+1429564104,New Rohtak Road,New Rohtak Road (Guru Govind Singh Marg),1.0,,RD-00208,82
+1559869158,New Rohtak Road,New Rohtak Road (Guru Govind Singh Marg),1.0,,RD-00208,82
+1559869162,New Rohtak Road,New Rohtak Road (Guru Govind Singh Marg),1.0,,RD-00208,82
+605958426,Nishadraj Marg,Nishad Raj Marg (Shantivan Crossing to NS Marg),0.95,,RD-02239,74
+870450048,Nishadraj Marg,Nishad Raj Marg (Shantivan Crossing to NS Marg),0.95,,RD-02239,74
+287653320,Fourth Avenue Road,North Avenue Road,0.88,,RD-00810,145
+722082959,Fourth Avenue Road,North Avenue Road,0.88,,RD-00810,145
+722082960,Fourth Avenue Road,North Avenue Road,0.88,,RD-00810,145
+766036524,Fourth Avenue Road,North Avenue Road,0.88,,RD-00810,145
+766036529,Fourth Avenue Road,North Avenue Road,0.88,,RD-00810,145
+1187268507,Fourth Avenue Road,North Avenue Road,0.88,,RD-00810,145
+1187268510,Fourth Avenue Road,North Avenue Road,0.88,,RD-00810,145
+1187268511,Fourth Avenue Road,North Avenue Road,0.88,,RD-00810,145
+1187268518,Fourth Avenue Road,North Avenue Road,0.88,,RD-00810,145
+1187268521,Fourth Avenue Road,North Avenue Road,0.88,,RD-00810,145
+235103596,OP Bharti Marg,OP Bharti Marg,1.0,,RD-02127,139
+1075074565,O.P. Bharti Marg,OP Bharti Marg,1.0,,RD-02127,139
+1469666469,O.P. Bharti Marg,OP Bharti Marg,1.0,,RD-02127,139
+1469666470,O.P. Bharti Marg,OP Bharti Marg,1.0,,RD-02127,139
+77643397,Outer Ring Road,Outer Ring Road,1.0,,RD-00972,57
+77643397,Outer Ring Road,Outer Ring Road,1.0,,RD-00347,57
+77643397,Outer Ring Road,Outer Ring Road,1.0,,RD-02178,57
+77643397,Outer Ring Road,Outer Ring Road,1.0,,RD-02150,57
+77643397,Outer Ring Road,Outer Ring Road,1.0,,RD-02100,57
+77643397,Outer Ring Road,Outer Ring Road,1.0,,RD-01369,57
+77643397,Outer Ring Road,Outer Ring Road,1.0,,RD-01256,57
+77643398,Outer Ring Road,Outer Ring Road,1.0,,RD-00972,57
+77643398,Outer Ring Road,Outer Ring Road,1.0,,RD-00347,57
+77643398,Outer Ring Road,Outer Ring Road,1.0,,RD-02178,57
+77643398,Outer Ring Road,Outer Ring Road,1.0,,RD-02150,57
+77643398,Outer Ring Road,Outer Ring Road,1.0,,RD-02100,57
+77643398,Outer Ring Road,Outer Ring Road,1.0,,RD-01369,57
+77643398,Outer Ring Road,Outer Ring Road,1.0,,RD-01256,57
+519444400,Outer Ring Road,Outer Ring Road,1.0,,RD-00972,57
+519444400,Outer Ring Road,Outer Ring Road,1.0,,RD-00347,57
+519444400,Outer Ring Road,Outer Ring Road,1.0,,RD-02178,57
+519444400,Outer Ring Road,Outer Ring Road,1.0,,RD-02150,57
+519444400,Outer Ring Road,Outer Ring Road,1.0,,RD-02100,57
+519444400,Outer Ring Road,Outer Ring Road,1.0,,RD-01369,57
+519444400,Outer Ring Road,Outer Ring Road,1.0,,RD-01256,57
+519444404,Outer Ring Road,Outer Ring Road,1.0,,RD-00972,57
+519444404,Outer Ring Road,Outer Ring Road,1.0,,RD-00347,57
+519444404,Outer Ring Road,Outer Ring Road,1.0,,RD-02178,57
+519444404,Outer Ring Road,Outer Ring Road,1.0,,RD-02150,57
+519444404,Outer Ring Road,Outer Ring Road,1.0,,RD-02100,57
+519444404,Outer Ring Road,Outer Ring Road,1.0,,RD-01369,57
+519444404,Outer Ring Road,Outer Ring Road,1.0,,RD-01256,57
+1071866715,Outer Ring Road,Outer Ring Road,1.0,,RD-00972,57
+1071866715,Outer Ring Road,Outer Ring Road,1.0,,RD-00347,57
+1071866715,Outer Ring Road,Outer Ring Road,1.0,,RD-02178,57
+1071866715,Outer Ring Road,Outer Ring Road,1.0,,RD-02150,57
+1071866715,Outer Ring Road,Outer Ring Road,1.0,,RD-02100,57
+1071866715,Outer Ring Road,Outer Ring Road,1.0,,RD-01369,57
+1071866715,Outer Ring Road,Outer Ring Road,1.0,,RD-01256,57
+77643397,Outer Ring Road,"Outer Ring Road (Bhera Enclave to Sai Baba Mandir, Paschim Vihar)",1.0,,RD-00242,57
+77643398,Outer Ring Road,"Outer Ring Road (Bhera Enclave to Sai Baba Mandir, Paschim Vihar)",1.0,,RD-00242,57
+519444400,Outer Ring Road,"Outer Ring Road (Bhera Enclave to Sai Baba Mandir, Paschim Vihar)",1.0,,RD-00242,57
+519444404,Outer Ring Road,"Outer Ring Road (Bhera Enclave to Sai Baba Mandir, Paschim Vihar)",1.0,,RD-00242,57
+1071866715,Outer Ring Road,"Outer Ring Road (Bhera Enclave to Sai Baba Mandir, Paschim Vihar)",1.0,,RD-00242,57
+77643397,Outer Ring Road,Outer Ring Road (Dr. Hedgewar Marg)(Badli ROB to Madhuban Chowk),1.0,,RD-00036,57
+77643398,Outer Ring Road,Outer Ring Road (Dr. Hedgewar Marg)(Badli ROB to Madhuban Chowk),1.0,,RD-00036,57
+519444400,Outer Ring Road,Outer Ring Road (Dr. Hedgewar Marg)(Badli ROB to Madhuban Chowk),1.0,,RD-00036,57
+519444404,Outer Ring Road,Outer Ring Road (Dr. Hedgewar Marg)(Badli ROB to Madhuban Chowk),1.0,,RD-00036,57
+1071866715,Outer Ring Road,Outer Ring Road (Dr. Hedgewar Marg)(Badli ROB to Madhuban Chowk),1.0,,RD-00036,57
+77643397,Outer Ring Road,"Outer Ring Road (Meera Bagh to GH-8 Fire Station, Paschim Vihar)",1.0,,RD-00246,57
+77643398,Outer Ring Road,"Outer Ring Road (Meera Bagh to GH-8 Fire Station, Paschim Vihar)",1.0,,RD-00246,57
+519444400,Outer Ring Road,"Outer Ring Road (Meera Bagh to GH-8 Fire Station, Paschim Vihar)",1.0,,RD-00246,57
+519444404,Outer Ring Road,"Outer Ring Road (Meera Bagh to GH-8 Fire Station, Paschim Vihar)",1.0,,RD-00246,57
+1071866715,Outer Ring Road,"Outer Ring Road (Meera Bagh to GH-8 Fire Station, Paschim Vihar)",1.0,,RD-00246,57
+77643397,Outer Ring Road,Outer Ring Road (Najafgarh Drain to Janakpuri District Center),1.0,,RD-00043,57
+77643398,Outer Ring Road,Outer Ring Road (Najafgarh Drain to Janakpuri District Center),1.0,,RD-00043,57
+519444400,Outer Ring Road,Outer Ring Road (Najafgarh Drain to Janakpuri District Center),1.0,,RD-00043,57
+519444404,Outer Ring Road,Outer Ring Road (Najafgarh Drain to Janakpuri District Center),1.0,,RD-00043,57
+1071866715,Outer Ring Road,Outer Ring Road (Najafgarh Drain to Janakpuri District Center),1.0,,RD-00043,57
+77643397,Outer Ring Road,Outer Ring Road from Chandgi Ram Akhara to Wazirabad (Road No. 45),1.0,,RD-02199,57
+77643398,Outer Ring Road,Outer Ring Road from Chandgi Ram Akhara to Wazirabad (Road No. 45),1.0,,RD-02199,57
+519444400,Outer Ring Road,Outer Ring Road from Chandgi Ram Akhara to Wazirabad (Road No. 45),1.0,,RD-02199,57
+519444404,Outer Ring Road,Outer Ring Road from Chandgi Ram Akhara to Wazirabad (Road No. 45),1.0,,RD-02199,57
+1071866715,Outer Ring Road,Outer Ring Road from Chandgi Ram Akhara to Wazirabad (Road No. 45),1.0,,RD-02199,57
+297417148,Pusta Road,PUSA Road,0.89,,RD-00219,18
+31058510,Panchkuian Road,Panchkuiya Road,0.9,,RD-00422,82
+31060395,Panchkuian Road,Panchkuiya Road,0.9,,RD-00422,82
+80926759,Panchkuian Road,Panchkuiya Road,0.9,,RD-00422,82
+492439726,Panchkuian Road,Panchkuiya Road,0.9,,RD-00422,82
+492439727,Panchkuian Road,Panchkuiya Road,0.9,,RD-00422,82
+1450857029,Panchkuian Road,Panchkuiya Road,0.9,,RD-00422,82
+76849297,Patparganj Main Road,Patparganj Main Road from NH-24 to Patparganj Village.,1.0,,RD-00360,197
+1486873328,Patparganj Main Road,Patparganj Main Road from NH-24 to Patparganj Village.,1.0,,RD-00360,197
+175769922,Patparganj Road,Patparganj Road (Madhuban Chowk to Ganesh Chowk),1.0,,RD-00361,197
+570813064,Patparganj Road,Patparganj Road (Madhuban Chowk to Ganesh Chowk),1.0,,RD-00361,197
+1232150614,Patparganj Road,Patparganj Road (Madhuban Chowk to Ganesh Chowk),1.0,,RD-00361,197
+1486873327,Patparganj Road,Patparganj Road (Madhuban Chowk to Ganesh Chowk),1.0,,RD-00361,197
+1486873329,Patparganj Road,Patparganj Road (Madhuban Chowk to Ganesh Chowk),1.0,,RD-00361,197
+1548078191,Patparganj Road,Patparganj Road (Madhuban Chowk to Ganesh Chowk),1.0,,RD-00361,197
+77643328,Power House Road,Power House Road,1.0,,RD-01336,57
+77727872,Power House Road,Power House Road,1.0,,RD-01336,57
+297417148,Pusta Road,Pusta Road (ITO Chungi to Kailash Nagar),1.0,,RD-00613,18
+369852348,pushta Road,Pusta Road (ITO Chungi to Kailash Nagar),0.91,,RD-00613,185
+681827416,W Block Road,R-Block Road (From Divider road  Aggarwal sweet to G.T. Road),0.86,,RD-01469,96
+38116092,L Block Road,R-Block Road (From Divider road  Aggarwal sweet to G.T. Road),0.86,,RD-01469,144
+243378610,Raj Niwas Marg,Rajniwas Marg,0.94,,RD-02195,73
+243378610,Raj Niwas Marg,Rajniwas Marg,0.94,,RD-01738,73
+1381127158,Raj Niwas Marg,Rajniwas Marg,0.94,,RD-02195,73
+1381127158,Raj Niwas Marg,Rajniwas Marg,0.94,,RD-01738,73
+23089145,Rajpur Road,Rajpur Road,1.0,,RD-02196,73
+23089145,Rajpur Road,Rajpur Road,1.0,,RD-01555,73
+1381043617,Rajpur Road,Rajpur Road,1.0,,RD-02196,73
+1381043617,Rajpur Road,Rajpur Road,1.0,,RD-01555,73
+1563098205,Rajpur Road,Rajpur Road,1.0,,RD-02196,73
+1563098205,Rajpur Road,Rajpur Road,1.0,,RD-01555,73
+1563098206,Rajpur Road,Rajpur Road,1.0,,RD-02196,73
+1563098206,Rajpur Road,Rajpur Road,1.0,,RD-01555,73
+38235545,Ram Kumar Marg,Ram Kumar Marg,1.0,,RD-00446,82
+1510441278,Ram Kumar Marg,Ram Kumar Marg,1.0,,RD-00446,82
+464265868,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02243,73
+464265868,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02156,73
+708804796,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02243,73
+708804796,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02156,73
+708804797,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02243,73
+708804797,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02156,73
+708804798,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02243,73
+708804798,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02156,73
+754398386,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02243,73
+754398386,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02156,73
+754398387,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02243,73
+754398387,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02156,73
+754398389,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02243,73
+754398389,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02156,73
+754398390,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02243,73
+754398390,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02156,73
+1272695735,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02243,73
+1272695735,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02156,73
+1272695736,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02243,73
+1272695736,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02156,73
+1272695737,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02243,73
+1272695737,Rani Jhansi Flyover,Rani Jhansi Flyover,1.0,,RD-02156,73
+171505922,Rani Jhansi Road,Rani Jhansi Road,1.0,,RD-00437,73
+585446282,Rani Jhansi Road,Rani Jhansi Road,1.0,,RD-00437,73
+610043969,Rani Jhansi Road,Rani Jhansi Road,1.0,,RD-00437,73
+610043970,Rani Jhansi Road,Rani Jhansi Road,1.0,,RD-00437,73
+754398384,Rani Jhansi Road,Rani Jhansi Road,1.0,,RD-00437,73
+754398388,Rani Jhansi Road,Rani Jhansi Road,1.0,,RD-00437,73
+982296042,Rani Jhansi Road,Rani Jhansi Road,1.0,,RD-00437,73
+982296047,Rani Jhansi Road,Rani Jhansi Road,1.0,,RD-00437,73
+1155810083,Rani Jhansi Road,Rani Jhansi Road,1.0,,RD-00437,73
+1429564108,Rani Jhansi Road,Rani Jhansi Road,1.0,,RD-00437,73
+1429564110,Rani Jhansi Road,Rani Jhansi Road,1.0,,RD-00437,73
+77766232,Rani Jhansi Road,Rani Jhansi Road,1.0,,RD-00437,82
+77885892,Rani Jhansi Road,Rani Jhansi Road,1.0,,RD-00437,82
+77885899,Rani Jhansi Road,Rani Jhansi Road,1.0,,RD-00437,82
+77885905,Rani Jhansi Road,Rani Jhansi Road,1.0,,RD-00437,82
+77885909,Rani Jhansi Road,Rani Jhansi Road,1.0,,RD-00437,82
+1152830611,Rani Jhansi Road,Rani Jhansi Road,1.0,,RD-00437,82
+1463747350,Rani Jhansi Road,Rani Jhansi Road,1.0,,RD-00437,82
+1510441276,Rani Jhansi Road,Rani Jhansi Road,1.0,,RD-00437,82
+1510441279,Rani Jhansi Road,Rani Jhansi Road,1.0,,RD-00437,82
+77364013,Rao Tula Ram Marg,Rao Tula Ram Marg,1.0,,RD-00020,152
+83588398,Rao Tula Ram Marg,Rao Tula Ram Marg,1.0,,RD-00020,152
+555517576,Rao Tula Ram Marg,Rao Tula Ram Marg,1.0,,RD-00020,152
+579768676,Rao Tula Ram Marg,Rao Tula Ram Marg,1.0,,RD-00020,152
+1145573501,Rao Tula Ram Marg,Rao Tula Ram Marg,1.0,,RD-00020,152
+1271885869,Rao Tula Ram Marg,Rao Tula Ram Marg,1.0,,RD-00020,152
+23151088,Ratan Lal Sahdev Marg,Ratan Lal Sahdev Marg to Defance Colony,1.0,,RD-01358,145
+235103451,Ratan Lal Sahdev Marg,Ratan Lal Sahdev Marg to Defance Colony,1.0,,RD-01358,145
+660172540,Ratan Lal Sahdev Marg,Ratan Lal Sahdev Marg to Defance Colony,1.0,,RD-01358,145
+660172542,Ratan Lal Sahdev Marg,Ratan Lal Sahdev Marg to Defance Colony,1.0,,RD-01358,145
+672161238,Ratan Lal Sahdev Marg,Ratan Lal Sahdev Marg to Defance Colony,1.0,,RD-01358,145
+1313200457,Ring Road,Ring Road,1.0,,RD-00003,73
+1313200457,Ring Road,Ring Road,1.0,,RD-02228,73
+1313200457,Ring Road,Ring Road,1.0,,RD-00167,73
+1313200457,Ring Road,Ring Road,1.0,,RD-01291,73
+70220650,Ring Road,Ring Road,1.0,,RD-00003,74
+70220650,Ring Road,Ring Road,1.0,,RD-02228,74
+70220650,Ring Road,Ring Road,1.0,,RD-00167,74
+70220650,Ring Road,Ring Road,1.0,,RD-01291,74
+77617172,Ring Road,Ring Road,1.0,,RD-00003,74
+77617172,Ring Road,Ring Road,1.0,,RD-02228,74
+77617172,Ring Road,Ring Road,1.0,,RD-00167,74
+77617172,Ring Road,Ring Road,1.0,,RD-01291,74
+175769901,Ring Road,Ring Road,1.0,,RD-00003,74
+175769901,Ring Road,Ring Road,1.0,,RD-02228,74
+175769901,Ring Road,Ring Road,1.0,,RD-00167,74
+175769901,Ring Road,Ring Road,1.0,,RD-01291,74
+175800298,Ring Road,Ring Road,1.0,,RD-00003,74
+175800298,Ring Road,Ring Road,1.0,,RD-02228,74
+175800298,Ring Road,Ring Road,1.0,,RD-00167,74
+175800298,Ring Road,Ring Road,1.0,,RD-01291,74
+175803876,Ring Road,Ring Road,1.0,,RD-00003,74
+175803876,Ring Road,Ring Road,1.0,,RD-02228,74
+175803876,Ring Road,Ring Road,1.0,,RD-00167,74
+175803876,Ring Road,Ring Road,1.0,,RD-01291,74
+175803885,Ring Road,Ring Road,1.0,,RD-00003,74
+175803885,Ring Road,Ring Road,1.0,,RD-02228,74
+175803885,Ring Road,Ring Road,1.0,,RD-00167,74
+175803885,Ring Road,Ring Road,1.0,,RD-01291,74
+679552310,Ring Road,Ring Road,1.0,,RD-00003,74
+679552310,Ring Road,Ring Road,1.0,,RD-02228,74
+679552310,Ring Road,Ring Road,1.0,,RD-00167,74
+679552310,Ring Road,Ring Road,1.0,,RD-01291,74
+1070839796,Ring Road,Ring Road,1.0,,RD-00003,74
+1070839796,Ring Road,Ring Road,1.0,,RD-02228,74
+1070839796,Ring Road,Ring Road,1.0,,RD-00167,74
+1070839796,Ring Road,Ring Road,1.0,,RD-01291,74
+1070839797,Ring Road,Ring Road,1.0,,RD-00003,74
+1070839797,Ring Road,Ring Road,1.0,,RD-02228,74
+1070839797,Ring Road,Ring Road,1.0,,RD-00167,74
+1070839797,Ring Road,Ring Road,1.0,,RD-01291,74
+77860403,Ring Road,Ring Road,1.0,,RD-00003,96
+77860403,Ring Road,Ring Road,1.0,,RD-02228,96
+77860403,Ring Road,Ring Road,1.0,,RD-00167,96
+77860403,Ring Road,Ring Road,1.0,,RD-01291,96
+570804564,Ring Road,Ring Road,1.0,,RD-00003,96
+570804564,Ring Road,Ring Road,1.0,,RD-02228,96
+570804564,Ring Road,Ring Road,1.0,,RD-00167,96
+570804564,Ring Road,Ring Road,1.0,,RD-01291,96
+1313200457,Ring Road,Ring Road (I.P Metro Station to Shantivan Crossing),1.0,,RD-00456,73
+70220650,Ring Road,Ring Road (I.P Metro Station to Shantivan Crossing),1.0,,RD-00456,74
+77617172,Ring Road,Ring Road (I.P Metro Station to Shantivan Crossing),1.0,,RD-00456,74
+175769901,Ring Road,Ring Road (I.P Metro Station to Shantivan Crossing),1.0,,RD-00456,74
+175800298,Ring Road,Ring Road (I.P Metro Station to Shantivan Crossing),1.0,,RD-00456,74
+175803876,Ring Road,Ring Road (I.P Metro Station to Shantivan Crossing),1.0,,RD-00456,74
+175803885,Ring Road,Ring Road (I.P Metro Station to Shantivan Crossing),1.0,,RD-00456,74
+679552310,Ring Road,Ring Road (I.P Metro Station to Shantivan Crossing),1.0,,RD-00456,74
+1070839796,Ring Road,Ring Road (I.P Metro Station to Shantivan Crossing),1.0,,RD-00456,74
+1070839797,Ring Road,Ring Road (I.P Metro Station to Shantivan Crossing),1.0,,RD-00456,74
+77860403,Ring Road,Ring Road (I.P Metro Station to Shantivan Crossing),1.0,,RD-00456,96
+570804564,Ring Road,Ring Road (I.P Metro Station to Shantivan Crossing),1.0,,RD-00456,96
+1313200457,Ring Road,Ring Road (Rajghat Intersection to Shantivan Crossing),1.0,,RD-02238,73
+70220650,Ring Road,Ring Road (Rajghat Intersection to Shantivan Crossing),1.0,,RD-02238,74
+77617172,Ring Road,Ring Road (Rajghat Intersection to Shantivan Crossing),1.0,,RD-02238,74
+175769901,Ring Road,Ring Road (Rajghat Intersection to Shantivan Crossing),1.0,,RD-02238,74
+175800298,Ring Road,Ring Road (Rajghat Intersection to Shantivan Crossing),1.0,,RD-02238,74
+175803876,Ring Road,Ring Road (Rajghat Intersection to Shantivan Crossing),1.0,,RD-02238,74
+175803885,Ring Road,Ring Road (Rajghat Intersection to Shantivan Crossing),1.0,,RD-02238,74
+679552310,Ring Road,Ring Road (Rajghat Intersection to Shantivan Crossing),1.0,,RD-02238,74
+1070839796,Ring Road,Ring Road (Rajghat Intersection to Shantivan Crossing),1.0,,RD-02238,74
+1070839797,Ring Road,Ring Road (Rajghat Intersection to Shantivan Crossing),1.0,,RD-02238,74
+77860403,Ring Road,Ring Road (Rajghat Intersection to Shantivan Crossing),1.0,,RD-02238,96
+570804564,Ring Road,Ring Road (Rajghat Intersection to Shantivan Crossing),1.0,,RD-02238,96
+1313200457,Ring Road,Ring Road (Shantivan Crossing to Hanuman Setu),1.0,,RD-02237,73
+70220650,Ring Road,Ring Road (Shantivan Crossing to Hanuman Setu),1.0,,RD-02237,74
+77617172,Ring Road,Ring Road (Shantivan Crossing to Hanuman Setu),1.0,,RD-02237,74
+175769901,Ring Road,Ring Road (Shantivan Crossing to Hanuman Setu),1.0,,RD-02237,74
+175800298,Ring Road,Ring Road (Shantivan Crossing to Hanuman Setu),1.0,,RD-02237,74
+175803876,Ring Road,Ring Road (Shantivan Crossing to Hanuman Setu),1.0,,RD-02237,74
+175803885,Ring Road,Ring Road (Shantivan Crossing to Hanuman Setu),1.0,,RD-02237,74
+679552310,Ring Road,Ring Road (Shantivan Crossing to Hanuman Setu),1.0,,RD-02237,74
+1070839796,Ring Road,Ring Road (Shantivan Crossing to Hanuman Setu),1.0,,RD-02237,74
+1070839797,Ring Road,Ring Road (Shantivan Crossing to Hanuman Setu),1.0,,RD-02237,74
+77860403,Ring Road,Ring Road (Shantivan Crossing to Hanuman Setu),1.0,,RD-02237,96
+570804564,Ring Road,Ring Road (Shantivan Crossing to Hanuman Setu),1.0,,RD-02237,96
+1313200457,Ring Road,Ring Road (Shantivan to Hanuman Setu),1.0,,RD-00381,73
+70220650,Ring Road,Ring Road (Shantivan to Hanuman Setu),1.0,,RD-00381,74
+77617172,Ring Road,Ring Road (Shantivan to Hanuman Setu),1.0,,RD-00381,74
+175769901,Ring Road,Ring Road (Shantivan to Hanuman Setu),1.0,,RD-00381,74
+175800298,Ring Road,Ring Road (Shantivan to Hanuman Setu),1.0,,RD-00381,74
+175803876,Ring Road,Ring Road (Shantivan to Hanuman Setu),1.0,,RD-00381,74
+175803885,Ring Road,Ring Road (Shantivan to Hanuman Setu),1.0,,RD-00381,74
+679552310,Ring Road,Ring Road (Shantivan to Hanuman Setu),1.0,,RD-00381,74
+1070839796,Ring Road,Ring Road (Shantivan to Hanuman Setu),1.0,,RD-00381,74
+1070839797,Ring Road,Ring Road (Shantivan to Hanuman Setu),1.0,,RD-00381,74
+77860403,Ring Road,Ring Road (Shantivan to Hanuman Setu),1.0,,RD-00381,96
+570804564,Ring Road,Ring Road (Shantivan to Hanuman Setu),1.0,,RD-00381,96
+77766235,Mahatma Gandhi Road,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,57
+1510332181,Mahatma Gandhi Road,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,57
+5873630,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+36807194,Mahatma Gandhi Road,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+38699434,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+70214104,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+77617232,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+77629911,Mahatma Gandhi Road,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+175800210,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+189610307,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+189610310,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+202762525,Mahatma Gandhi Road,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+202830264,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+297086687,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+395885025,Mahatma Gandhi Road,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+615472620,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+679552311,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+679552314,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+1324343885,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+1324343886,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+1413413917,Mahatma Gandhi Road,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+1413449425,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+1499142541,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+1499142542,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,73
+77617250,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,74
+175800212,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,74
+175800233,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,74
+320354820,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,74
+395885023,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,74
+870450047,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,74
+1275187235,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,74
+1287276618,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,74
+1287276619,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,74
+77862392,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,96
+77862398,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,96
+77862411,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,96
+619116050,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,96
+619116074,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,96
+1285857339,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,96
+1488543569,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,96
+77862370,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,139
+665150669,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,139
+1454403276,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,139
+1454403277,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,139
 39013523,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,143
 70258955,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,143
 70258963,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,143
@@ -220,9 +1281,66 @@ osm_way_id,osm_name,pwd_name,score,confirmed,pwd_road_id,ward_no
 565938869,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,145
 590522605,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,145
 759020451,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,145
+28412397,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,152
 555197199,Mahatma Gandhi Marg,Ring Road AIIMS to Bhairo Road,1.0,,RD-00504,187
 566680385,Lajpat Nagar Flyover,Ring Road Lajpat Nagar Flyover,1.0,,RD-01265,144
 1313027076,Lajpat Nagar Flyover,Ring Road Lajpat Nagar Flyover,1.0,,RD-01265,144
+70258957,Nizamuddin Road Flyover,Ring Road Nizamuddin Flyover,0.88,,RD-01269,143
+523568281,Nizamuddin Road Flyover,Ring Road Nizamuddin Flyover,0.88,,RD-01269,143
+1313200457,Ring Road,Ring Road to A-31 Rajouri Garden,1.0,,RD-00847,73
+70220650,Ring Road,Ring Road to A-31 Rajouri Garden,1.0,,RD-00847,74
+77617172,Ring Road,Ring Road to A-31 Rajouri Garden,1.0,,RD-00847,74
+175769901,Ring Road,Ring Road to A-31 Rajouri Garden,1.0,,RD-00847,74
+175800298,Ring Road,Ring Road to A-31 Rajouri Garden,1.0,,RD-00847,74
+175803876,Ring Road,Ring Road to A-31 Rajouri Garden,1.0,,RD-00847,74
+175803885,Ring Road,Ring Road to A-31 Rajouri Garden,1.0,,RD-00847,74
+679552310,Ring Road,Ring Road to A-31 Rajouri Garden,1.0,,RD-00847,74
+1070839796,Ring Road,Ring Road to A-31 Rajouri Garden,1.0,,RD-00847,74
+1070839797,Ring Road,Ring Road to A-31 Rajouri Garden,1.0,,RD-00847,74
+77860403,Ring Road,Ring Road to A-31 Rajouri Garden,1.0,,RD-00847,96
+570804564,Ring Road,Ring Road to A-31 Rajouri Garden,1.0,,RD-00847,96
+1313200457,Ring Road,Ring road from Punjabi bagh to Raja Garden Chowk,1.0,,RD-00792,73
+70220650,Ring Road,Ring road from Punjabi bagh to Raja Garden Chowk,1.0,,RD-00792,74
+77617172,Ring Road,Ring road from Punjabi bagh to Raja Garden Chowk,1.0,,RD-00792,74
+175769901,Ring Road,Ring road from Punjabi bagh to Raja Garden Chowk,1.0,,RD-00792,74
+175800298,Ring Road,Ring road from Punjabi bagh to Raja Garden Chowk,1.0,,RD-00792,74
+175803876,Ring Road,Ring road from Punjabi bagh to Raja Garden Chowk,1.0,,RD-00792,74
+175803885,Ring Road,Ring road from Punjabi bagh to Raja Garden Chowk,1.0,,RD-00792,74
+679552310,Ring Road,Ring road from Punjabi bagh to Raja Garden Chowk,1.0,,RD-00792,74
+1070839796,Ring Road,Ring road from Punjabi bagh to Raja Garden Chowk,1.0,,RD-00792,74
+1070839797,Ring Road,Ring road from Punjabi bagh to Raja Garden Chowk,1.0,,RD-00792,74
+77860403,Ring Road,Ring road from Punjabi bagh to Raja Garden Chowk,1.0,,RD-00792,96
+570804564,Ring Road,Ring road from Punjabi bagh to Raja Garden Chowk,1.0,,RD-00792,96
+717080014,Road No.6,Road No.63 (Part of Wazirabad Road),0.86,,RD-00082,133
+421435340,Road No.5,Road No.65,0.86,,RD-00084,133
+717080014,Road No.6,Road No.65,0.86,,RD-00084,133
+77888924,Rohtak Road,Rohtak   Road,1.0,,RD-00169,34
+77888936,Rohtak Road,Rohtak   Road,1.0,,RD-00169,34
+171505927,Rohtak Road,Rohtak   Road,1.0,,RD-00169,34
+171505929,Rohtak Road,Rohtak   Road,1.0,,RD-00169,34
+239364440,Rohtak Road,Rohtak   Road,1.0,,RD-00169,34
+1236250283,Rohtak Road,Rohtak   Road,1.0,,RD-00169,34
+77888924,Rohtak Road,Rohtak Road from Zakhira to Punjabi Bagh,1.0,,RD-00793,34
+77888936,Rohtak Road,Rohtak Road from Zakhira to Punjabi Bagh,1.0,,RD-00793,34
+171505927,Rohtak Road,Rohtak Road from Zakhira to Punjabi Bagh,1.0,,RD-00793,34
+171505929,Rohtak Road,Rohtak Road from Zakhira to Punjabi Bagh,1.0,,RD-00793,34
+239364440,Rohtak Road,Rohtak Road from Zakhira to Punjabi Bagh,1.0,,RD-00793,34
+1236250283,Rohtak Road,Rohtak Road from Zakhira to Punjabi Bagh,1.0,,RD-00793,34
+1159383407,Roshanara Road,Roshnara Road,0.94,,RD-02160,73
+1159383407,Roshanara Road,Roshnara Road,0.94,,RD-01417,73
+1161756186,Roshanara Road,Roshnara Road,0.94,,RD-02160,73
+1161756186,Roshanara Road,Roshnara Road,0.94,,RD-01417,73
+1067094706,Sadar Thana Marg,Sadar Thana Road,1.0,,RD-00443,82
+1387169685,Sadar Thana Marg,Sadar Thana Road,1.0,,RD-00443,82
+681827438,Shakti Mandir Marg,Sakti Mandir Marg,0.96,,RD-00850,96
+243350963,Sant Sujan Singh Marg,Sant. Sujan Singh Marg,1.0,,RD-01276,96
+293153164,Sant Sujan Singh Marg,Sant. Sujan Singh Marg,1.0,,RD-01276,96
+1043320378,Sant Sujan Singh Marg,Sant. Sujan Singh Marg,1.0,,RD-01276,96
+1075701409,Sant Sujan Singh Marg,Sant. Sujan Singh Marg,1.0,,RD-01276,96
+1075950878,Sant Sujan Singh Marg,Sant. Sujan Singh Marg,1.0,,RD-01276,96
+1182008747,Sant Sujan Singh Marg,Sant. Sujan Singh Marg,1.0,,RD-01276,96
+1182008748,Sant Sujan Singh Marg,Sant. Sujan Singh Marg,1.0,,RD-01276,96
+1251026900,Sant Sujan Singh Marg,Sant. Sujan Singh Marg,1.0,,RD-01276,96
 173133362,Sarita Vihar Road,Sarita Vihar Road,1.0,,RD-00479,187
 1152355918,Sarita Vihar Road,Sarita Vihar Road,1.0,,RD-00479,187
 1187799045,Sarita Vihar Road,Sarita Vihar Road,1.0,,RD-00479,187
@@ -230,6 +1348,25 @@ osm_way_id,osm_name,pwd_name,score,confirmed,pwd_road_id,ward_no
 1421107180,Sarita Vihar Road,Sarita Vihar Road,1.0,,RD-00479,187
 1550972766,Sarita Vihar Road,Sarita Vihar Road,1.0,,RD-00479,187
 1550972767,Sarita Vihar Road,Sarita Vihar Road,1.0,,RD-00479,187
+77743804,Shahid Udham Singh Marg,Shaheed Udham Singh Marg,0.92,,RD-01332,57
+202830263,Sham Nath Marg,Shamnath Marg,0.94,,RD-02184,73
+202830263,Sham Nath Marg,Shamnath Marg,0.94,,RD-01746,73
+202830265,Sham Nath Marg,Shamnath Marg,0.94,,RD-02184,73
+202830265,Sham Nath Marg,Shamnath Marg,0.94,,RD-01746,73
+679552312,Sham Nath Marg,Shamnath Marg,0.94,,RD-02184,73
+679552312,Sham Nath Marg,Shamnath Marg,0.94,,RD-01746,73
+1413413915,Sham Nath Marg,Shamnath Marg,0.94,,RD-02184,73
+1413413915,Sham Nath Marg,Shamnath Marg,0.94,,RD-01746,73
+1413413918,Sham Nath Marg,Shamnath Marg,0.94,,RD-02184,73
+1413413918,Sham Nath Marg,Shamnath Marg,0.94,,RD-01746,73
+1495181984,Sham Nath Marg,Shamnath Marg,0.94,,RD-02184,73
+1495181984,Sham Nath Marg,Shamnath Marg,0.94,,RD-01746,73
+1495181985,Sham Nath Marg,Shamnath Marg,0.94,,RD-02184,73
+1495181985,Sham Nath Marg,Shamnath Marg,0.94,,RD-01746,73
+408786168,Shani Bazar Road,Shani Bazar Road,1.0,,RD-01581,18
+408786168,Shani Bazar Road,Shani Bazar Road,1.0,,RD-01160,18
+320348687,Shanti Desai Marg,Shanti Devi Marg,0.87,,RD-00897,74
+1181124061,Shanti Desai Marg,Shanti Devi Marg,0.87,,RD-00897,74
 38116089,Shiv Mandir Marg,Shiv Mandir Marg from Zonal Office to Ring Road,1.0,,RD-00503,144
 44317041,Shiv Mandir Marg,Shiv Mandir Marg from Zonal Office to Ring Road,1.0,,RD-00503,144
 169411882,Shiv Mandir Marg,Shiv Mandir Marg from Zonal Office to Ring Road,1.0,,RD-00503,144
@@ -241,11 +1378,20 @@ osm_way_id,osm_name,pwd_name,score,confirmed,pwd_road_id,ward_no
 653235647,Shiv Mandir Marg,Shiv Mandir Marg from Zonal Office to Ring Road,1.0,,RD-00503,144
 1076235984,Shiv Mandir Marg,Shiv Mandir Marg from Zonal Office to Ring Road,1.0,,RD-00503,144
 1076235985,Shiv Mandir Marg,Shiv Mandir Marg from Zonal Office to Ring Road,1.0,,RD-00503,144
+873021770,Shiv Mandir Road,Shiv Mandir Marg from Zonal Office to Ring Road,1.0,,RD-00503,197
 190323394,Siri Fort Road,Siri Fort Road,1.0,,RD-00146,145
 577970330,Siri Fort Road,Siri Fort Road,1.0,,RD-00146,145
 577970333,Siri Fort Road,Siri Fort Road,1.0,,RD-00146,145
 1250183395,Siri Fort Road,Siri Fort Road,1.0,,RD-00146,145
 423556994,Sujan Mohinder Road,Sujan Mohinder Road,1.0,,RD-00482,187
+29534845,Tamil Sangam Marg,Tamil Sangam Marg,1.0,,RD-00141,152
+423631021,Tamil Sangam Marg,Tamil Sangam Marg,1.0,,RD-00141,152
+555442557,Tamil Sangam Marg,Tamil Sangam Marg,1.0,,RD-00141,152
+567831184,Tamil Sangam Marg,Tamil Sangam Marg,1.0,,RD-00141,152
+567831185,Tamil Sangam Marg,Tamil Sangam Marg,1.0,,RD-00141,152
+570413607,Tamil Sangam Marg,Tamil Sangam Marg,1.0,,RD-00141,152
+294288720,Vallabacharya Marg,Vallabacharya Marg,1.0,,RD-01287,82
+1154700247,Vallabacharya Marg,Vallabacharya Marg,1.0,,RD-01287,82
 23151102,Veer Savarkar Marg,"Vir Savarkar Marg, Lajpat Nagar",0.88,,RD-00502,144
 652550332,Veer Savarkar Marg,"Vir Savarkar Marg, Lajpat Nagar",0.88,,RD-00502,144
 652550336,Veer Savarkar Marg,"Vir Savarkar Marg, Lajpat Nagar",0.88,,RD-00502,144

@@ -945,3 +945,65 @@ Also: the camera input has no flash control, so the "too dark" copy says "move t
 - Accessibility stays: AA contrast on both themes, the 100/150/200 % text-size setting, Hindi labels.
 
 **Streamlit implementation:** `ui/.streamlit/config.toml` `[theme] base="dark"` with the colours above + `ui/style.css` (cards, buttons, sidebar spacing, hide the default Streamlit header/footer), injected once via `st.markdown`. Sidebar = `st.sidebar` navigation. No extra UI libraries.
+
+---
+
+## 14. UI v2 (user, 2026-10-28): **overrides §3–§13 wherever they conflict**
+
+**Language rule.** The app UI is **English only**: no हिंदी/English toggle, no bilingual labels. Users may **write** in English, Hindi or Hinglish, and their own text is shown exactly as they wrote it. The generated complaint letter is in **English**; it quotes the citizen's words as written (masked for phone numbers/emails). A Hindi version of the letter can come back later as an optional "Translate" action, not a default.
+
+**Look.** Calm, modern desktop-chat style like the user's reference: dark charcoal surfaces, a slim left sidebar, a centred column (max 720 px), soft rounded cards with 1 px borders, one blue accent, generous whitespace. Body text is Inter 15–16 px, headings are 24 / 18 px weight 600, and muted text is used for helper lines. Buttons are ≥ 44 px tall but not oversized. No emoji clutter: at most one small icon per label.
+
+```
+┌───────────────────────┬──────────────────────────────────────────────────┐
+│ ◆ Civic Grievance     │        What's the problem?                       │
+│   Router              │        Add a photo and a short description.      │
+│ [ + New report      ] │        English, Hindi or Hinglish all work.      │
+│ ▢ My reports          │   ┌──────────────────────────────────────────┐   │
+│ RECENT                │   │ e.g. big pothole in front of the school… │   │
+│ ● Pothole · Ward 185  │   │ [🖼 thumbnail ✕]                          │   │
+│ ● Garbage · Ward 187  │   │ 📷 Camera  ⬆ Upload   📍 Ward 185 · Change │   │
+│ ○ Streetlight · 144   │   │                     [ Prepare complaint →]│   │
+│ ───────────────────── │   └──────────────────────────────────────────┘   │
+│ (A) Anshul   ⚙        │                                                  │
+│     ● connected       │                                                  │
+└───────────────────────┴──────────────────────────────────────────────────┘
+```
+
+**Sidebar:**
+- Brand line (small)
+- **+ New report** (full-width, subtle fill)
+- **My reports**
+- **Recent**: the last 5 reports as one-line items ("Category · Ward", plus a small state dot), and clicking one opens its dossier
+- Pinned at the bottom: user initial avatar + name, a tiny "connected" status dot, and ⚙ Settings (popover: text size 100/125/150 %, Sign out)
+
+There is no language toggle, no radio list and no dropdowns in the sidebar.
+
+**New report = one composer card** (chat-input style, which prepares for the conversational version):
+- multiline text box
+- a photo thumbnail inside the card, with a remove control
+- a bottom toolbar: **Camera**, **Upload**, a **location chip** and the primary **Prepare complaint →** button on the right
+
+**Location chip states:**
+- "📍 Locating…"
+- "📍 Ward 185 · ±12 m · Change"
+- "📍 Add location" (no GPS)
+
+Clicking **Change** or **Add location** opens a panel below the composer with the map (click to move the pin, ↑↓←→ nudge buttons), a landmark search and "Use my location". The drift / low-accuracy warning is a slim inline notice above the toolbar.
+
+**Dossier page:**
+- a header row: category · severity · state pills
+- the **Department card** (name, ward, "Very likely" confidence label, "Curated data" pill)
+- "**What you reported**": the citizen's own text, as written
+- the **Complaint letter** (English) with a Copy action
+- an actions row: **Call 155305** (primary), Copy, New report
+- the blurred photo thumbnail, or "Photo withheld for privacy"
+- notices as small muted pills
+- a "Demo: AI is simulated" notice as a slim banner
+
+The page always shows the **blurred** photo from `photo_url`, never the raw upload.
+
+**Other pages:**
+- **My reports:** a list of cards, the same style as Recent but with more detail.
+- **Login:** one centred small card: "Sign in to continue", name, email (optional), Continue.
+- **Out of coverage:** a calm card, "We don't cover this area yet", plus helpline buttons.

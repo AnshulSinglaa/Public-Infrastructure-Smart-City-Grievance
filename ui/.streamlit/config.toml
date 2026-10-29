@@ -9,9 +9,9 @@ borderColor = "#3E3E3A"
 linkColor = "#5B9CF5"
 baseRadius = "12px"
 buttonRadius = "10px"
-# Inter for Latin, Noto for Devanagari (UX §13; loaded by the @import in style.css). Set
-# here, not by a CSS rule, so Streamlit's own icon font (Material Symbols) is left alone.
-font = "Inter, Noto Sans Devanagari, sans-serif"
+# Inter (UX §14; loaded by the @import in style.css). Hindi text the user types falls back
+# to the system Devanagari font. Set here, not in CSS, so the icon font is left alone.
+font = "Inter, sans-serif"
 showSidebarBorder = true
 
 [theme.sidebar]
@@ -19,6 +19,8 @@ backgroundColor = "#1F1E1D"
 
 [client]
 toolbarMode = "minimal"
+showErrorDetails = false  # never show Python tracebacks to users (security checklist)
 
 [server]
+address = "127.0.0.1"  # local only: not reachable from the network (B-025)
 maxUploadSize = 5  # MB; matches the API's 5 MB photo limit (whole MB only)

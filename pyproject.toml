@@ -14,6 +14,13 @@ dependencies = [
     "alembic>=1.20.1",
     "python-multipart>=0.0.32",
     "qdrant-client>=1.20.0",
+    "streamlit-js-eval>=1.0.0",
+    "streamlit-folium>=0.27.4",
+    "folium>=0.20.0",
+    "opencv-python-headless>=4.10,<5",
+    "pillow>=13.0.0",
+    "cryptography>=50.0.2",
+    "defusedxml>=0.7.1",
 ]
 
 [dependency-groups]
@@ -21,6 +28,11 @@ dev = ["pytest", "ruff"]
 
 # Not a library: uv should only install the deps, not build this folder as a package.
 [tool.uv]
+# Supply-chain cooldown (SEC-009): never resolve a package version published in the last 7 days.
+exclude-newer = "7 days"
+# Exception: qdrant-client must match the Qdrant 1.20 server we run (released < 7 days ago).
+# Remove this line once 1.20 is older than the cooldown.
+exclude-newer-package = { qdrant-client = false }
 package = false
 
 [tool.ruff]

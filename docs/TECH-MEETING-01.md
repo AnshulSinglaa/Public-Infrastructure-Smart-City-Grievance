@@ -95,6 +95,9 @@
 6. S6 Call mode moves into Phase 1.
 The disagreements in §2 are settled as recommended (bge-m3 local embeddings, Supabase, compute-on-read + tick cron, print-CSS PDF). All §4 resolutions (Q-1 to Q-20) are accepted.
 
+### ✅ Change (2026-10-28, user): **English-only UI + UI v2 redesign**
+The interface is English only (no Hindi toggle or bilingual labels). Users can write in English/Hindi/Hinglish and their text is kept as written; the complaint letter is English. The UI is redesigned to a chat-app look (slim sidebar with New report / My reports / Recent / user; one composer card). Spec: UX.md §14, which overrides earlier UX language and i18n rules and the hi/en strings in REQUIREMENTS.
+
 ### ✅ Change (2026-10-28, user): **eval, monitoring, performance tools**
 - **Evaluation:** **Ragas** (faithfulness, context precision/recall on citations) + **DeepEval** (LLM test cases inside pytest: cites a real rule, no invented helpline or deadline, asks when unsure, refuses prompt injection). Wired in with the eval harness (Sprint 8); DeepEval smoke tests run in CI on recorded responses.
 - **Monitoring:** **Langfuse** (Cloud free tier): one trace per report covering every AI call (latency, tokens, cost, prompt version, errors), with eval scores attached. Wired in with the real AI (Sprint 4). Keys go in `.env`; tracing is off when they are empty. **PII is masked before any trace is sent.**
@@ -102,6 +105,16 @@ The disagreements in §2 are settled as recommended (bge-m3 local embeddings, Su
 
 ### ✅ Change (2026-10-28, user): **Qdrant replaces pgvector**
 Vectors (rule chunks + photo embeddings) move to **Qdrant**; Postgres + PostGIS keep everything else, including the chunk text used for quoting. Local: Qdrant in Docker. Demo: Qdrant Cloud free tier + keep-alive + re-index script. This overrides ADR-2 and the "Drop Qdrant" row in §1. Details are in ARCHITECTURE §0.
+
+### ✅ Decided (2026-10-29, user): **two extra features**
+- **Night-safety priority (Sprint 5, with real routing):** a streetlight / dark-street / open-manhole report gets one severity level higher when it is (a) reported or photographed at night (19:00–06:00 IST, or the vision model sees darkness) AND (b) within 150 m of a school, metro station, bus stop, hospital or market (OSM points of interest for the 25 wards). The dossier says why ("near a metro exit, at night"). Rule-based, no AI decides it.
+- **Monsoon hotspot alerts (Sprint 7, with duplicates):** known flood spots = the officially published Delhi waterlogging hotspot list (PWD / Traffic Police, with source + year) + our own past waterlogging reports (≥ 3 within 50 m). A pin near a hotspot shows "This spot is a known waterlogging point (source)", and the letter cites the history. Before the monsoon (June) a banner lists hotspots in the user's ward. Sources are always shown; past reports are counted only, never shown with personal data.
+
+### ✅ Decided (2026-10-29, user): **outside-coverage help (2 layers)**
+- **Layer 1 (Sprint 4–5):** a curated **state directory**: pin → state (state boundaries) → that state's official grievance portal + helpline + CPGRAMS. No AI, always correct. Replaces the bare "outside Delhi" card.
+- **Layer 2 (after Sprint 6, reuses RAG cite-or-drop):** a **research agent** with a web-search tool restricted to official domains (`*.gov.in`, `*.nic.in`) that finds the likely local office for the town + problem type. Every claim needs a source link, otherwise it is dropped. Labelled "AI-researched, not verified". Web text is treated as data, never instructions. Results are cached per town + category and evaluated with DeepEval on a fixed set of non-Delhi towns. Uses a search API, not a full browser.
+
+### ✅ Decided (2026-10-29, user): **conversational timing**: Sprint 5 = chat intake (the agent asks its questions as chat messages; the user answers with buttons or free text in any language; the dossier appears as a chat card). Sprint 6 = follow-up Q&A answered only from cited rules + the user's own ticket (e.g. "what if it's rejected?" → answer + [Draft appeal]). Routing stays in SQL; chat never decides the department.
 
 ### 📌 Pending (2026-10-28, user): **make it conversational**
 The product must become a **conversational, multimodal agentic system**. *How* (chat intake, follow-up RAG Q&A, chat check-ins, what to keep or drop) will be decided later by the user. Until then, build nothing for it, but don't design anything that blocks a chat UI on top of the same LangGraph interrupts.

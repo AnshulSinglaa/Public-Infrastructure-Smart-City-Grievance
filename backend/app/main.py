@@ -8,8 +8,13 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app import vectors
+from app.api.geocode import router as geocode_router
 from app.api.reports import router as reports_router
+from app.auth import check_auth_mode
+from app.auth import router as auth_router
+from app.config import settings
 from app.db import connect
+from app.privacy.text import fernet
 
 log = logging.getLogger(__name__)
 
@@ -17,7 +22,10 @@ log = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Create the Qdrant collections on startup. Qdrant down = warn and start anyway
-    (/healthz?db=1 will then show qdrant: false)."""
+    (/healthz?db=1 will then show qdrant: false). Unsafe auth or a missing PII_KEY outside
+    local stops the app here (uvicorn exits with "Application startup failed")."""
+    check_auth_mode()
+    fernet()
     try:
         vectors.ensure_collections()
     except Exception as e:  # noqa: BLE001 - any Qdrant failure must not stop the API
@@ -25,8 +33,23 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(title="Civic Router API", lifespan=lifespan)
+# The API docs (/docs, /redoc, /openapi.json) map every endpoint: only on a local machine.
+# openapi_url=None turns all three off.
+app = FastAPI(title="Civic Grievance Router API", lifespan=lifespan,
+              openapi_url="/openapi.json" if settings.app_env == "local" else None)
+
+
+@app.middleware("http")
+async def nosniff(request: Request, call_next):
+    """Browsers must trust our Content-Type (e.g. a photo stays an image, never HTML)."""
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    return response
+
+
+app.include_router(auth_router)
 app.include_router(reports_router)
+app.include_router(geocode_router)
 
 
 @app.exception_handler(RequestValidationError)
@@ -42,7 +65,9 @@ def validation_error(request: Request, exc: RequestValidationError) -> JSONRespo
 @app.exception_handler(StarletteHTTPException)
 def http_error(request: Request, exc: StarletteHTTPException) -> JSONResponse:
     """Starlette's own errors (unknown route 404, 405, ...) in our error shape."""
-    if exc.status_code == 404:
+    if exc.status_code == 401:  # raised by auth.current_user
+        body = {"code": "unauthorized", "message_key": "login_required"}
+    elif exc.status_code == 404:
         body = {"code": "not_found", "message_key": "not_found"}
     else:
         body = {"code": "http_error", "message_key": "server_error"}

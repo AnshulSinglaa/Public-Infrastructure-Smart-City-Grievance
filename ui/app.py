@@ -2,16 +2,31 @@ from pathlib import Path
 
 import streamlit as st
 
-from i18n import t
+from account import (
+    DRAFT_KEY,
+    PHOTO_KEY,
+    TEXT_SIZES,
+    TOKEN_KEY,
+    browser_save,
+    photo_for_browser,
+    render_login,
+    render_reports,
+    render_sidebar,
+    restore_login,
+)
 from lib.api import health
 from report import render_dossier, render_form, render_uncovered
+from strings import t
 
-APP_NAME = "Civic Grievance Router"
-TEXT_SIZES = {"100%": 17, "150%": 25.5, "200%": 34}  # base body size is 17px (UX §13)
-
-st.set_page_config(page_title=APP_NAME, page_icon="🌉", layout="centered")
+st.set_page_config(page_title=t("app_name"), page_icon=":material/location_city:",
+                   layout="centered")
 css = (Path(__file__).parent / "style.css").read_text(encoding="utf-8")
 st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
+
+# Streamlit sizes text in rem, so changing the root font size scales the whole page.
+size = st.session_state.get("text_size") or "100%"
+st.markdown(f"<style>html {{ font-size: {TEXT_SIZES[size]}px; }}</style>",
+            unsafe_allow_html=True)
 
 
 @st.cache_data(ttl=30)  # don't hit the API on every click; re-check every 30 s
@@ -19,33 +34,25 @@ def api_health() -> bool:
     return health()
 
 
-with st.sidebar:
-    st.markdown(f'<p class="brand">🌉 {APP_NAME}</p>', unsafe_allow_html=True)
-    lang_label = st.segmented_control(
-        "Language", ["हिंदी", "English"], default="हिंदी", label_visibility="collapsed"
-    )
-    lang = "en" if lang_label == "English" else "hi"
-    st.caption(t("tagline", lang))
-    st.divider()
-    page = st.radio("nav", ["new", "issues"], format_func=lambda k: t(f"nav_{k}", lang),
-                    label_visibility="collapsed")
-    st.divider()
-    size = st.selectbox(t("text_size", lang), list(TEXT_SIZES), key="text_size")  # see B-011
-    if api_health():
-        st.markdown(f'<span class="pill ok">● {t("api_ok", lang)}</span>', unsafe_allow_html=True)
-    else:
-        st.markdown(f'<span class="pill down">✕ {t("api_down", lang)}</span>',
-                    unsafe_allow_html=True)
+token = st.session_state.get("token")
+if not token:  # login comes before anything else (no sidebar yet)
+    restore_login()  # a refresh: sign back in with the token the browser kept
+    render_login()
+    st.stop()
 
-# Streamlit sizes text in rem, so changing the root font size scales the whole page.
-st.markdown(f"<style>html {{ font-size: {TEXT_SIZES[size]}px; }}</style>", unsafe_allow_html=True)
+# Keep the login and the draft text in the browser, so a refresh doesn't lose them.
+browser_save(TOKEN_KEY, token)
+browser_save(DRAFT_KEY, st.session_state.get("report_text") or "")
+# The same large text on every rerun is cheap: Streamlit caches big messages by hash.
+browser_save(PHOTO_KEY, photo_for_browser(st.session_state.get("photo_draft")))
 
-if page == "issues":
-    st.markdown(f'<div class="card"><h2>{t("nav_issues", lang)}</h2>'
-                f'<p class="muted">{t("soon", lang)}</p></div>', unsafe_allow_html=True)
-elif "dossier" in st.session_state:
-    render_dossier(st.session_state.dossier, lang)
-elif "uncovered" in st.session_state:
-    render_uncovered(st.session_state.uncovered, lang)
+render_sidebar(token, api_health())
+view = st.session_state.get("view", "new")
+if view == "reports":
+    render_reports(token)
+elif view == "dossier" and "current" in st.session_state:
+    render_dossier(st.session_state.current)
+elif view == "uncovered" and "uncovered" in st.session_state:
+    render_uncovered(st.session_state.uncovered)
 else:
-    render_form(lang)
+    render_form(token)

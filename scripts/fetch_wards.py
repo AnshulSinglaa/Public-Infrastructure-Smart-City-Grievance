@@ -3,13 +3,14 @@
 Run from the repo root:  python scripts/fetch_wards.py
 
 Source: OpenCity "Delhi MCD Wards Map - 2022" (KML, public domain, built from
-GSDL/SEC delimitation maps). The live OpenCity file now returns 404, so we use
-the Wayback Machine copy. That copy came from Common Crawl, which cuts files at
-5 MiB, so only the first ~190 wards are complete (see data/COVERAGE.md).
-Because the file is cut off, it is not valid XML as a whole: we pull out each
-complete <Placemark>...</Placemark> and parse that piece with xml.etree.
+GSDL/SEC delimitation maps). The live OpenCity file now returns 404 and the
+Wayback copy is cut at 5 MiB, so we use the full file (7,173,765 bytes, all
+250 wards) re-published on Kaggle; its first 5 MiB are byte-identical to the
+Wayback copy. The zones file is still the cut Wayback copy, so we pull out each
+complete <Placemark>...</Placemark> and parse that piece with defusedxml.
 
-Only the Python standard library is used. Downloads are treated as data:
+Standard library plus defusedxml (an XML parser that refuses entity tricks like
+"billion laughs", since the KML is downloaded). Downloads are treated as data:
 saved in data/raw/, never executed.
 """
 import itertools
@@ -17,22 +18,24 @@ import json
 import re
 import sys
 import urllib.request
-import xml.etree.ElementTree as ET
+import zipfile
 from datetime import date
 from pathlib import Path
+
+from defusedxml import ElementTree as ET  # safe parser for downloaded XML (SEC-008)
 
 ROOT = Path(__file__).resolve().parent.parent
 RAW = ROOT / "data" / "raw"
 OPENCITY = "https://data.opencity.in/dataset/fff2ab15-7813-4198-8a97-80b0501481db/resource"
-WARDS_URL = ("https://web.archive.org/web/20250622055622id_/" + OPENCITY
-             + "/5e24cd4e-8ef0-4e59-9446-e74af981d370/download/delhi_wards.kml")
+WARDS_URL = "https://www.kaggle.com/api/v1/datasets/download/wigglerofgems/open-city-delhi-wards-shape-dataset-kml"
 ZONES_URL = ("https://web.archive.org/web/20250114093144id_/" + OPENCITY
              + "/7d445bd0-8354-45f5-90a6-b97bcd6c1ecc/download/delhi-zones.kml")
-WARDS_KML = RAW / "delhi_wards_2022_archive.kml"
+WARDS_ZIP = RAW / "delhi_wards_2022_kaggle.zip"  # holds delhi_wards.kml
 ZONES_KML = RAW / "delhi_zones_2022_archive.kml"
 
-# The 8 coverage wards (reasons in data/COVERAGE.md).
-COVERAGE = {143, 144, 145, 180, 184, 185, 186, 187}
+# The 25 coverage wards (reasons in data/COVERAGE.md): the first 8 pilot wards + 17 for agency types.
+COVERAGE = {143, 144, 145, 180, 184, 185, 186, 187,
+            18, 30, 34, 57, 73, 74, 82, 96, 127, 133, 139, 152, 155, 156, 197, 213, 226}
 KALINDI_KUNJ_GHAT = (77.311, 28.544)  # (lon, lat)
 GHAT_WARD = 185  # expected to contain the ghat point; checked below
 EXPECTED_WARDS = 250
@@ -52,10 +55,9 @@ def parse_ring(text):
     return [[float(v) for v in pt.split(",")[:2]] for pt in text.split()]
 
 
-def read_placemarks(path):
+def read_placemarks(text):
     """Yield (fields dict, [polygon, ...]) for every complete Placemark.
     A polygon is [outer_ring, hole_ring, ...]."""
-    text = path.read_text(encoding="utf-8")
     for chunk in re.findall(r"<Placemark>.*?</Placemark>", text, re.DOTALL):
         pm = ET.fromstring(chunk)  # the chunk has no namespace, so tags are plain
         fields = {sd.get("name"): (sd.text or "").strip() for sd in pm.iter("SimpleData")}
@@ -126,20 +128,24 @@ def ring_is_valid(ring):
 # ---------- build ----------
 
 def build():
-    download(WARDS_URL, WARDS_KML)
+    download(WARDS_URL, WARDS_ZIP)
     download(ZONES_URL, ZONES_KML)
-    retrieved = date.fromtimestamp(WARDS_KML.stat().st_mtime).isoformat()
+    retrieved = date.fromtimestamp(WARDS_ZIP.stat().st_mtime).isoformat()
 
-    zones = [(f.get("WARD_2017_", "").title(), polys) for f, polys in read_placemarks(ZONES_KML)]
+    zones = [(f.get("WARD_2017_", "").title(), polys)
+             for f, polys in read_placemarks(ZONES_KML.read_text(encoding="utf-8"))]
+    wards_kml = zipfile.ZipFile(WARDS_ZIP).read("delhi_wards.kml").decode("utf-8")
 
     features = []
-    for f, polys in read_placemarks(WARDS_KML):
+    for f, polys in read_placemarks(wards_kml):
         ward_no = int(f.get("WNo_SEC") or 0)
         if ward_no == 0:  # one unnamed non-ward polygon (AC 44 New Delhi); skip it
             continue
         biggest = max((p[0] for p in polys), key=area)
         cx, cy = centroid(biggest)
         zone = next((name for name, zp in zones if point_in_multipolygon(cx, cy, zp)), "")
+        if not zone:  # the cut zones file lacks West and South: the gaps are wards 92-116 and 148-173
+            zone = "West" if ward_no <= 116 else "South"
         features.append({
             "type": "Feature",
             "properties": {
@@ -148,7 +154,7 @@ def build():
                 "name_hi": "",  # not in the source
                 "mcd_zone": zone,
                 "in_coverage": ward_no in COVERAGE,
-                "source": "OpenCity 'Delhi MCD Wards Map - 2022' (via Wayback Machine): " + WARDS_URL,
+                "source": "OpenCity 'Delhi MCD Wards Map - 2022' (full KML via Kaggle mirror): " + WARDS_URL,
                 "retrieved_at": retrieved,
             },
             "geometry": {"type": "MultiPolygon", "coordinates": polys},
@@ -176,8 +182,8 @@ def check(features):
     assert hits == [GHAT_WARD], f"Kalindi Kunj ghat point falls in wards {hits}, expected [{GHAT_WARD}]"
 
     zones = json.loads((ROOT / "data" / "special_zones.geojson").read_text(encoding="utf-8"))
-    for ft in zones["features"]:
-        for outer, *holes in ft["geometry"]["coordinates"]:
+    for ft in (f for f in zones["features"] if f["properties"]["type"] == "ghat"):  # hand-drawn; the rest
+        for outer, *holes in ft["geometry"]["coordinates"]:                      # come out of ST_MakeValid
             assert ring_is_valid(outer), f"special zone {ft['properties']['name']} invalid"
     ghat = next(ft for ft in zones["features"] if ft["properties"]["type"] == "ghat")
     assert point_in_multipolygon(x, y, ghat["geometry"]["coordinates"]), "ghat point outside ghat polygon"

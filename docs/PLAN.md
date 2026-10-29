@@ -44,6 +44,22 @@
 
 ## 3. Sprints (1 week each)
 
+> **Changes after Sprint 2 (2026-10-28), override the rows below:**
+> - **Coverage** is ~25 wards (not 8), with all 32 departments and 37 problem types (`data/`). **Vectors** are in Qdrant. **No voice input.**
+> - **Sprint 3** = real GPS + map pin, landmark geocode (pulled in from W5), photo privacy (EXIF strip, face/plate blur), text masking + encryption, **dev login**, rate limits, 25 wards. Contract: `docs/contracts/sprint3-api.md`.
+> - **Moved to Sprint 8 (deploy):** Supabase email login (dev login until then) and **Cloudflare Turnstile** anti-spam (needs a real hostname, and in Streamlit a custom component). Rate limits cover spam until then.
+> - **Moved to Sprint 4:** the provider JSON cache (it only matters once real AI calls exist), alongside **Langfuse** tracing and the first **DeepEval** tests.
+> - **Every sprint ends** with QA → debugger → tech-lead review **plus the `code-review` and `security-review` skills**.
+> - **Conversational (user, 2026-10-29):** **Sprint 5 adds chat intake.** The composer becomes a chat: the agent's LangGraph pauses become chat questions, answered with quick-reply buttons or free text in any language, and the dossier arrives as a chat card. **Sprint 6 adds follow-up Q&A**, answered only from cited rules plus the user's own ticket, with action buttons (Draft appeal / RTI). Uses `st.chat_message` / `st.chat_input`. Tests: chat cases join the eval set and the break-it catalog.
+> - **Added features (user, 2026-10-29):**
+>   - Sprint 4–5: **state directory** for pins outside coverage.
+>   - Sprint 5: **night-safety priority** (night + near a school, metro, bus stop, hospital or market raises severity, with the reason shown).
+>   - After Sprint 6: **research agent** limited to government domains.
+>   - Sprint 7: **monsoon hotspot alerts** (official waterlogging hotspot list + our past reports).
+>
+>   Details are in TECH-MEETING-01.
+> - **Security checklist (user, mandatory):** checked at every sprint end and before every push/deploy. Done so far: secrets out of git + gitleaks, owner-only data, server-side validation, generic 500s, local services bound to 127.0.0.1, login rate limit. **Sprint 8 adds:** HTTPS + HSTS on hosts, Supabase OTP (no passwords stored), Turnstile, a least-privilege DB user + RLS deny-all, **daily encrypted `pg_dump` backup**, `pip-audit` + Dependabot, dead-code sweep (fakes removed), and a full `ateam-security-audit` before go-live.
+
 Every week ends with a **demo check**: you click through it yourself. If it doesn't work, the next week starts by fixing it.
 
 ### Phase 1: Must + S6 Call mode (W1–W8)

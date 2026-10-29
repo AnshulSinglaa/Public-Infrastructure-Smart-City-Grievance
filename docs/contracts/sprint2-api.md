@@ -37,7 +37,7 @@ Response `201`:
 `general_channels` = every contact with `scope = 'all'`. **No pin** → the S2 fake: ward 185, `routing.fake = true` (the UI sends no pin yet).
 
 ## Errors
-Every error has this shape. `message_key` is what the UI translates (`ui/i18n.py` has hi/en text for each one; an unknown key shows a generic message).
+Every error has this shape. `message_key` is what the UI turns into text (`ui/i18n.py` has English text for each one, UX §14; an unknown key shows a generic message).
 ```json
 {"error": {"code": "validation", "message_key": "need_photo_or_text"}}
 ```
@@ -66,7 +66,8 @@ Response `200` (simplified Dossier from ARCHITECTURE §7):
   "pin": {"lat": 28.544, "lng": 77.311, "ward_no": 185, "ward_name": "Madanpur Khadar East"},
   "department": {"code": "MCD", "name_en": "Municipal Corporation of Delhi", "name_hi": "दिल्ली नगर निगम"},
   "routing": {"confidence_label": "very_likely", "curated": true, "fake": true},
-  "complaint": {"hi": "…", "en": "…"},
+  "complaint": {"en": "…"},
+  "citizen_text": "सड़क पर बड़ा गड्ढा hai, call 98XXXXXX10",
   "claims": [],
   "deadline": {"sla_days": 15, "label": "suggested"},
   "reporter_count": 1,
@@ -74,6 +75,7 @@ Response `200` (simplified Dossier from ARCHITECTURE §7):
   "photo_url": "/api/v1/media/{id}"
 }
 ```
+**English only (UX §14, from S3):** `complaint` has only `en`. `citizen_text` is the citizen's own text exactly as written (English, Hindi or Hinglish) with phone numbers/emails masked, or `null` for a photo-only report; the English letter quotes it as written.
 
 ## GET /api/v1/media/{media_id}
 Returns the stored photo bytes (local disk under `media/`, git-ignored). No signing in S2.

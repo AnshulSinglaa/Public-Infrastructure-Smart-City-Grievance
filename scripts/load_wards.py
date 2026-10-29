@@ -13,7 +13,8 @@ import psycopg
 
 ROOT = Path(__file__).resolve().parent.parent
 DB = os.environ.get("DATABASE_URL", "postgresql://postgres:dev@127.0.0.1:5433/civic")
-GEOM = "ST_Multi(ST_SetSRID(ST_GeomFromGeoJSON(%(geom)s), 4326))"
+# MakeValid: some source rings self-touch, and GEOS refuses to intersect invalid polygons.
+GEOM = "ST_Multi(ST_CollectionExtract(ST_MakeValid(ST_SetSRID(ST_GeomFromGeoJSON(%(geom)s), 4326)), 3))"
 
 
 def features(name):

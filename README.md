@@ -4,7 +4,7 @@
 
 A **multimodal agentic RAG** application for civic complaints, with geospatial routing. **Pilot city: Delhi.** The code is city-agnostic: wards, roads, rules and contacts are data files.
 
-![status](https://img.shields.io/badge/status-Sprint%202%20done-blue) ![python](https://img.shields.io/badge/python-3.12-blue) ![tests](https://img.shields.io/badge/tests-29%20passing-brightgreen)
+![status](https://img.shields.io/badge/status-Sprint%203%20done-blue) ![python](https://img.shields.io/badge/python-3.12-blue) ![tests](https://img.shields.io/badge/tests-134%20passing-brightgreen)
 
 ---
 
@@ -15,7 +15,7 @@ In Delhi, a pothole on a road **≥ 60 ft wide** belongs to **PWD**, but on a na
 ## What Civic Grievance Router does
 
 ```
- photo + text (हिंदी / English / Hinglish) + GPS
+ photo + text (English / Hindi / Hinglish) + GPS
         │
         ▼
  understand the problem ──► find the owner of THAT spot ──► cite the rule ──► ready-to-file complaint
@@ -24,25 +24,25 @@ In Delhi, a pothole on a road **≥ 60 ft wide** belongs to **PWD**, but on a na
 
 The app **never files complaints on the citizen's behalf**: it routes and prepares, and the citizen files on the official channel. It **never guesses**: when it's unsure it asks, and when it doesn't cover an area it says so and shows the general helplines.
 
-## Current status (Sprint 2 of 14)
+## Current status (Sprint 3 of 14)
 
 | Done ✅ | Next 🔜 |
 |---|---|
-| Report screen: photo (camera or gallery) + text, Hindi/English UI | Sprint 3: real GPS pin + map, login, photo privacy (EXIF strip, blur), 25 wards |
-| **Real ward lookup** (PostGIS point-in-polygon) on 8 coverage wards | Sprint 4: **real AI** (Gemini vision + Groq LLM in a LangGraph agent), emergency path, Langfuse |
-| "Not covered yet" path with helplines (never a fake department) | Sprint 5: road-level routing (OSM roads + PWD list + 73 rules) |
-| Bilingual complaint dossier + 📞 call button | Sprint 6: RAG over rule documents (Qdrant), cited claims, Ragas |
-| Postgres + PostGIS + **Qdrant** running in Docker | Sprint 7–8: duplicates, Call mode, privacy, full evaluation, Locust, deploy |
-| Data: 32 departments, 37 problem types, 73 routing rules, ward maps, 4,918 roads, PWD road list | Later: tracker + appeals, votes, **conversational chat** |
-| 29 automated tests, CI, 11 bugs found and fixed | |
+| Chat-style English UI: one composer (photo + text in any language), sidebar with Recent and My reports | Sprint 4: **real AI** (Gemini vision + Groq LLM in a LangGraph agent), emergency path, Langfuse, DeepEval, state directory for pins outside Delhi |
+| Real GPS + map pin (click / nudge), drift warning, landmark search | Sprint 5: road-level routing (roads + PWD list + 73 rules), **chat intake**, night-safety priority |
+| Login (dev mode), owner-only data, rate limits (reports + login), race-safe | Sprint 6: **RAG** over rule documents (Qdrant), cited claims, Ragas, follow-up Q&A |
+| Privacy: EXIF/GPS stripped, faces + plates blurred (fails closed), phone/house numbers masked, text encrypted | After Sprint 6: research agent (government sites only) for places outside coverage |
+| **Ward lookup on all 250 Delhi wards**, 25 covered; NDMC / Cantonment / outside-Delhi handled honestly | Sprint 7–8: duplicates, monsoon hotspot alerts, full evaluation, Locust, deploy (HTTPS, backups, email login) |
+| Data: 32 departments, 37 problem types, 73 rules, 398 zones, 18,909 roads, all 1,297 PWD roads | Later: tracker + appeals, votes, final demo |
+| 134 tests, CI (lint, tests, migrations, pip-audit, gitleaks), 28 bugs found and fixed, security audit gate passed | |
 
-> ⚠️ In Sprints 1–2 the **AI is simulated** (a fixed answer, shown in the UI as "Demo: AI is simulated"). The full pipeline runs end to end, and real models replace the fakes in Sprint 4.
+> ⚠️ The **AI is still simulated** (a fixed answer, shown in the UI as "Demo: AI is simulated"). The full pipeline runs end to end, and real models replace the fakes in Sprint 4.
 
 ## Architecture
 
 ```
  ┌──────────────────────────────────────────────┐
- │  Streamlit UI  (:8501)  हिंदी / English        │
+ │  Streamlit UI  (:8501)  English UI             │
  └──────────────────────────────────────────────┘
           │ POST /api/v1/reports    ▲ dossier / next step
           ▼                         │
@@ -103,7 +103,7 @@ docker compose -f infra/docker-compose.yml up -d db mailpit qdrant
 uv run alembic upgrade head
 uv run python scripts/load_wards.py
 
-# 5. API on http://127.0.0.1:8010
+# 5. API on http://127.0.0.1:8010 (--reload is for local dev only; never use it when deployed)
 uv run uvicorn app.main:app --reload --app-dir backend --port 8010
 
 # 6. UI on http://localhost:8501 (in a second terminal)
@@ -135,7 +135,7 @@ Copy `.env.example` to `.env`. **Sprints 1–2 need only the first two;** everyt
 
 ```powershell
 uv run ruff check .     # lint
-uv run pytest -q        # 29 tests: API, errors, uploads, DB, Qdrant, UI (Streamlit AppTest)
+uv run pytest -q        # 134 tests: API, auth, privacy, limits, routing, DB, Qdrant, UI (Streamlit AppTest)
 ```
 
 DB and Qdrant tests are skipped automatically when those services aren't running.
@@ -153,7 +153,7 @@ backend/
     config.py · db.py · main.py
   migrations/             Alembic: 0001 tables, 0002 vectors moved to Qdrant
   tests/
-ui/                       Streamlit app: report screen, dossier, i18n (hi/en), theme
+ui/                       Streamlit app: login, composer, location (GPS/map/landmark), dossier, My reports, English strings, theme
 data/                     ward maps, roads, PWD list, departments, categories, rules (+ COVERAGE.md, DEPARTMENTS.md)
 scripts/                  fetch/load wards, import OSM roads, match PWD names, reindex Qdrant
 infra/                    docker-compose (Postgres+PostGIS, Qdrant, Mailpit), Dockerfiles
@@ -174,11 +174,13 @@ docs/                     PRD, requirements, UX, architecture, plan, bugs, test 
 | [TEST-CATALOG](docs/TEST-CATALOG.md) | 161 ways to break the system |
 | [BUGS](docs/BUGS.md) | Bugs found and fixed |
 | [Sprint 2 API contract](docs/contracts/sprint2-api.md) | Request/response shapes and error keys |
+| [Sprint 3 API contract](docs/contracts/sprint3-api.md) | Login, pin, privacy rules, rate limits, new error keys |
 
 ## Data sources and honesty notes
 
-- **Ward boundaries:** Delhi MCD 2022 map (OpenCity, via the Wayback Machine). The archive is cut off, so 189 of 250 wards are present; all coverage wards are complete.
-- **Roads:** © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors (ODbL).
+- **Ward boundaries:** Delhi MCD 2022 map (OpenCity, public domain), **all 250 wards**. A complete mirror was verified byte-for-byte against the archived copy. **25 coverage wards**, chosen so every agency type appears at least once.
+- **Roads, metro, rail, industrial areas, river:** © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors (ODbL).
+- **NDMC and Delhi Cantonment boundaries:** [DataMeet](https://github.com/datameet) (CC BY 4.0, approximate). Also used, together with the 250 MCD wards, for the "inside Delhi?" outline.
 - **PWD roads:** the official PWD Delhi "Roads with PWD" inventory. Being on the PWD list means PWD; for roads not on the list, road width decides.
 - **Departments and rules:** researched from official sites, with a source link and date on every row. Unverified items are marked as such.
 - The Kalindi Kunj ghat zone is **hand-drawn (approximate)**. Details are in [`data/COVERAGE.md`](data/COVERAGE.md) and [`data/DEPARTMENTS.md`](data/DEPARTMENTS.md).

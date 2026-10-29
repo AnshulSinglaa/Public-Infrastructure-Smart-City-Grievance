@@ -19,6 +19,23 @@ Not tested: camera capture (blocked in the browser pane), real `tel:` dialing, n
 | B-010 | minor | frontend | Complaint tabs open on हिंदी even when the UI is English | Verified |
 | B-011 | major | frontend | Switching language after choosing a gallery photo silently drops the photo | Verified |
 | B-011 | major | frontend | Switching language clears the uploaded gallery photo (found in re-verify) | Fixed |
+| B-012 | major | frontend | A page refresh or dropped websocket signs the user out and loses the draft; refreshes also use up the per-IP login limit | Verified |
+| B-013 | major | backend | The server accepts a client-sent `location_verified=true` for any uploaded photo | Verified |
+| B-014 | major | backend | A pin exactly on a ward edge or vertex becomes `out_of_coverage` (`ST_Contains`) | Verified |
+| B-015 | minor | backend | Parallel requests get past the rate limits (5 same-spot posts → 4 reports) | Verified |
+| B-016 | minor | frontend | At 375 px with 150 % text, Remove is pushed past the card edge and the sidebar is cramped; location chip is 34 px tall | Verified |
+| B-017 | minor | backend | Devanagari digits in the user's text are rewritten to ASCII in `citizen_text` and the letter | Verified |
+| B-018 | minor | frontend + backend | A pin outside Delhi (Noida) gets the generic card that says the helplines cover "anywhere in Delhi" | Verified |
+| B-019 | minor | backend | A Hinglish landmark (the placeholder example) finds nothing, and there is no fallback | Verified |
+| B-020 | minor | backend | Zero-width-only text counts as text and makes a dossier | Verified |
+| B-021 | minor | frontend | A map tap after picking a landmark moves the pin silently (no confirm or "moved X m") | Verified |
+| B-022 | minor | backend + contract | Names and house numbers in the text are not masked | Verified |
+| B-023 | minor | backend | `/media` responses have no `X-Content-Type-Options: nosniff` | Verified |
+| B-024 | minor | backend | `/docs` and `/openapi.json` are open without a token | Verified |
+| B-025 | minor | devops/config | Streamlit listens on all interfaces (`::`), not 127.0.0.1 | Verified |
+| B-026 | minor | frontend | My reports shows UTC dates (filed 29 Oct IST, shown as 2026-10-28) | Verified |
+| B-027 | minor | backend | Hindi house numbers (`मकान नं. 45`) are not masked (found in re-verify) | Fixed |
+| B-028 | minor | frontend | A refresh keeps the token and the draft text but drops the attached photo (found in re-verify) | Fixed |
 
 ---
 
@@ -94,3 +111,124 @@ Actual: the file chip disappears after the switch; if text is typed, the report 
 ---
 
 Passed (API): photo+text+pin in ward 185 → ward 185 · pin in ward 12 → ward 12 · text only · photo only (media served, bytes match) · empty / whitespace → `need_photo_or_text` · lat-only / lng-only → `need_lat_and_lng` · lat 91 / nan / inf / "abc" → 422 · 8 MB → `photo_too_large` · exactly 5 MB → 201 · .txt as .jpg, GIF → `photo_not_jpeg_png` · Hindi + emoji stored intact · 1000 chars ok, 1001 → `text_too_long` · unknown dossier → 404 `dossier_not_found` · bad uuid → 422 · SQL-injection and `$ward_no` template text stored verbatim, DB intact · `<script>` escaped in UI · 40 concurrent posts all 201.
+
+---
+
+## Sprint 3 run, 29 Oct 2026 (real API on :8010, UI on :8501, DB :5433)
+
+**Summary:** ruff clean · pytest 97/97. Full flow works on the real API: login → composer (Hinglish text + upload) → landmark or map click → dossier (blurred photo, masked text, English letter, Call, demo notice) → My reports → Recent. Wards 185, 145, 30, 144, 57, 82 and 180 route correctly. A non-coverage ward (12, 146), Noida and Mumbai give `out_of_coverage`. EXIF/GPS is stripped (served copy = `_blur` file). Another user gets 404 on someone else's dossier and media. Phones are masked in all three forms. 11th login → `rate_limited_login`, same spot → `rate_limited_same_spot`, 11th report → `rate_limited_daily`, each with English text in the UI. Every protected endpoint returns 401 `login_required` without a valid token (including `/geocode`, forged or expired tokens and non-ASCII tokens). No stack traces. Docker ports are on 127.0.0.1. `.env` and `.cache/` are git-ignored. `showErrorDetails = false`. The UI has no Hindi strings (only `fake_api.py` test data).
+Not tested: real face/plate blur (no face photo available), the GPS paths (camera and geolocation are blocked in the browser pane), DB down, slow network.
+Test data: users "QA Alpha…Zeta", "QA Limit n", "QA Browser" (`@example.com`). **The login limit for 127.0.0.1 was used up at ~21:2x UTC.** It clears after 10 min, or when the API restarts.
+
+### B-012 · major · frontend: refresh signs you out and loses the draft (FLOW-02, INF-07)
+**Status:** Fixed. Cause: the token lived only in `st.session_state`, which a refresh wipes. Token + draft text are now kept in `localStorage` (streamlit_js_eval), restored on load and checked once with new `GET /me` (not rate-limited); Sign out wipes them. Checked in the browser: F5 keeps the login and the draft. Photo drafts are not kept (too big for localStorage). Awaiting QA re-verify.
+Steps: sign in, type text and attach a photo, press F5 (or let Android drop the websocket while the camera app is open).
+Expected: still signed in; the draft (or at least the session) survives.
+Actual: back to "Sign in to continue", draft gone. The token lives only in `st.session_state`. Every refresh means a new `dev-login`, and the limit is 10 per IP per 10 min, so a few refreshes lock out every user behind the same IP/NAT.
+
+### B-013 · major · backend: client decides `location_verified` (LOC-10)
+**Status:** Fixed. Cause: the server stored the client's `location_verified` as fact. It stays a claim: every photo now gets `location_reported_by_phone` ("Location reported by phone (not verified)") or `photo_unverified_location`, a test shows it never changes routing, and the contract lists it as an accepted limitation. Awaiting QA re-verify.
+Steps: `POST /reports` with an uploaded photo and `location_verified=true`.
+Expected: the server never trusts the flag; a gallery upload stays unverified.
+Actual: 201. `report.location_verified = true` in the DB, and no `photo_unverified_location` notice. Any script can mark its photos "verified".
+
+### B-014 · major · backend: pin on a ward edge = out of coverage (LOC-05 ★)
+**Status:** Fixed. Cause: `ST_Contains` is false on the boundary. `find_ward` now uses `ST_Covers`, falling back to the nearest covered ward within 15 m (`ST_DWithin` on `::geography`). Tested with the 185/186 corner, an edge midpoint and points 10 m / 40 m outside. Awaiting QA re-verify.
+Steps: pin at the shared 185/186 vertex `28.5112908, 77.3124494` (computed with PostGIS from the two polygons).
+Expected: both wards as candidates, or at least one of them.
+Actual: 201 `out_of_coverage`. `ST_Contains` is false for every ward (`ST_Covers` is true for 185 and 186). `routing/engine.py` `find_ward`.
+
+### B-015 · minor · backend: rate limits race (FLOW-04, DUP-12)
+**Status:** Fixed. Cause: the limit counts and the insert weren't serialised. `pg_advisory_xact_lock(hashtext(user_id))` now runs before the checks; 5 parallel posts → 1 × 201 + 4 × 429 (test fails without the lock). Awaiting QA re-verify.
+Steps: 5 parallel `POST /reports` from one user at the same pin.
+Expected: 1 × 201, 4 × 429 `rate_limited_same_spot`.
+Actual: `[429, 201, 201, 201, 201]`: 4 reports at one spot. A double-tap or a bot gets past the per-spot (and daily) limit. Known `ponytail` comment in `create_report`.
+
+### B-016 · minor · frontend: 375 px + 150 % text layout (FLOW-21)
+**Status:** Fixed. Cause: `flex-wrap: nowrap` on the photo row and toolbar. Both now wrap, the chip is capped at 16rem (ellipsis) and is 44 px tall, and the sidebar label/status got spacing/nowrap. Checked at 375 px + 150 %: everything stays inside the card. Awaiting QA re-verify.
+Steps: 375 px, Settings → Text size 150 %, attach a photo.
+Expected: everything inside the composer card.
+Actual: the Remove button's right edge is at 464 px (card ends at 351 px, viewport 375). Only the "×" shows; there is no page scroll because the overflow is clipped. The sidebar label "RECENT" crowds the first item, and "connected" wraps under the name. At 100 % it is fine. The location chip is 34 px tall (UX: buttons ≥ 44 px). The max size is 150 % (catalog FLOW-21 asks 200 %).
+
+### B-017 · minor · backend: user's Devanagari digits changed
+**Status:** Fixed. Cause: `mask_pii` translated the whole text to ASCII digits. Phones are now found in an ASCII copy of the same length and masked in the original, so the user's characters stay as written. Awaiting QA re-verify.
+Steps: text `वार्ड १८५ में do gaddhe hain`.
+Expected: shown exactly as written (UX §14), with only phone numbers masked.
+Actual: `citizen_text` and the letter say `वार्ड 185 में …`. `mask_pii` runs `translate(DEVANAGARI_DIGITS)` on the whole text, not just on the phone matches.
+
+### B-018 · minor · frontend + backend: outside Delhi looks like "not covered yet" (LOC-07 ★)
+**Status:** Fixed. Cause: `out_of_coverage` didn't know about the state border. A Delhi outline (`routing/delhi_outline.geojson`, OpenCity 2022 wards + NDMC + Cantonment) sets `next.outside_delhi`. Outside Delhi there are no channels, and the UI shows "This is outside Delhi … CPGRAMS" with a portal link. Awaiting QA re-verify.
+Steps: pin in Noida (`28.535, 77.340`), or the map pin moved onto the Agra canal by Kalindi Kunj.
+Expected: "This looks outside Delhi" plus general channels.
+Actual: "We don't cover this area yet … These helplines take complaints from anywhere in Delhi", with MCD 311. The API's `out_of_coverage` doesn't say whether the pin was outside Delhi.
+
+### B-019 · minor · backend: Hinglish landmark finds nothing (LOC-13)
+**Status:** Fixed. Cause: Nominatim got the whole Hinglish sentence. One retry with the part after the last comma; the placeholder is now "e.g. Kalindi Kunj Park" (checked: Nominatim finds it). Awaiting QA re-verify.
+Steps: landmark search `sarkari school ke saamne, Jaitpur` (the UI placeholder and the contract example).
+Expected: some candidates (e.g. Jaitpur), or a ward-name fallback.
+Actual: `{"candidates": []}` → "No place found". "Jaitpur" alone works. Nominatim gets the whole sentence.
+
+### B-020 · minor · backend: zero-width text is accepted (IN-16)
+**Status:** Fixed. Cause: `str.strip()` keeps U+200B. Text counts only if it has a printable, non-space character (`has_visible_text`), else 422 `need_photo_or_text`. Awaiting QA re-verify.
+Steps: text = three U+200B characters, no photo.
+Expected: 422 `need_photo_or_text`.
+Actual: 201 and a dossier with an empty-looking quote. `str.strip()` keeps U+200B.
+
+### B-021 · minor · frontend: pin moves on any map tap (LOC-19)
+**Status:** Fixed. Cause: a map tap replaced the pin with no feedback. The tap keeps the old pin, and the composer shows "Pin moved N m · Undo". Awaiting QA re-verify.
+Steps: pick the landmark "Kalindi Kunj", then tap the map once.
+Expected: an explicit confirm, or a "moved X m" note.
+Actual: the chip silently changes to "Pin on map". The report filed after that tap went to `out_of_coverage` (the pin had landed on the canal).
+
+### B-022 · minor · backend + contract: names / house numbers not masked (SEC-03 ★)
+**Status:** Fixed. Cause: no house-number rule. `HOUSE` masks `H.No. 45B`, `house no 12/3`, `flat 402`, `#12-B` → `… XX`. Names are not masked; the composer says "Don't include your name or address." and the contract lists it as a known gap. Awaiting QA re-verify.
+Steps: text `mera naam Ramesh Kumar, H.No. 45B Gali 3`.
+Expected (catalog SEC-03): masked in every shared output.
+Actual: shown and quoted verbatim. Phones and emails are masked. The contract only names phones and emails, so this needs a decision.
+
+### B-023 · minor · backend: no `nosniff` on media (SEC-11)
+**Status:** Fixed. Cause: no header set. A small HTTP middleware adds `X-Content-Type-Options: nosniff` to every response. Awaiting QA re-verify.
+`GET /api/v1/media/{id}` → `content-type: image/jpeg`, with no `X-Content-Type-Options` header. Re-encoding already removed the HTML from a polyglot JPEG; the header is the second layer.
+
+### B-024 · minor · backend: API docs are public
+**Status:** Fixed. Cause: FastAPI's docs are on by default. `openapi_url` is None unless `APP_ENV=local`, which turns off `/docs`, `/redoc` and `/openapi.json`. Awaiting QA re-verify.
+`GET /docs` and `/openapi.json` → 200 without a token, so the full API map is public. Turn them off outside `APP_ENV=local`.
+
+### B-025 · minor · devops/config: Streamlit binds to all interfaces
+**Status:** Fixed. Cause: no `server.address`. `ui/.streamlit/config.toml` sets `127.0.0.1`; netstat now shows `127.0.0.1:8501` only. Awaiting QA re-verify.
+`Get-NetTCPConnection` shows `:::8501`, and Streamlit prints Network/External URLs. The security checklist says local services listen on 127.0.0.1. Set `server.address = "127.0.0.1"` for local runs.
+
+### B-026 · minor · frontend: dates in UTC
+**Status:** Fixed. Cause: `created_at[:10]` of a UTC timestamp. `ist_date()` converts to IST (+05:30) first. Awaiting QA re-verify.
+A report filed at ~02:30 IST on 29 Oct shows `2026-10-28` in My reports (`created_at[:10]` of a UTC timestamp). Show IST.
+
+### B-027 · minor · backend: Hindi house number not masked (new, found in re-verify)
+**Status:** Fixed. Cause: `HOUSE` only knew English keywords. It now also matches मकान नं./नंबर, म.नं., फ्लैट, मकान + number, makaan/makan no., ghar no. (Devanagari digits too); 9 test cases. Names stay a documented gap. Awaiting QA re-verify.
+Steps: text `H.No. 45B Gali 3, house no 12/3, flat 402, #12-B, मकान नं. 45`.
+Expected: every house/flat number masked.
+Actual: `H.No. XX Gali 3, house no XX, flat XX, #XX, मकान नं. 45`. The English forms are masked; `मकान नं.` / `मकान नंबर` (and probably `फ्लैट`) are not.
+
+### B-028 · minor · frontend: refresh drops the attached photo (new, found in re-verify)
+**Status:** Fixed. Cause: only the token and text were kept in localStorage. The photo draft is now shrunk to a ≤1280 px JPEG on attach and kept as base64 (`cgr_photo`); over ~1.5 MB it is skipped and the composer says "Photo couldn't be kept after refresh, please re-attach." Sign out clears it. AppTests for both cases. Awaiting QA re-verify.
+Steps: sign in, type text, attach a gallery photo, press F5.
+Expected (catalog INF-07): the draft survives, photo included (it is the main input in the camera flow).
+Actual: still signed in and the text is back, but the photo thumbnail is gone and has to be attached again.
+
+### Re-verify, 29 Oct 2026 (Sprint 3 fixes, same methods as the first run)
+ruff clean · pytest 121/121. API on 127.0.0.1:8010 and UI on 127.0.0.1:8501 (netstat).
+- B-012 Verified: after F5 the user stays signed in and the draft text is back. 12 refreshes, then a fresh `dev-login` → 200, so restoring the token (`GET /me`, 15 × 200) doesn't count toward the limit. Sign out clears `cgr_token`/`cgr_draft`. The photo is not kept → B-028.
+- B-013 Verified: client `location_verified=true` → notice `location_reported_by_phone` ("not verified"); a plain upload → `photo_unverified_location`. It is now stored only as the phone's claim.
+- B-014 Verified: the 185/186/181/183 vertex (`28.5112908, 77.3124494`) and the 185/186 edge midpoint both → dossier, ward 186.
+- B-015 Verified: 5 parallel same-spot posts → `[201, 429, 429, 429, 429]`; 5 parallel posts at different spots → 5 × 201.
+- B-016 Verified: 375 px + 150 % text, photo attached: Remove right edge 326 px < card 351 px, the chip is 44 px tall, no horizontal scroll, and the sidebar is readable.
+- B-017 Verified: `वार्ड १८५ में do gaddhe hain, call ९८७६५४३२१०` → `वार्ड १८५ में do gaddhe hain, call 98XXXXXX10` (citizen_text + letter).
+- B-018 Verified: Noida (API, plus the UI via landmark "Noida Sector 18") → `outside_delhi: true`, no channels, card "This is outside Delhi" + Open CPGRAMS (pgportal.gov.in). Connaught Place and India Gate → `outside_delhi: false`, "We don't cover this area yet" + 155305.
+- B-019 Verified: `sarkari school ke saamne, Jaitpur` → Jaitpur Road candidates; the new placeholder "Kalindi Kunj Park" also finds results.
+- B-020 Verified: `"\u200b \u200b"` → 422 `need_photo_or_text`.
+- B-021 Verified: a map tap after India Gate → "Pin moved 181 m" + Undo. Undo puts the pin back (28.61293, 77.22949) and the landmark chip returns.
+- B-022 Verified: `H.No. 45B`, `house no 12/3`, `flat 402` and `#12-B` → `XX`. Names stay (documented gap; the composer says "Don't include your name or address."). Hindi form not masked → B-027.
+- B-023 Verified: `X-Content-Type-Options: nosniff` on `/media` and `/healthz`.
+- B-024 Verified: `/docs`, `/openapi.json` and `/redoc` → 404 with `APP_ENV=staging` (TestClient). They stay open on purpose with `APP_ENV=local`.
+- B-025 Verified: Streamlit listens on 127.0.0.1:8501 only.
+- B-026 Verified: reports filed at ~21:00 UTC on 28 Oct now show 2026-10-29.
+
