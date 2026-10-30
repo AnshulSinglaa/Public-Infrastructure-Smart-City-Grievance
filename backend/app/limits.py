@@ -6,20 +6,27 @@ from app.config import settings
 
 
 def daily_limit_hit(conn, user_id: uuid.UUID) -> bool:
+    """Reports in the last 24 h. Attempts the AI couldn't handle don't count (B-033): a user
+    retrying during an outage must not lock themselves out."""
     count = conn.execute(
-        "SELECT count(*) FROM report WHERE user_id = %s AND created_at > now() - interval '1 day'",
+        "SELECT count(*) FROM report WHERE user_id = %s AND created_at > now() - interval '1 day'"
+        " AND state <> 'ai_unavailable'",
         (user_id,),
     ).fetchone()[0]
     return count >= settings.rate_reports_day
 
 
-def same_spot_hit(conn, user_id: uuid.UUID, category: str, lat: float, lng: float) -> bool:
-    """Same user + same category within 50 m in 24 h. ::geography makes the distance metres."""
+def same_spot_hit(conn, user_id: uuid.UUID, category: str, lat: float, lng: float,
+                  report_id=None) -> bool:
+    """Same user + same category within 50 m in 24 h, not counting this report itself.
+    ::geography makes the distance metres."""
     return conn.execute(
         "SELECT EXISTS (SELECT 1 FROM report WHERE user_id = %s AND category = %s"
+        " AND id IS DISTINCT FROM %s"
         " AND created_at > now() - make_interval(hours => %s)"
         " AND ST_DWithin(pin::geography, ST_SetSRID(ST_MakePoint(%s, %s), 4326)::geography, %s))",
-        (user_id, category, settings.rate_same_spot_h, lng, lat, settings.rate_same_spot_m),
+        (user_id, category, report_id, settings.rate_same_spot_h, lng, lat,
+         settings.rate_same_spot_m),
     ).fetchone()[0]
 
 
@@ -35,12 +42,11 @@ def cooldown_hit(conn, user_id: uuid.UUID) -> bool:
     ).fetchone()[0]
 
 
-def check(conn, user_id: uuid.UUID, category: str, lat: float, lng: float) -> str | None:
-    """The 429 message_key, or None if the user may file this report."""
+def check(conn, user_id: uuid.UUID) -> str | None:
+    """Checked before any model call: the 429 message_key, or None if the user may go on.
+    The same-spot rule needs the category, so the intake graph checks it at `route`."""
     if cooldown_hit(conn, user_id):
         return "rate_limited_cooldown"
     if daily_limit_hit(conn, user_id):
         return "rate_limited_daily"
-    if same_spot_hit(conn, user_id, category, lat, lng):
-        return "rate_limited_same_spot"
     return None

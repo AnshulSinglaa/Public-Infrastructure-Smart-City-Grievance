@@ -53,18 +53,26 @@ def find_boxes(img: Image.Image) -> list[tuple[int, int, int, int]]:
             for box in c.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)]
 
 
-def blur(img: Image.Image) -> Image.Image:
+def from_model_boxes(img: Image.Image, boxes: list) -> list[tuple[int, int, int, int]]:
+    """Gemini's [ymin, xmin, ymax, xmax] on a 0-1000 scale -> pixel (x, y, w, h)."""
+    W, H = img.size
+    return [(x0 * W // 1000, y0 * H // 1000, (x1 - x0) * W // 1000, (y1 - y0) * H // 1000)
+            for y0, x0, y1, x1 in boxes if y1 > y0 and x1 > x0]
+
+
+def blur(img: Image.Image, extra_boxes: list | None = None) -> Image.Image:
+    """Blur what OpenCV finds plus any boxes the vision model reported (union of both)."""
     out = img.copy()
-    for x, y, w, h in find_boxes(img):
+    for x, y, w, h in find_boxes(img) + (extra_boxes or []):
         box = (x, y, x + w, y + h)
         out.paste(out.crop(box).filter(ImageFilter.GaussianBlur(max(w, h) // 4 + 2)), box)
     return out
 
 
-def blurred_jpeg(img: Image.Image) -> bytes | None:
+def blurred_jpeg(img: Image.Image, extra_boxes: list | None = None) -> bytes | None:
     """The shareable copy, or None if blurring failed (then the photo is withheld)."""
     try:
-        return to_jpeg(blur(img))
+        return to_jpeg(blur(img, extra_boxes))
     except Exception:  # fail closed: any error means "don't share it"
         log.exception("blur failed; photo will be withheld")
         return None

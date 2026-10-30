@@ -13,6 +13,8 @@ from strings import TEXT
 # 127.0.0.1, not localhost: uvicorn listens on IPv4 only, and Windows tries IPv6 (::1) first,
 # which costs ~2 s per call before it falls back.
 API_URL = os.getenv("API_URL", "http://127.0.0.1:8010")
+# A report can wait for the models: the API keeps each model call inside ~50 s (B-031).
+TIMEOUT_S = 90
 
 
 class ApiError(Exception):
@@ -28,9 +30,9 @@ def _client(token: str | None = None) -> httpx.Client:
     if os.getenv("FAKE_API") == "1":
         from lib.fake_api import transport  # canned answers, no server needed
 
-        return httpx.Client(base_url=API_URL, transport=transport, headers=headers, timeout=30)
-    # 30 s: AI steps can take a few seconds
-    return httpx.Client(base_url=API_URL, headers=headers, timeout=30)
+        return httpx.Client(base_url=API_URL, transport=transport, headers=headers,
+                            timeout=TIMEOUT_S)
+    return httpx.Client(base_url=API_URL, headers=headers, timeout=TIMEOUT_S)
 
 
 def _check(resp: httpx.Response) -> dict:
@@ -44,13 +46,19 @@ def _check(resp: httpx.Response) -> dict:
     return resp.json()
 
 
-def _call(method: str, path: str, token: str | None = None, **kwargs) -> dict:
-    """One request + error handling, shared by every endpoint below."""
+def _call(method: str, path: str, token: str | None = None, pick: str | None = None,
+          **kwargs):
+    """One request + error handling, shared by every endpoint below. `pick` = the one field
+    of the answer the caller wants. Anything unexpected (bad JSON, a missing field) becomes
+    the generic "server_error" message, never a traceback on the page (B-030)."""
     try:
         with _client(token) as c:
-            return _check(c.request(method, f"/api/v1{path}", **kwargs))
+            body = _check(c.request(method, f"/api/v1{path}", **kwargs))
+        return body[pick] if pick else body
     except httpx.HTTPError:  # server down, timeout, DNS
         raise ApiError("api_unreachable") from None
+    except (ValueError, KeyError, TypeError):  # not the JSON shape the contract promises
+        raise ApiError("server_error") from None
 
 
 def health() -> bool:
@@ -69,7 +77,7 @@ def dev_login(name: str, email: str) -> dict:
 
 def me(token: str) -> dict:
     """{"id", "name"} of the token's user. Checks a token kept across a refresh."""
-    return _call("GET", "/me", token)["user"]
+    return _call("GET", "/me", token, pick="user")
 
 
 def create_report(token: str, text: str, photo: tuple[str, bytes, str] | None, pin: dict,
@@ -112,8 +120,18 @@ def get_photo(token: str, photo_url: str) -> bytes | None:
 
 def geocode(token: str, text: str) -> list[dict]:
     """Up to 5 places for a landmark: [{"lat", "lng", "label", "source"}]."""
-    return _call("POST", "/geocode", token, json={"text": text})["candidates"]
+    return _call("POST", "/geocode", token, pick="candidates", json={"text": text})
 
 
 def my_reports(token: str) -> list[dict]:
-    return _call("GET", "/me/reports", token)["reports"]
+    return _call("GET", "/me/reports", token, pick="reports")
+
+
+def clarify(token: str, report_id: str, category: str) -> dict:
+    """Answer a paused report's category question. Returns the same envelope as POST /reports."""
+    return _call("POST", f"/reports/{report_id}/clarify", token, json={"category": category})
+
+
+def categories(token: str) -> list[dict]:
+    """Every category the backend knows (data/categories.csv): [{"code", "name_en"}, ...]."""
+    return _call("GET", "/categories", token, pick="categories")

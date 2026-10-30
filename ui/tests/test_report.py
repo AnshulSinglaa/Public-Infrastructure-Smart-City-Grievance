@@ -1,5 +1,6 @@
 import io
 import re
+from html import escape
 from pathlib import Path
 
 import httpx
@@ -247,6 +248,26 @@ def test_every_api_error_key_has_text():
     assert keys <= TEXT.keys()
 
 
+def test_every_ui_text_key_exists():
+    # Every literal t("key") in the UI code has a line in strings.py (SEC-014 included).
+    src = " ".join(f.read_text(encoding="utf-8") for f in UI_DIR.glob("*.py"))
+    keys = set(re.findall(r'(?<![\w.])t\("(\w+)"', src))
+    keys = {k for k in keys if not k.endswith("_")}  # t("conf_" + x): a prefix, completed later
+    assert {"ai_notice", "ai_notice_short", "privacy_hint"} <= keys  # the scan still works
+    assert keys <= TEXT.keys()
+
+
+def test_ai_notice_on_sign_in_and_composer(monkeypatch):  # SEC-014
+    monkeypatch.setenv("FAKE_API", "1")
+    login = AppTest.from_file(str(UI_DIR / "app.py"), default_timeout=30)
+    login.run()  # not signed in: the sign-in card
+    assert TEXT["ai_notice"] in [c.value for c in login.caption]
+    composer = AppTest.from_file(str(UI_DIR / "app.py"), default_timeout=30)
+    composer.session_state["token"] = TOKEN
+    composer.run()
+    assert TEXT["ai_notice_short"] in [c.value for c in composer.caption]
+
+
 def test_sprint3_error_keys_have_text():
     for key in ("login_required", "need_pin", "rate_limited_daily", "rate_limited_same_spot",
                 "rate_limited_cooldown", "geocode_failed"):
@@ -314,13 +335,86 @@ def test_map_tap_says_pin_moved_and_undo_restores(app):  # B-021
     assert app.session_state["pin"] == old and "pin_prev" not in app.session_state
 
 
-def test_outside_delhi_gets_its_own_card(app):  # B-018
-    submit(app, "gaddha", pin={**PIN, "lat": 19.07, "lng": 72.87})  # Mumbai
+MUMBAI = {**PIN, "lat": 19.07, "lng": 72.87}
+
+
+def links(app) -> dict:
+    return {b.proto.label: b.proto.url for b in app.get("link_button")}
+
+
+def test_outside_delhi_shows_state_portal_helpline_and_cpgrams(app):  # B-018, Sprint 4
+    submit(app, "gaddha", pin=MUMBAI)
     caption = " ".join(c.value for c in app.caption)
-    assert TEXT["outside_title"] in page_text(app) and "CPGRAMS" in caption
-    assert "anywhere in Delhi" not in caption
-    [portal] = app.get("link_button")  # no Delhi helpline, only the national portal
-    assert portal.proto.url == "https://pgportal.gov.in"
+    assert TEXT["outside_title"] in page_text(app) and "Maharashtra" in caption
+    assert "anywhere in Delhi" not in caption  # no Delhi helplines outside Delhi
+    assert links(app) == {"Aaple Sarkar": "https://grievances.maharashtra.gov.in",
+                          "Call 1800120800": "tel:1800120800",
+                          "CPGRAMS": "https://pgportal.gov.in"}
+
+
+def test_unverified_state_shows_cpgrams_only(app):
+    submit(app, "gaddha #unverified", pin=MUMBAI)
+    assert links(app) == {"CPGRAMS": "https://pgportal.gov.in"}
+    assert TEXT["state_unknown_help"] in [c.value for c in app.caption]
+
+
+def test_clarify_flow_reaches_dossier(app):
+    submit(app, "kuch toh hai #clarify")
+    assert TEXT["clarify_q"] in page_text(app)
+    assert "report_text" not in [w.key for w in app.text_area]  # the card replaces the composer
+    assert app.button(key="opt_POTHOLE").label == "Pothole · likely"  # name_en from the API
+    assert app.button(key="opt_WATERLOGGING").label == "Waterlogging · maybe"
+    app.button(key="opt_POTHOLE").click().run()
+    assert not app.exception and app.session_state["view"] == "dossier"
+    assert "clarify" not in app.session_state
+
+
+def test_clarify_something_else_uses_the_select(app):
+    submit(app, "kuch toh hai #clarify")
+    app.button(key="opt_other").click().run()
+    select = app.selectbox(key="other_category")
+    assert "Dead animal" in select.options  # read from GET /categories, not hard-coded
+    select.set_value("DEAD_ANIMAL").run()
+    app.button(key="use_other").click().run()
+    assert app.session_state["view"] == "dossier"
+
+
+def test_mismatch_question_names_both(app):
+    submit(app, "light kharab hai #mismatch")
+    assert ("Your photo looks like garbage dump, your text says streetlight not working"
+            in page_text(app))
+    app.button(key="opt_STREETLIGHT_OUT").click().run()
+    assert app.session_state["view"] == "dossier"
+
+
+def test_retake_keeps_text_and_opens_camera(app):
+    submit(app, "gaddha hai #junk_selfie")
+    assert TEXT["retake_selfie"] in " ".join(c.value for c in app.caption)
+    app.button(key="retake_btn").click().run()
+    assert app.session_state["report_text"] == "gaddha hai #junk_selfie"
+    assert app.session_state["attach"] == "camera" and "retake" not in app.session_state
+
+
+def test_emergency_card_sits_above_the_dossier(app):
+    submit(app, "taar gira hua hai #emergency")
+    assert app.session_state["view"] == "dossier"
+    page = page_text(app)
+    assert page.index(TEXT["emergency_call_first"]) < page.index(TEXT["dossier_title"])
+    assert list(links(app).values())[:2] == ["tel:112", "tel:19123"]  # call-first come first
+
+
+def test_ai_unavailable_keeps_the_draft(app):
+    submit(app, "gaddha #503")
+    assert [e.value for e in app.error] == [TEXT["ai_unavailable"]]
+    assert app.session_state["report_text"] == "gaddha #503"
+    assert app.session_state.get("view", "new") == "new"
+
+
+def test_sprint4_keys_have_text():
+    for key in ("invalid_category", "wrong_step", "ai_unavailable", "retake_selfie",
+                "retake_meme", "retake_screenshot", "retake_blank", "retake_unrelated",
+                "emergency_call_first", "state_portal"):
+        assert key in TEXT
 
 
 def test_camera_photo_is_never_called_verified(app):  # B-013
@@ -376,3 +470,64 @@ def test_refresh_with_a_too_big_photo_asks_to_reattach(new_app, monkeypatch):  #
     new_app.run()
     assert "photo_draft" not in new_app.session_state
     assert TEXT["photo_not_kept"] in [c.value for c in new_app.caption]
+
+
+# ---------- Sprint 4 fixes ----------
+
+def test_reports_without_a_category_dont_crash_any_page(app, new_app):  # B-029
+    submit(app, "kuch problem hai yahan #clarify")  # -> needs_clarification, no category
+    new_app.session_state["token"] = TOKEN
+    new_app.run()  # a fresh page load: the sidebar's Recent list renders first
+    assert not new_app.exception
+    labels = [b.label for b in new_app.sidebar.button if b.key.startswith("recent_")]
+    assert any(TEXT["state_needs_clarification"] in label for label in labels)
+    new_app.button(key="nav_reports").click().run()
+    assert not new_app.exception and TEXT["state_needs_clarification"] in page_text(new_app)
+
+
+def test_tracebacks_are_never_shown():  # B-030
+    import tomllib
+
+    from streamlit.config import ShowErrorDetailsConfigOptions as Options
+    config = tomllib.loads((UI_DIR / ".streamlit" / "config.toml").read_text(encoding="utf-8"))
+    assert config["client"]["showErrorDetails"] == Options.NONE  # not the legacy `false`
+
+
+def test_unexpected_api_answer_shows_the_generic_message(monkeypatch):  # B-030
+    from lib import api
+
+    monkeypatch.setattr(api, "_client", lambda token=None: httpx.Client(
+        transport=httpx.MockTransport(lambda r: httpx.Response(200, text="<html>oops")),
+        base_url="http://x"))
+    with pytest.raises(ApiError) as e:
+        api.my_reports("t")
+    assert e.value.message_key == "server_error"
+
+
+def test_photo_kept_when_the_vision_model_was_down(app, monkeypatch):  # B-032
+    import report
+
+    monkeypatch.setattr(report, "get_photo", lambda tok, url: BLURRED)
+    upload_photo(app)
+    submit(app, "kooda #photo_down")
+    captions = [c.value for c in app.caption]
+    assert TEXT["photo_withheld"] not in captions and TEXT["photo"] in captions
+    assert escape(TEXT["photo_not_checked"]) in page_text(app)  # pills are HTML-escaped
+
+
+def test_state_portal_is_read_from_the_top_level(app):  # B-034
+    submit(app, "gaddha", pin={**PIN, "lat": 19.07, "lng": 72.87})  # Maharashtra
+    urls = [b.proto.url for b in app.get("link_button")]
+    assert "https://grievances.maharashtra.gov.in" in urls and "https://pgportal.gov.in" in urls
+
+
+def test_emergency_dossier_shows_immediate_action_not_days(app):  # B-037
+    from lib.fake_api import DOSSIER
+
+    app.session_state["current"] = {"photo": None, "notices": [], "dossier": {
+        **DOSSIER, "category": "LIVE_WIRE", "severity": "critical",
+        "deadline": {"sla_days": None, "label": "immediate"}}}
+    app.session_state["view"] = "dossier"
+    app.run()
+    page = page_text(app)
+    assert TEXT["deadline_immediate"] in page and "days" not in page.split("Who fixes")[-1][:400]

@@ -6,6 +6,7 @@ from pathlib import Path
 import psycopg
 
 from app.config import settings
+from app.intake.catalog import states
 
 POINT = "ST_SetSRID(ST_MakePoint(%s, %s), 4326)"  # ST_MakePoint takes (x, y) = (lng, lat)
 # Delhi's outer edge. Source: OpenCity MCD wards 2022 (public domain), union of 250 wards,
@@ -60,3 +61,42 @@ def general_channels(conn: psycopg.Connection) -> list[dict]:
         "SELECT channel_type, label, value, deep_link FROM contact WHERE scope = 'all' ORDER BY id"
     ).fetchall()
     return [{"type": r[0], "label": r[1], "value": r[2], "deep_link": r[3]} for r in rows]
+
+
+NATIONAL = {"name": "CPGRAMS", "url": "https://pgportal.gov.in"}
+
+
+STATE_GAP_M = 2000  # state outlines are simplified to ~1 km, so borders have small gaps
+
+
+def find_state(conn: psycopg.Connection, lat: float, lng: float):
+    """(code, name) of the state the pin is in. If no outline covers it (a pin in a
+    border gap), take the nearest state within 2 km; ::geography makes that metres."""
+    row = conn.execute(
+        f"SELECT code, name FROM state_boundary WHERE ST_Covers(geom, {POINT}) LIMIT 1",
+        (lng, lat),
+    ).fetchone()
+    if row:
+        return row
+    pin = f"{POINT}::geography"
+    return conn.execute(
+        f"SELECT code, name FROM state_boundary WHERE ST_DWithin(geom::geography, {pin}, %s)"
+        f" ORDER BY ST_Distance(geom::geography, {pin}) LIMIT 1",
+        (lng, lat, STATE_GAP_M, lng, lat),
+    ).fetchone()
+
+
+def state_directory(conn: psycopg.Connection, lat: float, lng: float) -> dict:
+    """Outside coverage: which state the pin is in, and that state's grievance portal.
+    Unknown state, or an entry not marked verified -> CPGRAMS (national) only."""
+    row = find_state(conn, lat, lng)
+    entry = states().get(row[0]) if row else None
+    ok = bool(entry) and entry.get("verified", "").lower() in ("yes", "true", "1")
+    return {
+        "state": row[1] if row else None,
+        "portal_name": entry["portal_name"] if ok else None,
+        "portal_url": entry["portal_url"] if ok else None,
+        "helpline": entry["helpline"] if ok else None,
+        "verified": ok,
+        "national": NATIONAL,
+    }

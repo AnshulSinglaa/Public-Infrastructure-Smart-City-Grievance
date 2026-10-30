@@ -21,10 +21,19 @@ dependencies = [
     "pillow>=13.0.0",
     "cryptography>=50.0.2",
     "defusedxml>=0.7.1",
+    "langgraph>=1.2.16",
+    "google-genai>=2.32.0",
+    "groq>=1.7.0",
+    "langfuse>=5.0.4",
+    "langgraph-checkpoint-postgres>=3.2.0",
 ]
 
 [dependency-groups]
-dev = ["pytest", "ruff"]
+dev = [
+    "deepeval>=4.3.1",
+    "pytest",
+    "ruff",
+]
 
 # Not a library: uv should only install the deps, not build this folder as a package.
 [tool.uv]

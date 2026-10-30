@@ -1,5 +1,5 @@
-"""Report endpoints: file a report, read its dossier, fetch its photo, list my reports.
-Contracts: docs/contracts/sprint2-api.md + sprint3-api.md. Everything here is owner-only.
+"""Report endpoints: file a report, answer its clarify question, read its dossier, fetch its photo, list my reports.
+Contracts: docs/contracts/sprint2-api.md, sprint3-api.md, sprint4-api.md. Everything here is owner-only.
 """
 
 import uuid
@@ -7,19 +7,23 @@ from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
+from langgraph.types import Command
 from PIL import Image
 from psycopg.rows import dict_row
 from psycopg.types.json import Jsonb
+from pydantic import BaseModel, Field
 
-from app import limits
+from app import limits, tracing
 from app.auth import current_user
 from app.config import settings
 from app.db import connect
-from app.dossier.build import build_complaint
+from app.intake.catalog import categories
+from app.intake.emergency import call_first
+from app.intake.graph import config, graph
+from app.intake.store import update_report
 from app.privacy import photo as photo_privacy
-from app.privacy.text import encrypt, mask_pii
-from app.providers.fakes import fake_intake
-from app.routing.engine import general_channels, in_delhi, route
+from app.privacy.text import encrypt
+from app.routing.engine import general_channels, in_delhi, state_directory
 
 router = APIRouter(prefix="/api/v1")
 User = Annotated[uuid.UUID, Depends(current_user)]
@@ -48,66 +52,76 @@ PIN_SQL = "ST_SetSRID(ST_MakePoint(%s, %s), 4326)"
 
 
 def save_photo(conn, img: Image.Image, user_id) -> uuid.UUID:
-    """Save the clean original (private) and, if blurring works, the blurred copy (shared)."""
+    """Save the clean original (private). The blurred copy is made later in the intake
+    graph, once the vision model's face/plate boxes are known; until then blur_status is
+    NULL, which means "not shareable"."""
     media_id = uuid.uuid4()
-    original, blurred = photo_privacy.to_jpeg(img), photo_privacy.blurred_jpeg(img)
-    key, blurred_key = f"{media_id}.jpg", (f"{media_id}_blur.jpg" if blurred else None)
+    key = f"{media_id}.jpg"
     settings.media_dir.mkdir(parents=True, exist_ok=True)
-    # ponytail: if a later insert fails, these files are left orphaned; a cleanup job can
+    # ponytail: if a later insert fails, this file is left orphaned; a cleanup job can
     # delete files with no media row once that matters.
-    (settings.media_dir / key).write_bytes(original)
-    if blurred:
-        (settings.media_dir / blurred_key).write_bytes(blurred)
+    (settings.media_dir / key).write_bytes(photo_privacy.to_jpeg(img))
     conn.execute(
-        "INSERT INTO media (id, owner_id, kind, mime, storage_key, blurred_key, blur_status)"
-        " VALUES (%s, %s, 'photo', 'image/jpeg', %s, %s, %s)",
-        (media_id, user_id, key, blurred_key, "ok" if blurred else "failed"),
+        "INSERT INTO media (id, owner_id, kind, mime, storage_key)"
+        " VALUES (%s, %s, 'photo', 'image/jpeg', %s)",
+        (media_id, user_id, key),
     )
     return media_id
 
 
-def save_report(conn, user_id, master_id, state, media_id, ui_lang, intake, text, pin):
-    """Insert one report row (text encrypted) and return its id."""
+def save_draft(conn, user_id, media_id, ui_lang, text, pin):
+    """Insert the report as a draft (text encrypted) and return its id."""
     return conn.execute(
-        "INSERT INTO report (user_id, master_id, media_id, state, ui_lang, text, category,"
-        " severity, intake_confidence, intake, pin, pin_source, capture_gps, location_verified)"
-        f" VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, {PIN_SQL}, %s, %s, %s) RETURNING id",
-        (user_id, master_id, media_id, state, ui_lang, encrypt(text) if text else None,
-         intake["category"], intake["severity"], intake["confidence"], Jsonb(intake),
-         pin["lng"], pin["lat"], pin["pin_source"], Jsonb({"accuracy_m": pin["accuracy_m"]}),
-         pin["location_verified"]),
+        "INSERT INTO report (user_id, media_id, state, ui_lang, text, pin, pin_source,"
+        " capture_gps, location_verified)"
+        f" VALUES (%s, %s, 'draft', %s, %s, {PIN_SQL}, %s, %s, %s) RETURNING id",
+        (user_id, media_id, ui_lang, encrypt(text) if text else None, pin["lng"], pin["lat"],
+         pin["pin_source"], Jsonb({"accuracy_m": pin["accuracy_m"]}), pin["location_verified"]),
     ).fetchone()[0]
 
 
-def save_master(conn, r, intake, media_id, lat, lng):
-    """Insert the master issue (the problem itself, shared by later reporters); return its id."""
-    dept_id = conn.execute(
-        "SELECT id FROM department WHERE code = %s", (r["department_code"],)
-    ).fetchone()[0]
-    return conn.execute(
-        "INSERT INTO master_issue (category, centroid, ward_id, representative_media_id,"
-        " department_id, routing_confidence, sla_days, state)"
-        f" VALUES (%s, {PIN_SQL}, %s, %s, %s, %s, %s, 'dossier_ready') RETURNING id",
-        (intake["category"], lng, lat, r["ward_id"], media_id, dept_id,
-         r["confidence"], r["sla_days"]),
-    ).fetchone()[0]
-
-
-def save_dossier(conn, master_id, report_id, r, intake, text, lat, lng):
-    """Insert the dossier (pin, routing, English letter, deadline); return its id.
-    Only MASKED text goes in: dossiers are made to be shared."""
-    citizen_text = mask_pii(text) if text else None
-    complaint = build_complaint(intake["category"], intake["severity"], r, citizen_text)
-    pin = {"lat": lat, "lng": lng, "ward_no": r["ward_no"], "ward_name": r["ward_name"]}
-    routing = {"confidence_label": r["confidence_label"], "curated": r["curated"],
-               "fake": r["fake"]}
-    deadline = {"sla_days": r["sla_days"], "label": "suggested"}
-    return conn.execute(
-        "INSERT INTO dossier (master_id, report_id, pin, routing, complaint_en, citizen_text,"
-        " deadline) VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING id",
-        (master_id, report_id, Jsonb(pin), Jsonb(routing), complaint, citizen_text,
-         Jsonb(deadline)),
-    ).fetchone()[0]
+def run_intake(report_id: str, graph_input, notices: list[str]):
+    """Run (or resume) the intake graph, then turn where it stopped into the API envelope."""
+    try:
+        result = graph().invoke(graph_input, config(report_id))
+    finally:
+        tracing.flush()  # send this report's spans now (no-op when tracing is off)
+    body = {"report_id": report_id, "next": None, "master_id": None, "dossier_id": None,
+            "notices": notices}
+    with connect() as conn:
+        kind = result.get("emergency_kind")
+        if kind:  # dangerous: show "call first" numbers, but never block the report
+            body["emergency"] = call_first(conn, kind, result["lat"], result["lng"])
+        # The model never looked at the photo (down, or skipped for privacy): say so (B-032).
+        if result.get("image_down") or result.get("image_skipped"):
+            body["notices"] = [*notices, "photo_not_checked"]
+        if result.get("__interrupt__"):  # paused at clarify_category
+            update_report(conn, report_id, "needs_clarification")
+            return body | {"state": "needs_clarification",
+                           "next": result["__interrupt__"][0].value}
+        state = result["terminal"]
+        if state == "ai_unavailable":  # kept, but not counted in the daily limit (B-033)
+            update_report(conn, report_id, "ai_unavailable")
+            return error(503, "ai_unavailable", "ai_unavailable")
+        if state == "rate_limited_same_spot":
+            return error(429, "rate_limited", "rate_limited_same_spot")
+        if state == "rejected_junk":
+            update_report(conn, report_id, "rejected_junk", junk_reason=result["junk_reason"])
+            return body | {"state": state,
+                           "next": {"kind": "retake_photo", "reason": result["junk_reason"]}}
+        if state == "out_of_coverage":
+            # state_directory is at the TOP level of the response, next to `next` (B-034).
+            lat, lng = result["lat"], result["lng"]
+            delhi = in_delhi(conn, lat, lng)
+            # Outside Delhi our Delhi helplines can't help: no channels, the UI says so,
+            # and that state's own portal (or CPGRAMS) is offered instead.
+            body["next"] = {"kind": "general_channels", "outside_delhi": not delhi,
+                            "channels": general_channels(conn) if delhi else []}
+            if not delhi:
+                body["state_directory"] = state_directory(conn, lat, lng)
+            return body | {"state": state}
+    return body | {"state": "dossier_ready", "master_id": result["master_id"],
+                   "dossier_id": result["dossier_id"]}
 
 
 @router.post("/reports", status_code=201)
@@ -147,7 +161,7 @@ def create_report(
         if img is None:
             return error(422, "validation", "photo_not_jpeg_png")
 
-    notices = ["fake_ai"]
+    notices = ["fake_ai"] if settings.provider_mode == "fake" else []
     if accuracy_m is not None and accuracy_m > settings.gps_accuracy_max_m:
         notices.append("low_gps_accuracy")
     # location_verified is only the phone's claim ("taken with the in-app camera"); the server
@@ -158,44 +172,52 @@ def create_report(
     pin = {"lat": lat, "lng": lng, "accuracy_m": accuracy_m, "pin_source": pin_source,
            "location_verified": location_verified}
 
-    # 2. Fake AI, rate limits, then save everything in one transaction (commits at the end).
-    intake = fake_intake(data or None, text)
+    # 2. Rate limits (before any model call costs us), then save the draft and commit.
     with connect() as conn:
         # One report at a time per user: a parallel request waits here until this
         # transaction ends, so its rate-limit count sees this report (B-015).
         conn.execute("SELECT pg_advisory_xact_lock(hashtext(%s))", (str(user_id),))
-        limited = limits.check(conn, user_id, intake["category"], lat, lng)
+        limited = limits.check(conn, user_id)
         if limited:
             return error(429, "rate_limited", limited)
         media_id = save_photo(conn, img, user_id) if img else None
-        r = route(conn, intake["category"], lat, lng)
-        if r is None:  # out of coverage: report only, no claim, just general helplines
-            report_id = save_report(conn, user_id, None, "out_of_coverage", media_id, ui_lang,
-                                    intake, text, pin)
-            delhi = in_delhi(conn, lat, lng)
-            return {
-                "report_id": str(report_id),
-                "state": "out_of_coverage",
-                # Outside Delhi our Delhi helplines can't help: no channels, the UI says so.
-                "next": {"kind": "general_channels", "outside_delhi": not delhi,
-                         "channels": general_channels(conn) if delhi else []},
-                "master_id": None,
-                "dossier_id": None,
-                "notices": notices,
-            }
-        master_id = save_master(conn, r, intake, media_id, lat, lng)
-        report_id = save_report(conn, user_id, master_id, "dossier_ready", media_id, ui_lang,
-                                intake, text, pin)
-        dossier_id = save_dossier(conn, master_id, report_id, r, intake, text, lat, lng)
+        report_id = str(save_draft(conn, user_id, media_id, ui_lang, text, pin))
 
-    return {
-        "report_id": str(report_id),
-        "state": "dossier_ready",
-        "next": None,
-        "master_id": str(master_id),
-        "dossier_id": str(dossier_id),
-        "notices": notices,
-    }
+    # 3. The AI intake graph: models -> fuse -> (maybe pause to ask) -> SQL routing.
+    return run_intake(report_id, {
+        "report_id": report_id, "user_id": str(user_id), "lat": lat, "lng": lng,
+        "media_id": str(media_id) if media_id else None, "has_text": bool(text)}, notices)
+
+
+class ClarifyIn(BaseModel):
+    category: str = Field(min_length=1, max_length=60)
+
+
+@router.post("/reports/{report_id}/clarify")
+def clarify_report(report_id: uuid.UUID, body: ClarifyIn, user_id: User):
+    """Resume a paused report with the category the user picked."""
+    with connect() as conn:
+        owned = conn.execute("SELECT 1 FROM report WHERE id = %s AND user_id = %s",
+                             (report_id, user_id)).fetchone()
+    if not owned:
+        return error(404, "not_found", "report_not_found")
+    paused = graph().get_state(config(str(report_id))).interrupts
+    question = paused[0].value if paused else None
+    if not question or question.get("kind") != "clarify_category":
+        return error(409, "wrong_step", "wrong_step")
+    answer = body.category.strip()
+    offered = {o["category"] for o in question["options"]}
+    if answer not in offered and not (question["allow_other"] and answer in categories()):
+        return error(422, "validation", "invalid_category")
+    # Claim the paused report in one atomic UPDATE (TL#2): of two parallel answers only one
+    # gets the row back; the other gets 409 instead of making a second dossier.
+    with connect() as conn:
+        claimed = conn.execute(
+            "UPDATE report SET state = 'resuming' WHERE id = %s AND user_id = %s"
+            " AND state = 'needs_clarification' RETURNING 1", (report_id, user_id)).fetchone()
+    if not claimed:
+        return error(409, "wrong_step", "wrong_step")
+    return run_intake(str(report_id), Command(resume=answer), [])
 
 
 @router.get("/dossiers/{dossier_id}")
@@ -220,6 +242,8 @@ def get_dossier(dossier_id: uuid.UUID, user_id: User):
             (d["department_id"],),
         ).fetchall()
     shareable = d["media_id"] and d["blur_status"] == "ok"
+    # "Withheld for privacy" only when blurring itself failed (B-032); a junk photo that
+    # wasn't used is not "withheld".
     return {
         "id": str(d["id"]),
         "category": d["category"],
@@ -235,7 +259,7 @@ def get_dossier(dossier_id: uuid.UUID, user_id: User):
         "channels": channels,
         # The blurred copy only; blur failed -> no photo at all ("Photo withheld for privacy").
         "photo_url": f"/api/v1/media/{d['media_id']}" if shareable else None,
-        "photo_withheld": bool(d["media_id"]) and not shareable,
+        "photo_withheld": d["blur_status"] == "failed",
     }
 
 
@@ -252,6 +276,14 @@ def get_media(media_id: uuid.UUID, user_id: User, original: bool = False):
     if not key or not (settings.media_dir / key).is_file():
         return error(404, "not_found", "media_not_found")
     return FileResponse(settings.media_dir / key, media_type="image/jpeg")
+
+
+@router.get("/categories")
+def list_categories(user_id: User):
+    """The 37 codes from data/categories.csv, for the UI's "Something else" picker."""
+    return {"categories": [{"code": code, "name_en": c["name_en"], "group": c["group"],
+                            "emergency": c["emergency"] == "yes"}
+                           for code, c in categories().items()]}
 
 
 @router.get("/me/reports")

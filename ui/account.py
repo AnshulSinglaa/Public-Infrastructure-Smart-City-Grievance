@@ -9,11 +9,21 @@ import streamlit as st
 from streamlit_js_eval import streamlit_js_eval
 
 from lib.api import ApiError, dev_login, me, my_reports
-from report import go, html, open_dossier, page_title, pill, show_error, start_new_report
+from report import (
+    cat_name,
+    go,
+    html,
+    open_dossier,
+    page_title,
+    pill,
+    show_error,
+    start_new_report,
+)
 from strings import t
 
 TEXT_SIZES = {"100%": 16, "125%": 20, "150%": 24}  # root font size in px (body is 1rem)
-STATE_DOT = {"dossier_ready": ":green[●]", "out_of_coverage": ":orange[●]"}
+STATE_DOT = {"dossier_ready": ":green[●]", "out_of_coverage": ":orange[●]",
+             "needs_clarification": ":blue[●]", "rejected_junk": ":red[●]"}
 IST = timezone(timedelta(hours=5, minutes=30))  # India has one time zone and no DST
 # Names in the browser's localStorage. It survives a refresh; st.session_state does not.
 TOKEN_KEY, DRAFT_KEY, PHOTO_KEY = "cgr_token", "cgr_draft", "cgr_photo"
@@ -101,6 +111,7 @@ def render_login() -> None:
     with st.container(border=True, key="card_login"):
         st.markdown(f"### {t('login_title')}")
         st.caption(t("login_help"))
+        st.caption(t("ai_notice"))  # SEC-014
         # A 401 from any page sends the user here with this note.
         if st.session_state.get("login_msg"):
             st.info(t(st.session_state.login_msg))
@@ -139,12 +150,17 @@ def reports(token: str) -> list[dict]:
 
 
 def one_line(r: dict) -> str:
+    """"Pothole · Ward 185". A report with no category yet (B-029) says what it waits for:
+    "Needs your answer", "Photo rejected", …"""
+    if not r.get("category"):
+        return t(f"state_{r['state']}")
     where = f"Ward {r['ward_no']}" if r.get("ward_no") else t("state_out_of_coverage")
-    return f"{t('cat_' + r['category'])} · {where}"
+    return f"{cat_name(r['category'])} · {where}"
 
 
 def open_report(token: str, r: dict, slot) -> None:
     try:
+        st.session_state.pop("emergency", None)  # only shown right after reporting
         open_dossier(token, r["dossier_id"])
     except ApiError as e:
         show_error(e, slot)

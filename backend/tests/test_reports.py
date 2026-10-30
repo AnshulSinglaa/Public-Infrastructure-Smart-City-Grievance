@@ -104,7 +104,7 @@ def test_text_report_gives_masked_dossier_and_encrypted_text(headers):
     assert body["notices"] == ["fake_ai", "low_gps_accuracy"]
 
     d = client.get(f"/api/v1/dossiers/{body['dossier_id']}", headers=headers).json()
-    assert d["category"] == "pothole" and d["department"]["code"] == "MCD"
+    assert d["category"] == "POTHOLE" and d["department"]["code"] == "MCD"
     assert d["pin"]["ward_no"] == 185
     assert d["channels"][0]["value"] == "155305"
     # English letter only; the citizen's Hindi words are kept as written, masked.
@@ -139,7 +139,7 @@ def test_photo_is_cleaned_blurred_and_served(headers, tmp_path, monkeypatch):
     r = post(headers, files={"photo": ("p.jpg", jpeg(), "image/jpeg")}, data=COVERED)
     assert r.status_code == 201
     assert r.json()["notices"] == ["fake_ai", "photo_unverified_location"]
-    assert blurred == [1]  # the blur step ran
+    assert blurred == [1, 1]  # pre-blur before the model (SEC-013) + the shared copy
     d = client.get(f"/api/v1/dossiers/{r.json()['dossier_id']}", headers=headers).json()
     assert d["photo_withheld"] is False
 
@@ -161,16 +161,25 @@ def test_blur_failure_withholds_photo(headers, tmp_path, monkeypatch):
     monkeypatch.setattr("app.privacy.photo.find_boxes", broken)
     r = post(headers, files={"photo": ("p.jpg", jpeg(), "image/jpeg")},
              data={"location_verified": "true", **COVERED})
+    # Photo only, and it can't be blurred: it is NOT sent to the model (SEC-013). No model
+    # is down, so this is not a 503: the user is asked for the category instead.
     assert r.status_code == 201
-    assert r.json()["notices"] == ["fake_ai", "location_reported_by_phone"]  # B-013
-    d = client.get(f"/api/v1/dossiers/{r.json()['dossier_id']}", headers=headers).json()
+    body = r.json()
+    assert body["state"] == "needs_clarification"
+    assert body["next"] == {"kind": "clarify_category", "options": [], "allow_other": True,
+                            "mismatch": None}
+    assert body["notices"] == ["fake_ai", "location_reported_by_phone", "photo_not_checked"]
+    done = client.post(f"/api/v1/reports/{body['report_id']}/clarify", headers=headers,
+                       json={"category": "POTHOLE"})
+    assert done.status_code == 200 and done.json()["state"] == "dossier_ready"
+    d = client.get(f"/api/v1/dossiers/{done.json()['dossier_id']}", headers=headers).json()
     assert d["photo_url"] is None and d["photo_withheld"] is True
 
     from app.db import connect
     with connect() as conn:
         media_id, status = conn.execute(
             "SELECT m.id, m.blur_status FROM report r JOIN media m ON m.id = r.media_id"
-            " WHERE r.id = %s", (r.json()["report_id"],)).fetchone()
+            " WHERE r.id = %s", (body["report_id"],)).fetchone()
     assert status == "failed"
     assert client.get(f"/api/v1/media/{media_id}", headers=headers).status_code == 404
     # the owner can still see their own original
@@ -200,7 +209,7 @@ def test_my_reports_newest_first(headers):
     reports = client.get("/api/v1/me/reports", headers=headers).json()["reports"]
     assert [x["report_id"] for x in reports] == [second["report_id"], first["report_id"]]
     assert reports[0] | {"created_at": None} == {
-        "report_id": second["report_id"], "state": "out_of_coverage", "category": "pothole",
+        "report_id": second["report_id"], "state": "out_of_coverage", "category": "POTHOLE",
         "ward_no": None, "department_code": None, "created_at": None, "dossier_id": None}
     assert reports[1]["ward_no"] == 185 and reports[1]["department_code"] == "MCD"
     assert reports[1]["dossier_id"] == first["dossier_id"]

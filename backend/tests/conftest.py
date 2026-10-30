@@ -24,3 +24,15 @@ def token_headers():
 def fresh_login_limit():
     """Every test client shares the IP "testclient", so reset the login limit per test."""
     login_times.clear()
+
+
+@pytest.fixture(autouse=True)
+def fake_models(monkeypatch, tmp_path_factory):
+    """Tests never call real models: scripted fakes, a fresh LLM cache, no retry waits."""
+    from app.config import settings
+    from app.providers import common, fakes
+
+    monkeypatch.setattr(settings, "provider_mode", "fake")
+    monkeypatch.setattr(settings, "llm_cache_dir", tmp_path_factory.mktemp("llm"))
+    monkeypatch.setattr(common, "BACKOFF_S", 0)
+    fakes.script()

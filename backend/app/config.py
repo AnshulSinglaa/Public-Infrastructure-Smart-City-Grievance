@@ -19,7 +19,13 @@ class Settings(BaseSettings):
     groq_api_key: SecretStr = SecretStr("")
     google_api_key: SecretStr = SecretStr("")  # Gemini
     text_model: str = "openai/gpt-oss-120b"
-    vision_model: str = "gemini-2.5-flash"
+    vision_model: str = "gemini-3.5-flash-lite"
+    provider_mode: str = "live"  # live = real models; fake = scripted answers (tests)
+    llm_timeout_s: int = 20  # per request; see the time budget in providers/common.py
+    llm_cache_dir: Path = ROOT / ".cache" / "llm"
+    langfuse_public_key: str = ""  # empty = tracing off
+    langfuse_secret_key: SecretStr = SecretStr("")
+    langfuse_host: str = "https://cloud.langfuse.com"
 
     app_env: str = "local"
     auth_mode: str = "dev"  # dev = /auth/dev-login (local only); Supabase OTP from Sprint 8

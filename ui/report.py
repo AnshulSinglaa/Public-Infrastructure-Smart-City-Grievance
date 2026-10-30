@@ -9,7 +9,7 @@ from html import escape
 import streamlit as st
 from PIL import Image, ImageOps, UnidentifiedImageError
 
-from lib.api import ApiError, create_report, get_dossier, get_photo
+from lib.api import ApiError, categories, clarify, create_report, get_dossier, get_photo
 from location import (
     chip_label,
     gps_round_key,
@@ -24,9 +24,12 @@ from strings import t
 
 MAX_PHOTO_BYTES = 5 * 1024 * 1024  # contract: photo <= 5 MB
 # Shown on the dossier. None says "verified": the server can't check a phone's claim.
-NOTICE_PILLS = ("low_gps_accuracy", "photo_unverified_location", "location_reported_by_phone")
-CPGRAMS_URL = "https://pgportal.gov.in"  # the national grievance portal (outside Delhi)
-DRAFT_KEYS = ("report_text", "photo_draft", "attach", "landmark", "loc_open")
+NOTICE_PILLS = ("low_gps_accuracy", "photo_unverified_location", "location_reported_by_phone",
+                "photo_not_checked")
+CPGRAMS = {"name": "CPGRAMS", "url": "https://pgportal.gov.in"}  # national grievance portal
+# A new report forgets the draft and any question / retake / emergency left from the last one.
+DRAFT_KEYS = ("report_text", "photo_draft", "attach", "landmark", "loc_open",
+              "clarify", "clarify_other", "retake", "emergency")
 
 
 def html(markup: str) -> None:
@@ -62,6 +65,41 @@ def start_new_report() -> None:
         st.session_state.pop(key, None)
     reset_location()
     go("new")
+
+
+def cat_name(code: str | None) -> str:
+    """Label for a category code (UPPERCASE, data/categories.csv) from GET /categories.
+    If the list can't be loaded, the code itself is made readable: POTHOLE -> "Pothole".
+    A report that is still waiting (clarify / junk) has no category: never index on it."""
+    if not code:
+        return t("no_category")
+    try:
+        names = category_names(st.session_state.get("token", ""))
+    except ApiError:
+        names = {}
+    return names.get(code) or code.replace("_", " ").capitalize()
+
+
+def handle_step(token: str, report: dict) -> None:
+    """POST /reports and POST /clarify both answer with this envelope: pick the next screen."""
+    st.session_state.pop("reports", None)  # sidebar Recent reloads
+    for key in ("clarify", "clarify_other", "retake"):
+        st.session_state.pop(key, None)
+    st.session_state.emergency = report.get("emergency")  # shown above whatever comes next
+    state = report["state"]
+    if state == "needs_clarification":
+        st.session_state.clarify = {"report_id": report["report_id"], **report["next"]}
+        go("new")
+    elif state == "rejected_junk":
+        st.session_state.retake = report["next"]["reason"]
+        go("new")
+    elif state == "out_of_coverage":  # no dossier, only general helplines
+        # state_directory is at the TOP level of the response, not inside `next` (B-034).
+        st.session_state.uncovered = {**report["next"],
+                                      "state_directory": report.get("state_directory")}
+        go("uncovered")
+    else:
+        open_dossier(token, report["dossier_id"], report.get("notices", []))
 
 
 def open_dossier(token: str, dossier_id: str, notices=()) -> None:
@@ -116,6 +154,7 @@ def render_composer() -> tuple[str, bool, object]:
         text = st.text_area(t("text_label"), placeholder=t("text_ph"), max_chars=1000,
                             height=110, key="report_text", label_visibility="collapsed")
         st.caption(t("privacy_hint"))  # names can't be masked automatically (B-022)
+        st.caption(t("ai_notice_short"))  # SEC-014: who sees the report
         photo = st.session_state.get("photo_draft")
         if photo:
             with st.container(horizontal=True, vertical_alignment="center", key="thumb"):
@@ -163,6 +202,11 @@ def render_composer() -> tuple[str, bool, object]:
 def render_form(token: str) -> None:
     read_gps_now()
     page_title(t("new_title"), t("new_help"))
+    if st.session_state.get("clarify"):  # the question card takes the composer's place
+        render_clarify(token, st.session_state.clarify)
+        return
+    if st.session_state.get("retake"):
+        render_retake(st.session_state.retake)
     text, clicked, error = render_composer()
     submit(token, text, clicked, error)
     if st.session_state.get("loc_open"):
@@ -205,16 +249,90 @@ def submit(token: str, text: str, clicked: bool, error) -> None:
     try:
         with st.spinner(t("preparing")):
             report = create_report(token, text.strip(), photo_part, send_pin, verified)
-            st.session_state.pop("reports", None)  # sidebar Recent reloads
-            if report["state"] == "out_of_coverage":  # no dossier, only general helplines
-                st.session_state.uncovered = report["next"]
-                go("uncovered")
-            else:
-                open_dossier(token, report["dossier_id"], report.get("notices", []))
-    except ApiError as e:
+            handle_step(token, report)
+    except ApiError as e:  # e.g. ai_unavailable (503): the draft stays, just try again
         show_error(e, error)
         return
     st.rerun()
+
+
+# ---------- clarify, retake, emergency ----------
+
+def conf_word(confidence: float) -> str:
+    return t("conf_word_high" if confidence >= 0.5 else "conf_word_low")
+
+
+@st.cache_data(ttl=3600)  # the category list changes rarely: fetch it once an hour
+def category_names(token: str) -> dict[str, str]:
+    """{code: English name} from GET /categories. Codes stay exactly as the API sends them
+    (UPPERCASE): they go back unchanged in POST /clarify."""
+    return {c["code"]: c["name_en"] for c in categories(token)}
+
+
+def answer(token: str, report_id: str, category: str, slot) -> None:
+    try:
+        with st.spinner(t("preparing")):
+            handle_step(token, clarify(token, report_id, category))
+    except ApiError as e:
+        show_error(e, slot)
+        return
+    st.rerun()
+
+
+def render_clarify(token: str, q: dict) -> None:
+    """One chat-style question card (the first step toward the Sprint 5 chat)."""
+    mm = q.get("mismatch")
+    question = (t("mismatch_q", image=cat_name(mm["image"]).lower(),
+                  text=cat_name(mm["text"]).lower()) if mm else t("clarify_q"))
+    with st.container(border=True, key="card_clarify"):
+        html(f'<div class="bot-line"><span class="bot-avatar">◆</span>'
+             f'<div><p class="bot-q">{escape(question, quote=False)}</p>'
+             f'<p class="muted bot-help">{t("clarify_help")}</p></div></div>')
+        error = st.empty()
+        with st.container(horizontal=True, key="clarify_options"):
+            for opt in q["options"]:
+                label = f"{cat_name(opt['category'])} · {conf_word(opt['confidence'])}"
+                if st.button(label, key=f"opt_{opt['category']}"):
+                    answer(token, q["report_id"], opt["category"], error)
+            if q.get("allow_other"):
+                st.button(t("something_else"), key="opt_other", type="tertiary",
+                          on_click=lambda: st.session_state.update(clarify_other=True))
+        if q.get("allow_other") and st.session_state.get("clarify_other"):
+            try:
+                names = category_names(token)
+            except ApiError as e:
+                show_error(e, error)
+                return
+            with st.container(horizontal=True, vertical_alignment="bottom", key="other_row"):
+                cat = st.selectbox(t("pick_category"), list(names), format_func=names.get,
+                                   key="other_category")
+                if st.button(t("use_category"), key="use_other", type="primary"):
+                    answer(token, q["report_id"], cat, error)
+
+
+def retake_photo() -> None:
+    for key in ("retake", "photo_draft"):
+        st.session_state.pop(key, None)
+    st.session_state.attach = "camera"  # open the camera straight away; the text stays
+
+
+def render_retake(reason: str) -> None:
+    with st.container(border=True, key="card_retake"):
+        st.markdown(f"#### {t('retake_title')}")
+        st.caption(f"{t('retake_' + reason)} {t('retake_keep_text')}")
+        st.button(t("retake"), key="retake_btn", type="primary",
+                  icon=":material/photo_camera:", on_click=retake_photo)
+
+
+def render_emergency(em: dict) -> None:
+    """Red-accent card above everything. It never blocks: the report continues below."""
+    with st.container(border=True, key="card_emergency"):
+        st.markdown(f"#### ⚠️ {t('emergency_call_first')}")
+        st.caption(t("emergency_help"))
+        with st.container(horizontal=True):
+            for i, ch in enumerate(em.get("call_first", [])):
+                st.link_button(ch["label"], ch["deep_link"], icon=":material/call:",
+                               type="primary" if i == 0 else "secondary", width="stretch")
 
 
 # ---------- dossier and out of coverage ----------
@@ -228,16 +346,37 @@ def call_buttons(channels: list[dict]) -> None:
 
 def render_uncovered(nxt: dict) -> None:
     """Out of coverage (FR-3.2): say so plainly, claim no department, offer helplines.
-    Outside Delhi our Delhi helplines can't help, so point to the national portal instead."""
-    outside = nxt.get("outside_delhi")
+    Outside Delhi our Delhi helplines can't help: show the state's portal (if verified)
+    and CPGRAMS, the national portal."""
+    if nxt.get("state_directory") or nxt.get("outside_delhi"):
+        render_state_card(nxt.get("state_directory") or {})
+        return
     with st.container(border=True, key="card_uncovered"):
-        st.markdown(f"#### {t('outside_title' if outside else 'uncovered_title')}")
-        st.caption(t("outside_help" if outside else "uncovered_help"))
+        st.markdown(f"#### {t('uncovered_title')}")
+        st.caption(t("uncovered_help"))
         with st.container(horizontal=True):
             call_buttons(nxt["channels"])
-            if outside:
-                st.link_button(t("open_cpgrams"), CPGRAMS_URL, icon=":material/open_in_new:",
-                               type="primary")
+            st.button(t("new_report"), key="dossier_new", icon=":material/add:",
+                      on_click=start_new_report)
+
+
+def render_state_card(sd: dict) -> None:
+    national = sd.get("national") or CPGRAMS
+    verified = bool(sd.get("verified") and sd.get("portal_url"))
+    with st.container(border=True, key="card_uncovered"):
+        st.markdown(f"#### {t('outside_title')}")
+        # Unknown or unverified state: only the national portal is safe to suggest.
+        st.caption(t("state_help", state=sd["state"]) if verified else t("state_unknown_help"))
+        with st.container(horizontal=True, key="state_actions"):
+            if verified:
+                st.link_button(sd["portal_name"], sd["portal_url"], type="primary",
+                               icon=":material/open_in_new:",
+                               help=t("state_portal", state=sd["state"]))
+                if sd.get("helpline"):
+                    st.link_button(t("call_helpline", n=sd["helpline"]),
+                                   f"tel:{sd['helpline']}", icon=":material/call:")
+            st.link_button(national["name"], national["url"], icon=":material/open_in_new:",
+                           type="secondary" if verified else "primary")
             st.button(t("new_report"), key="dossier_new", icon=":material/add:",
                       on_click=start_new_report)
 
@@ -246,7 +385,7 @@ def render_dossier(cur: dict) -> None:
     d = cur["dossier"]
     page_title(t("dossier_title"), t("we_dont_send"))
     html('<div class="pills header-pills">'
-         + pill(t(f"cat_{d['category']}")) + pill(t(f"sev_{d['severity']}"))
+         + pill(cat_name(d["category"])) + pill(t(f"sev_{d['severity']}"))
          + pill(t("state_dossier_ready"), "ok") + "</div>")
 
     # Department card: who fixes it, where, and the honest-limits pills.
@@ -255,8 +394,11 @@ def render_dossier(cur: dict) -> None:
     pills = [pill(t("conf_" + routing.get("confidence_label", "unsure")), "accent")]
     if routing.get("curated"):
         pills.append(pill(t("curated"), "accent"))
-    key = "deadline_suggested" if deadline.get("label") == "suggested" else "deadline"
-    pills.append(pill(t(key, n=deadline["sla_days"])))
+    if deadline.get("label") == "immediate":  # emergency: no N-day deadline (B-037)
+        pills.append(pill(t("deadline_immediate"), "warn"))
+    else:
+        key = "deadline_suggested" if deadline.get("label") == "suggested" else "deadline"
+        pills.append(pill(t(key, n=deadline["sla_days"])))
     html(f'<div class="card"><p class="label muted">{t("who_fixes")}</p>'
          f'<h3 class="dept">{escape(dept["name_en"])} '
          f'<span class="muted">· {escape(dept["code"])}</span></h3>'
@@ -267,12 +409,13 @@ def render_dossier(cur: dict) -> None:
         st.markdown(f"#### {t('you_reported')}")
         if d.get("citizen_text"):
             html(f'<p class="citizen-text">{escape(d["citizen_text"])}</p>')
-        if d.get("photo_url"):
-            if cur["photo"]:
-                st.image(cur["photo"], width=240)
-                st.caption(t("photo"))
-            else:
-                st.caption(t("photo_withheld"))
+        if cur["photo"]:
+            st.image(cur["photo"], width=240)
+            st.caption(t("photo"))
+        elif d.get("photo_withheld"):  # only when blurring failed (B-032), never a guess
+            st.caption(t("photo_withheld"))
+        elif d.get("photo_url"):  # the blurred copy exists but didn't load
+            st.caption(t("photo_not_loaded"))
 
     with st.container(border=True, key="card_letter"):
         st.markdown(f"#### {t('complaint_letter')}")

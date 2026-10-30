@@ -1,0 +1,37 @@
+state_code,state_name,portal_name,portal_url,helpline,source_url,accessed,verified
+AN,Andaman and Nicobar,LG Helpdesk (Citizen Grievance Filing & Redressal),https://db.and.nic.in/lghelpdesk/,,https://db.and.nic.in/lghelpdesk/,2026-10-29,yes
+AP,Andhra Pradesh,PGRS - Public Grievance Redressal System,https://pgrs.ap.gov.in/,,https://pgrs.ap.gov.in/,2026-10-29,yes
+AR,Arunachal Pradesh,CM e-Jansunwai Public Grievance Redressal System,https://cmejansunwai.arunachal.gov.in/,1076,https://cmejansunwai.arunachal.gov.in/,2026-10-29,yes
+AS,Assam,Sewa Setu grievance registration,https://sewasetu.assam.gov.in/grm-v2,,https://sewasetu.assam.gov.in/grm-v2,2026-10-29,yes
+BR,Bihar,Bihar Lok Shikayat Nivaran (BPGRS),https://lokshikayat.bihar.gov.in/,1800 345 6284,https://lokshikayat.bihar.gov.in/,2026-10-29,yes
+CG,Chhattisgarh,Jandarshan,https://jandarshan.cg.nic.in/,,https://jandarshan.cg.nic.in/,2026-10-29,yes
+CH,Chandigarh,LokSamadhan,https://loksamadhan.chd.gov.in/mainhome.aspx,,https://loksamadhan.chd.gov.in/mainhome.aspx,2026-10-29,yes
+DH,Dadra and Nagar Haveli and Daman and Diu,Grievances/Complaints,https://ddd.gov.in/grievances-complaints/,,https://ddd.gov.in/grievances-complaints/,2026-10-29,yes
+DL,Delhi,Public Grievance Monitoring System (PGMS),https://pgms.delhi.gov.in/,,https://pgms.delhi.gov.in/,2026-10-29,yes
+GA,Goa,Directorate of Public Grievances,https://dpg.goa.gov.in/,,https://dpg.goa.gov.in/,2026-10-29,yes
+GJ,Gujarat,SWAGAT grievance portal,https://swagat.gujarat.gov.in/,,https://swagat.gujarat.gov.in/,2026-10-29,yes
+HP,Himachal Pradesh,CM Sewa Sankalp,https://cmsankalp.hp.gov.in/,1100,https://cmsankalp.hp.gov.in/,2026-10-29,yes
+HR,Haryana,CM Window (CM Grievance Cell),https://cmharyanacell.nic.in/cm_window_index,,https://cmharyanacell.nic.in/cm_window_index,2026-10-29,yes
+JH,Jharkhand,Parishodhan,https://parishodhan.jharkhand.gov.in/,,https://parishodhan.jharkhand.gov.in/,2026-10-29,yes
+JK,Jammu and Kashmir,JK Samadhan,https://samadhan.jk.gov.in/,1905,https://samadhan.jk.gov.in/,2026-10-29,yes
+KA,Karnataka,IPGRS (Praja Seve),https://ipgrs.karnataka.gov.in/,1902,https://ipgrs.karnataka.gov.in/,2026-10-29,yes
+KL,Kerala,CM's Public Grievance Redressal Cell,https://cmo.kerala.gov.in/,1076,https://cmo.kerala.gov.in/,2026-10-29,yes
+LA,Ladakh,Ladakh Grievance Portal,https://grievance.ladakh.gov.in/,8588816003,https://grievance.ladakh.gov.in/,2026-10-29,yes
+LD,Lakshadweep,,,,,2026-10-29,no
+MH,Maharashtra,Aaple Sarkar grievance portal,https://grievances.maharashtra.gov.in/en,1800 120 8040,https://grievances.maharashtra.gov.in/en,2026-10-29,yes
+ML,Meghalaya,Public Grievance Redressal and Monitoring System (MegPGRAMS),,,https://meghalaya.gov.in/services/content/19327,2026-10-29,no
+MN,Manipur,CM Da Haisi,,,https://cmdahaisi.mn.gov.in/,2026-10-29,no
+MP,Madhya Pradesh,CM Helpline,https://cmhelpline.mp.gov.in/,181,https://cmhelpline.mp.gov.in/,2026-10-29,yes
+MZ,Mizoram,Mipui Aw,https://mipuiaw.mizoram.gov.in/,,https://mipuiaw.mizoram.gov.in/,2026-10-29,yes
+NL,Nagaland,,,,,2026-10-29,no
+OD,Odisha,Jana Sunani Public Grievance Redressal Portal,https://janasunani.odisha.gov.in/,,https://janasunani.odisha.gov.in/,2026-10-29,yes
+PB,Punjab,Connect Punjab (PGRS),https://connect.punjab.gov.in/,1100,https://connect.punjab.gov.in/,2026-10-29,yes
+PY,Puducherry,LG's Petition Monitoring System,https://lgredressal.py.gov.in/pgrs/,,https://lgredressal.py.gov.in/pgrs/,2026-10-29,yes
+RJ,Rajasthan,Rajasthan Sampark,https://sampark.rajasthan.gov.in/,181,https://sampark.rajasthan.gov.in/,2026-10-29,yes
+SK,Sikkim,,,,,2026-10-29,no
+TN,Tamil Nadu,Mudhalvarin Mugavari (CM Helpline),,,https://cmhelpline.tnega.org/portal/en/home,2026-10-29,no
+TR,Tripura,CPGRAMS Tripura,https://grievance.tripura.gov.in/,,https://grievance.tripura.gov.in/,2026-10-29,yes
+TS,Telangana,Prajavani,https://prajavani.cgg.gov.in/,,https://prajavani.cgg.gov.in/,2026-10-29,yes
+UK,Uttarakhand,CM Helpline 1905,https://cmhelpline.uk.gov.in/,1905,https://cmhelpline.uk.gov.in/,2026-10-29,yes
+UP,Uttar Pradesh,IGRS Jansunwai-Samadhan,https://jansunwai.up.nic.in/,,https://jansunwai.up.nic.in/,2026-10-29,yes
+WB,West Bengal,,,,,2026-10-29,no

@@ -103,3 +103,20 @@ Exclude them from the "pin → special zone" step or every pin in coverage would
 - `pwd_list.csv`: 1,297 rows (66 v1 + 1,231 from the inventory JSON). `pwd_matches.csv`: 1,398 proposals on
   666 OSM ways for 153 PWD road names (181 road IDs), all `confirmed` empty for the curator. Generic PWD
   names (e.g. "Mahatma Gandhi Road", 81 ways) need a curator `match_name` to stop over-matching.
+
+## States (Sprint 4, outside coverage)
+
+- `data/states.geojson` (36 states/UTs) and the `state_boundary` table are built by `scripts/load_states.py`
+  from Natural Earth 10m admin-1 v5 (public domain), simplified ~1 km (0.01°) in PostGIS.
+- It already has the post-2019 units: J&K (JK) and Ladakh (LA) separate, DNH&DD merged (DH).
+- Codes are the current ISO 3166-2:IN ones (2023-11 change): CT→CG, OR→OD, TG→TS, UT→UK.
+- **Boundary issues:** Natural Earth draws de facto lines (Line of Control in Kashmir, Aksai Chin, parts of
+  Arunachal), not India's official map, so pins in those areas may find no state → CPGRAMS only. Each state
+  is simplified on its own (GEOS 3.11 has no coverage simplify), so slivers up to ~1 km can open between
+  neighbours, and a pin right on a state border may hit none or two. A nearest-state fallback within ~2 km
+  would fix that if it matters. Coastal pins within ~1 km of the shore can fall outside every state.
+- `data/state_directory.csv`: 29 of 36 verified (portal page fetched on a .gov.in / .nic.in domain on
+  2026-10-29, and the page itself shows it is a grievance portal). Helplines are filled only where the official
+  page shows the number. Not verified (blank URL, `verified=no`): LD, NL, SK, WB (no state-wide portal found),
+  MN (CM Da Haisi was under maintenance), ML (megpgrams.gov.in, linked from meghalaya.gov.in, did not load),
+  and TN (the CM Helpline is on tnega.org, which is not a government domain). Saved pages: `data/raw/states/portals/`.

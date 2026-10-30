@@ -19,7 +19,9 @@ backgroundColor = "#1F1E1D"
 
 [client]
 toolbarMode = "minimal"
-showErrorDetails = false  # never show Python tracebacks to users (security checklist)
+# "none": no message, type or traceback (B-030). In Streamlit 1.66 the old `false` means
+# "stacktrace", which still showed local paths. Options: full | stacktrace | type | none.
+showErrorDetails = "none"
 
 [server]
 address = "127.0.0.1"  # local only: not reachable from the network (B-025)

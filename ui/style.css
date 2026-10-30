@@ -71,7 +71,8 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 .st-key-card_composer [data-testid="stTextAreaRootElement"] { background: transparent; border: none; }
 .st-key-card_composer textarea { padding: 0; font-size: 1rem; }
 .st-key-card_composer [data-testid="InputInstructions"] { display: none; }
-.st-key-thumb .st-key-remove_photo { margin-left: auto; }
+.st-key-thumb { flex-wrap: nowrap !important; gap: 0.6rem; }  /* photo, note, Remove: one row */
+.st-key-thumb .st-key-remove_photo { margin-left: auto; flex: 0 0 auto; }
 .st-key-remove_photo button { padding: 0; }
 .st-key-thumb [data-testid="stCaptionContainer"] { white-space: nowrap; }
 .st-key-thumb .stElementContainer:has([data-testid="stCaptionContainer"]) { flex: 0 0 auto; width: auto !important; }
@@ -172,3 +173,33 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 .status.ok::first-letter { color: #4CAF7A; }
 .status.down::first-letter { color: #E06C5A; }
 .st-key-side_user .stPopover button { min-height: 36px; border: none; background: transparent; }
+
+/* ---------- Sprint 4 cards ---------- */
+/* Emergency: red accent edge, shown above everything (icon + words, not colour alone). */
+.st-key-card_emergency { border-color: #E06C5A !important; border-left-width: 4px !important; margin-bottom: 16px; }
+.st-key-card_emergency h4 { color: #E06C5A; margin: 0; }
+.st-key-card_emergency a[kind="primary"] {
+  background: #E06C5A !important; border-color: #E06C5A !important; min-height: 52px; font-size: 1.05rem;
+}
+/* Clarify: one chat-style question card (avatar + question, answers as chips). */
+.bot-line { display: flex; gap: 12px; align-items: flex-start; }
+.bot-avatar {
+  flex: 0 0 32px; height: 32px; border-radius: 50%; background: #262624; color: #5B9CF5;
+  border: 1px solid #3E3E3A; display: inline-flex; align-items: center; justify-content: center;
+}
+.bot-q { font-size: 1.05rem; font-weight: 600; margin: 4px 0 2px !important; }
+.bot-help { font-size: 0.875rem !important; margin: 0 0 10px !important; }
+.st-key-clarify_options { padding-left: 44px; flex-wrap: wrap; }
+.st-key-clarify_options button[kind="secondary"] { border-radius: 999px; }
+.st-key-other_row { padding-left: 44px; }
+@media (max-width: 640px) {
+  .st-key-clarify_options, .st-key-other_row { padding-left: 0; }
+  /* Phones: answer chips two per row; a long name wraps inside its chip. */
+  .st-key-clarify_options { display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .st-key-clarify_options .stElementContainer, .st-key-clarify_options button { width: 100% !important; }
+  .st-key-clarify_options button p { white-space: normal; line-height: 1.3; }
+}
+/* Retake: warning edge. */
+.st-key-card_retake { border-left: 3px solid #E0A43A !important; margin-bottom: 12px; }
+.st-key-card_retake h4 { margin: 0; }
+.st-key-state_actions { flex-wrap: wrap; }

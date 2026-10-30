@@ -61,7 +61,7 @@ Response `200` (simplified Dossier from ARCHITECTURE §7):
 ```json
 {
   "id": "uuid",
-  "category": "pothole",
+  "category": "POTHOLE",
   "severity": "high",
   "pin": {"lat": 28.544, "lng": 77.311, "ward_no": 185, "ward_name": "Madanpur Khadar East"},
   "department": {"code": "MCD", "name_en": "Municipal Corporation of Delhi", "name_hi": "दिल्ली नगर निगम"},

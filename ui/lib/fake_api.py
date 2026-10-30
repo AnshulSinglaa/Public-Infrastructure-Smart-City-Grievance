@@ -2,14 +2,20 @@
 
 httpx lets us swap the real network for a function (`httpx.MockTransport`), so the UI's
 real request code still runs; only the server's answers are canned. Shapes follow
-docs/contracts/sprint2-api.md and sprint3-api.md.
+docs/contracts/sprint2-api.md, sprint3-api.md and sprint4-api.md.
 
 Handy triggers for tests and QA:
 - a pin outside the box below (e.g. the "India Gate" landmark) → out of coverage
 - a pin outside the rough Delhi box (e.g. Mumbai) → out of coverage, outside_delhi
 - report text containing "#429" → 429 rate_limited_daily
 - landmark text "nothing" → no candidates; "#502" → geocode_failed
-- report text containing "#withheld" → the dossier photo is withheld (media 404)
+- report text containing "#withheld" → blurring failed: the dossier photo is withheld
+- report text containing "#photo_down" → the vision model was down: "photo_not_checked"
+- "#clarify" → needs_clarification (low confidence); "#mismatch" → photo and text disagree
+- "#junk_selfie" (or _meme, _screenshot, _blank, _unrelated) → rejected_junk
+- "#emergency" → the response adds an emergency "call first" block
+- "#503" → 503 ai_unavailable
+- outside Delhi: Mumbai → Maharashtra portal (verified); add "#unverified" → CPGRAMS only
 """
 
 import json
@@ -24,7 +30,7 @@ DELHI = (28.40, 28.88, 76.84, 77.35)  # a rough Delhi box (the real API uses an 
 
 DOSSIER = {
     "id": DOSSIER_ID,
-    "category": "pothole",
+    "category": "POTHOLE",
     "severity": "high",
     "pin": {"lat": 28.544, "lng": 77.311, "ward_no": 185, "ward_name": "Madanpur Khadar East"},
     "department": {
@@ -58,14 +64,49 @@ CANDIDATES = [
     {"lat": 28.5440, "lng": 77.3110, "label": "Govt School, Madanpur Khadar", "source": "fake"},
     {"lat": 28.5287, "lng": 77.2881, "label": "Sarita Vihar Metro Station", "source": "fake"},
     {"lat": 28.6129, "lng": 77.2295, "label": "India Gate (not covered)", "source": "fake"},
+    {"lat": 18.9398, "lng": 72.8355, "label": "CST station, Mumbai (outside Delhi)", "source": "fake"},
 ]
+
+EMERGENCY = {"kind": "live_wire", "call_first": [
+    {"label": "Emergency 112", "value": "112", "deep_link": "tel:112"},
+    {"label": "BSES Rajdhani", "value": "19123", "deep_link": "tel:19123"},
+]}
+CLARIFY = {"kind": "clarify_category", "allow_other": True, "mismatch": None, "options": [
+    {"category": "POTHOLE", "confidence": 0.55},
+    {"category": "WATERLOGGING", "confidence": 0.31},
+]}
+MISMATCH = {**CLARIFY, "mismatch": {"image": "GARBAGE_DUMP", "text": "STREETLIGHT_OUT"},
+            "options": [
+    {"category": "GARBAGE_DUMP", "confidence": 0.62},
+    {"category": "STREETLIGHT_OUT", "confidence": 0.48},
+]}
+NATIONAL = {"name": "CPGRAMS", "url": "https://pgportal.gov.in"}
+# A few rows of data/categories.csv (the real list has 37). Codes are UPPERCASE.
+CATEGORIES = [
+    {"code": "POTHOLE", "name_en": "Pothole", "group": "roads", "emergency": False},
+    {"code": "GARBAGE_DUMP", "name_en": "Garbage dump", "group": "waste", "emergency": False},
+    {"code": "WATERLOGGING", "name_en": "Waterlogging", "group": "water", "emergency": False},
+    {"code": "STREETLIGHT_OUT", "name_en": "Streetlight not working", "group": "power",
+     "emergency": False},
+    {"code": "LIVE_WIRE", "name_en": "Live wire", "group": "power", "emergency": True},
+    {"code": "DEAD_ANIMAL", "name_en": "Dead animal", "group": "health", "emergency": False},
+    {"code": "OTHER", "name_en": "Other", "group": "other", "emergency": False},
+]
+PAUSED = {}  # report_id → the envelope to return once the user answers /clarify
 
 # "My issues": one old report, plus every report made while the app runs (newest first).
 REPORTS = [{
     "report_id": "00000000-0000-0000-0000-0000000000a0", "state": "dossier_ready",
-    "category": "pothole", "ward_no": 185, "department_code": "MCD",
+    "category": "POTHOLE", "ward_no": 185, "department_code": "MCD",
     "created_at": "2026-10-26T09:30:00+05:30", "dossier_id": DOSSIER_ID,
 }]
+
+
+def row(report_id, state, category, covered, dossier_id) -> dict:
+    """One "My reports" row, the shape GET /me/reports sends."""
+    return {"report_id": report_id, "state": state, "category": category,
+            "ward_no": 185 if covered else None, "department_code": "MCD" if covered else None,
+            "created_at": "2026-10-28T10:00:00+05:30", "dossier_id": dossier_id}
 
 
 def error(status: int, code: str, key: str) -> httpx.Response:
@@ -93,27 +134,54 @@ def create_report(body: bytes) -> httpx.Response:
     if b'name="photo"' in body:
         claim = field(body, "location_verified") == "true"
         notices.append("location_reported_by_phone" if claim else "photo_unverified_location")
+    if b"#photo_down" in body:
+        notices.append("photo_not_checked")
     LAST["text"] = field(body, "text") or ""
     # The photo part's bytes: after its headers' blank line, up to the next boundary.
     m = re.search(rb'name="photo".*?\r\n\r\n(.*)\r\n--', body, re.DOTALL)
     LAST["photo"] = m.group(1) if m else None
     covered = COVERED[0] <= lat <= COVERED[1] and COVERED[2] <= lng <= COVERED[3]
     in_delhi = DELHI[0] <= lat <= DELHI[1] and DELHI[2] <= lng <= DELHI[3]
+    if b"#503" in body:
+        return error(503, "ai_unavailable", "ai_unavailable")
     n = len(REPORTS)
+    report_id = f"00000000-0000-0000-0000-0000000000{n:02x}"
+    junk = re.search(rb"#junk_(\w+)", body)
+    if junk:  # saved with no category, like the real API (B-029)
+        REPORTS.insert(0, row(report_id, "rejected_junk", None, None, None))
+        return httpx.Response(201, json={
+            "report_id": report_id, "state": "rejected_junk", "master_id": None,
+            "dossier_id": None, "notices": notices,
+            "next": {"kind": "retake_photo", "reason": junk.group(1).decode()}})
+    nxt = None
+    if not covered:
+        nxt = {"kind": "general_channels", "outside_delhi": not in_delhi,
+               "channels": DOSSIER["channels"] if in_delhi else []}
     report = {
-        "report_id": f"00000000-0000-0000-0000-0000000000{n:02x}",
+        "report_id": report_id,
         "state": "dossier_ready" if covered else "out_of_coverage",
-        "next": None if covered else {"kind": "general_channels", "outside_delhi": not in_delhi,
-                                      "channels": DOSSIER["channels"] if in_delhi else []},
+        "next": nxt,
         "master_id": "00000000-0000-0000-0000-0000000000b1" if covered else None,
         "dossier_id": DOSSIER_ID if covered else None,
         "notices": notices,
     }
-    REPORTS.insert(0, {
-        "report_id": report["report_id"], "state": report["state"], "category": "pothole",
-        "ward_no": 185 if covered else None, "department_code": "MCD" if covered else None,
-        "created_at": "2026-10-28T10:00:00+05:30", "dossier_id": report["dossier_id"],
-    })
+    if not covered and not in_delhi:  # TOP level of the response, as the real API (B-034)
+        report["state_directory"] = {
+            "state": "Maharashtra", "portal_name": "Aaple Sarkar",
+            "portal_url": "https://grievances.maharashtra.gov.in", "helpline": "1800120800",
+            "verified": b"#unverified" not in body, "national": NATIONAL}
+    if b"#emergency" in body:
+        report["emergency"] = EMERGENCY
+    question = MISMATCH if b"#mismatch" in body else CLARIFY if b"#clarify" in body else None
+    if question:  # paused: no category yet in My reports (B-029)
+        REPORTS.insert(0, row(report_id, "needs_clarification", None, None, None))
+    else:
+        REPORTS.insert(0, row(report_id, report["state"], "POTHOLE", covered,
+                              report["dossier_id"]))
+    if question:  # pause: answer with the question now, the real result after /clarify
+        PAUSED[report_id] = report
+        return httpx.Response(201, json={**report, "state": "needs_clarification",
+                                          "next": question, "dossier_id": None})
     return httpx.Response(201, json=report)
 
 
@@ -128,18 +196,30 @@ def handler(request: httpx.Request) -> httpx.Response:
         return error(401, "unauthorized", "login_required")
     if method == "POST" and path == "/api/v1/reports":
         return create_report(request.read())
+    m = re.fullmatch(r"/api/v1/reports/([\w-]+)/clarify", path)
+    if method == "POST" and m:
+        if m.group(1) not in PAUSED:
+            return error(409, "wrong_step", "wrong_step")
+        category = json.loads(request.read())["category"]
+        offered = {o["category"] for o in CLARIFY["options"] + MISMATCH["options"]}
+        if category not in offered | {c["code"] for c in CATEGORIES}:
+            return error(422, "validation", "invalid_category")
+        return httpx.Response(200, json=PAUSED.pop(m.group(1)))
     if method == "POST" and path == "/api/v1/geocode":
         text = json.loads(request.read())["text"]
         if "#502" in text:
             return error(502, "geocode_failed", "geocode_failed")
         return httpx.Response(200, json={"candidates": [] if "nothing" in text else CANDIDATES})
+    if method == "GET" and path == "/api/v1/categories":
+        return httpx.Response(200, json={"categories": CATEGORIES})
     if method == "GET" and path == "/api/v1/me":
         return httpx.Response(200, json={"user": {"id": "u1", "name": "Priya"}})
     if method == "GET" and path == "/api/v1/me/reports":
         return httpx.Response(200, json={"reports": REPORTS})
     if method == "GET" and path == f"/api/v1/dossiers/{DOSSIER_ID}":
-        d = {**DOSSIER, "citizen_text": LAST["text"],
-             "photo_url": MEDIA_URL if LAST["photo"] else None}
+        withheld = bool(LAST["photo"]) and "#withheld" in LAST["text"]
+        d = {**DOSSIER, "citizen_text": LAST["text"], "photo_withheld": withheld,
+             "photo_url": MEDIA_URL if LAST["photo"] and not withheld else None}
         return httpx.Response(200, content=json.dumps(d, ensure_ascii=False).encode())
     if method == "GET" and path == MEDIA_URL and LAST["photo"] and "#withheld" not in LAST["text"]:
         return httpx.Response(200, content=LAST["photo"], headers={"content-type": "image/png"})

@@ -4,7 +4,7 @@
 
 A **multimodal agentic RAG** application for civic complaints, with geospatial routing. **Pilot city: Delhi.** The code is city-agnostic: wards, roads, rules and contacts are data files.
 
-![status](https://img.shields.io/badge/status-Sprint%203%20done-blue) ![python](https://img.shields.io/badge/python-3.12-blue) ![tests](https://img.shields.io/badge/tests-134%20passing-brightgreen)
+![status](https://img.shields.io/badge/status-Sprint%204%20done-blue) ![python](https://img.shields.io/badge/python-3.12-blue) ![tests](https://img.shields.io/badge/tests-204%20passing-brightgreen)
 
 ---
 
@@ -24,19 +24,20 @@ In Delhi, a pothole on a road **≥ 60 ft wide** belongs to **PWD**, but on a na
 
 The app **never files complaints on the citizen's behalf**: it routes and prepares, and the citizen files on the official channel. It **never guesses**: when it's unsure it asks, and when it doesn't cover an area it says so and shows the general helplines.
 
-## Current status (Sprint 3 of 14)
+## Current status (Sprint 4 of 14)
 
 | Done ✅ | Next 🔜 |
 |---|---|
-| Chat-style English UI: one composer (photo + text in any language), sidebar with Recent and My reports | Sprint 4: **real AI** (Gemini vision + Groq LLM in a LangGraph agent), emergency path, Langfuse, DeepEval, state directory for pins outside Delhi |
-| Real GPS + map pin (click / nudge), drift warning, landmark search | Sprint 5: road-level routing (roads + PWD list + 73 rules), **chat intake**, night-safety priority |
-| Login (dev mode), owner-only data, rate limits (reports + login), race-safe | Sprint 6: **RAG** over rule documents (Qdrant), cited claims, Ragas, follow-up Q&A |
-| Privacy: EXIF/GPS stripped, faces + plates blurred (fails closed), phone/house numbers masked, text encrypted | After Sprint 6: research agent (government sites only) for places outside coverage |
-| **Ward lookup on all 250 Delhi wards**, 25 covered; NDMC / Cantonment / outside-Delhi handled honestly | Sprint 7–8: duplicates, monsoon hotspot alerts, full evaluation, Locust, deploy (HTTPS, backups, email login) |
-| Data: 32 departments, 37 problem types, 73 rules, 398 zones, 18,909 roads, all 1,297 PWD roads | Later: tracker + appeals, votes, final demo |
-| 134 tests, CI (lint, tests, migrations, pip-audit, gitleaks), 28 bugs found and fixed, security audit gate passed | |
+| **Real multimodal AI**: Gemini (`gemini-3.5-flash-lite`) reads the photo, Groq (`gpt-oss-120b`) reads Hindi/English/Hinglish text, in a **LangGraph agent** that pauses to ask "Is it X or Y?" when unsure | Sprint 5: road-level routing with the **73 department rules** (e.g. live wire → power company, sewer → DJB), **chat intake**, night-safety priority |
+| Emergency path (live wire, gas leak, open manhole, …) shows "call 112 / helpline first"; junk photos (selfie, meme, blank) get a friendly retake | Sprint 6: **RAG** over rule documents (Qdrant), cited claims, Ragas, follow-up Q&A |
+| Prompt injection can't change the department or severity (tested with DeepEval against the real model) | After Sprint 6: research agent (government sites only) for places outside coverage |
+| Privacy: photos are **blurred before** they reach the AI; text is masked; the user is told which AI services see the report | Sprint 7–8: duplicates, monsoon hotspot alerts, full evaluation, Locust, deploy (HTTPS, backups, email login) |
+| Outside Delhi: the state's official grievance portal (36 states/UTs, 29 verified) + CPGRAMS | Later: tracker + appeals, votes, final demo |
+| Langfuse tracing (masked, off until keys are set), strict JSON checks, retries within a < 60 s budget, cache | |
+| Chat-style English UI, GPS + map pin, login, rate limits, 250 Delhi wards (25 covered) | |
+| 204 tests, CI green, 38 bugs found and fixed, security audits passed (AI re-audit included) | |
 
-> ⚠️ The **AI is still simulated** (a fixed answer, shown in the UI as "Demo: AI is simulated"). The full pipeline runs end to end, and real models replace the fakes in Sprint 4.
+> ℹ️ The AI is **real** from Sprint 4. Department routing is still the simple ward lookup until the 73 rules land in Sprint 5.
 
 ## Architecture
 
@@ -180,6 +181,8 @@ docs/                     PRD, requirements, UX, architecture, plan, bugs, test 
 
 - **Ward boundaries:** Delhi MCD 2022 map (OpenCity, public domain), **all 250 wards**. A complete mirror was verified byte-for-byte against the archived copy. **25 coverage wards**, chosen so every agency type appears at least once.
 - **Roads, metro, rail, industrial areas, river:** © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors (ODbL).
+- **State and UT boundaries (all 36):** [Natural Earth](https://www.naturalearthdata.com/) admin-1, public domain, simplified to ~1 km; used only to find which state a pin is in. Natural Earth shows de facto lines in Kashmir, so pins there get CPGRAMS only.
+- **State grievance portals:** `data/state_directory.csv`, 29 of 36 verified on official `.gov.in` / `.nic.in` sites (date in each row); the rest fall back to CPGRAMS.
 - **NDMC and Delhi Cantonment boundaries:** [DataMeet](https://github.com/datameet) (CC BY 4.0, approximate). Also used, together with the 250 MCD wards, for the "inside Delhi?" outline.
 - **PWD roads:** the official PWD Delhi "Roads with PWD" inventory. Being on the PWD list means PWD; for roads not on the list, road width decides.
 - **Departments and rules:** researched from official sites, with a source link and date on every row. Unverified items are marked as such.

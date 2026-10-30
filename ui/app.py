@@ -15,7 +15,7 @@ from account import (
     restore_login,
 )
 from lib.api import health
-from report import render_dossier, render_form, render_uncovered
+from report import render_dossier, render_emergency, render_form, render_uncovered
 from strings import t
 
 st.set_page_config(page_title=t("app_name"), page_icon=":material/location_city:",
@@ -48,6 +48,8 @@ browser_save(PHOTO_KEY, photo_for_browser(st.session_state.get("photo_draft")))
 
 render_sidebar(token, api_health())
 view = st.session_state.get("view", "new")
+if st.session_state.get("emergency") and view != "reports":  # above everything else
+    render_emergency(st.session_state.emergency)
 if view == "reports":
     render_reports(token)
 elif view == "dossier" and "current" in st.session_state:
