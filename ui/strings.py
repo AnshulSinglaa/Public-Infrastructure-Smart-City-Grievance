@@ -80,12 +80,15 @@ TEXT = {
     "demo_ai": "Demo: AI is simulated, results are not real.",
     "conf_very_likely": "Very likely",
     "conf_likely": "Likely",
+    "conf_possible": "Possible",
     "conf_unsure": "Not sure",
     # Out of coverage (FR-3.2): no department claim, only general helplines
     "uncovered_title": "We don't cover this area yet",
     "uncovered_help": "We can't name the right department for this place yet. "
     "These helplines take complaints from anywhere in Delhi.",
     "outside_title": "This is outside Delhi",
+    "outside_help": "We only route complaints inside Delhi. Use your state's grievance portal "
+    "or CPGRAMS, the national portal.",
     # My reports
     "reports_help": "Everything you've reported, newest first.",
     "reports_empty": "No reports yet. Saw a problem? Report it.",
@@ -118,6 +121,22 @@ TEXT = {
     "retake_unrelated": "We can't see a civic problem in this photo. Please photograph the problem.",
     "retake": "Retake photo",
     "retake_keep_text": "Your text is kept.",
+    # Chat intake (Sprint 5)
+    "checking": "Checking…",
+    "type_answer": "Or type your answer…",
+    "answer_unclear": "Sorry, I didn't quite get that.",
+    # the API sends this as the pick question's message_key (other q_* keys are f-strings)
+    "q_pick_candidate": "More than one department could handle this. Which fits?",
+    "open_letter": "Open full letter",
+    "back_to_chat": "Back to chat",
+    "why_label": "Why",
+    "ev_pwd_list": "On the PWD road list",
+    "ev_width": "Road width",
+    "ev_image": "Photo check",
+    "ev_user_answer": "Your answer",
+    "ev_pwd_list_parallel": "Other carriageway on the PWD list",
+    "ev_road_ref": "National highway (NH-48)",
+    "ev_zone": "Zone: {zone}",
     # Emergency: shown above everything, never blocks the report
     "emergency_call_first": "This may be dangerous — call first",
     "emergency_help": "Stay at a safe distance and call first. Your report is saved.",
@@ -126,7 +145,6 @@ TEXT = {
     "state_help": "We only route complaints inside Delhi. {state} has its own grievance portal.",
     "state_unknown_help": "We only route complaints inside Delhi. "
     "CPGRAMS, the national portal, accepts complaints from anywhere in India.",
-    "call_helpline": "Call {n}",
     "sev_critical": "Critical risk",
     "sev_high": "High risk",
     "sev_medium": "Medium risk",
@@ -153,11 +171,13 @@ TEXT = {
     "need_pin": "Please set the location first.",
     "rate_limited_daily": "You've sent many reports today. Please try again tomorrow.",
     "rate_limited_same_spot": "You already reported this problem here today. See My reports.",
+    "rate_limited_answers": "You've typed many answers. Please tap one of the buttons instead.",
     "rate_limited_cooldown": "Too many unclear photos. Please wait 15 minutes and try again.",
     "rate_limited_login": "Too many sign-in attempts. Please wait a few minutes and try again.",
     "invalid_category": "Please pick one of the listed categories.",
     "report_not_found": "We couldn't find this report. Please start a new one.",
-    "wrong_step":"This report has already moved on. Please open it from My reports.",
+    "wrong_step": "This question was already answered. Here is the latest step.",
+    "invalid_answer": "Please pick one of the options, or type your answer.",
     "ai_unavailable": "Our AI helper is busy right now. Your draft is saved — "
     "please try again in a minute.",
     "geocode_failed": "Couldn't search for places right now. Click the map instead.",

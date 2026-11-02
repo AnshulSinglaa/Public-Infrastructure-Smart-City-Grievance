@@ -5,6 +5,7 @@ from test_health import db_is_up
 
 from app.config import settings
 from app.main import app
+from app.providers import fakes
 
 needs_db = pytest.mark.skipif(not db_is_up(), reason="database not reachable")
 
@@ -240,7 +241,10 @@ def ward_edge_points():
 
 @needs_db
 def test_pin_on_ward_edge_or_corner_is_covered(headers):  # B-014
-    for i, (lat, lng) in enumerate(ward_edge_points()):
+    points = ward_edge_points()
+    # A category that needs no road / drain question: this test is about the ward only.
+    fakes.script(text=[{"category": "STRAY_CATTLE"}] * len(points))
+    for i, (lat, lng) in enumerate(points):
         r = post(headers, data={"text": f"gaddha {i}", "lat": lat, "lng": lng})
         assert r.status_code == 201 and r.json()["state"] == "dossier_ready", (lat, lng)
         d = client.get(f"/api/v1/dossiers/{r.json()['dossier_id']}", headers=headers).json()
@@ -266,6 +270,7 @@ def test_pin_just_outside_a_covered_ward_uses_the_buffer():  # B-014: <= 15 m sn
 @needs_db
 def test_location_claim_never_changes_routing(headers):  # B-013
     answers = []
+    fakes.script(image=[{"category": "STRAY_CATTLE"}] * 2)  # routes with no question
     for claim, lat in (("true", "28.544"), ("false", "28.5425")):  # 167 m apart, both ward 185
         r = post(headers, files={"photo": ("p.jpg", jpeg(), "image/jpeg")},
                  data={"location_verified": claim, "lat": lat, "lng": "77.311"})

@@ -3,6 +3,8 @@
 **Date:** 2026-10-24 · **Attendees:** tech-lead, backend-developer, frontend-developer, devops-engineer, qa-engineer · **Input:** PRD.md (incl. §14), REQUIREMENTS.md, UX.md
 **Status:** Proposals. Items in §5 need the user's decision before ARCHITECTURE.md is written.
 
+> **📌 2026-11-02: Sprint 5 closed.** Routing now uses the 73 rules in PostGIS (divided-road rule, discom + I&FC lookups); intake is a chat (LangGraph questions → buttons or free text; the LLM only maps text to the offered options, never the department). 261 backend + 61 UI tests pass. Bugs B-039..B-053 fixed; review in `REVIEW-S5.md`; SEC-015 + SEC-016 fixed, security R6 running. **Next:** deploy mini-sprint, then Sprint 6 (RAG).
+
 ---
 
 ## 1. Agreed by everyone
@@ -109,7 +111,7 @@ Vectors (rule chunks + photo embeddings) move to **Qdrant**; Postgres + PostGIS 
 ### ✅ Change (2026-10-29): **vision model = gemini-3.5-flash-lite** (gemini-2.5-flash is retired for new users; flash-lite was faster and more consistent than 3.5-flash on our key, ~17–19 s on the free tier)
 
 ### ✅ Decided (2026-10-29, user): **two extra features**
-- **Night-safety priority (Sprint 5, with real routing):** a streetlight / dark-street / open-manhole report gets one severity level higher when it is (a) reported or photographed at night (19:00–06:00 IST, or the vision model sees darkness) AND (b) within 150 m of a school, metro station, bus stop, hospital or market (OSM points of interest for the 25 wards). The dossier says why ("near a metro exit, at night"). Rule-based, no AI decides it.
+- ~~Night-safety priority~~ **removed by the user (2026-10-30).**
 - **Monsoon hotspot alerts (Sprint 7, with duplicates):** known flood spots = the officially published Delhi waterlogging hotspot list (PWD / Traffic Police, with source + year) + our own past waterlogging reports (≥ 3 within 50 m). A pin near a hotspot shows "This spot is a known waterlogging point (source)", and the letter cites the history. Before the monsoon (June) a banner lists hotspots in the user's ward. Sources are always shown; past reports are counted only, never shown with personal data.
 
 ### ✅ Decided (2026-10-29, user): **outside-coverage help (2 layers)**

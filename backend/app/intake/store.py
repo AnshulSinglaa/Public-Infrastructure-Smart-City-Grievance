@@ -14,16 +14,23 @@ def masked_text(conn, report_id: str) -> str | None:
     return mask_pii(decrypt(row[0])) if row and row[0] else None
 
 
+def department_id(conn, code: str) -> int:
+    """The department's row id. The backend only reads this table (contract §5): a missing
+    row means scripts/load_rules.py wasn't run."""
+    row = conn.execute("SELECT id FROM department WHERE code = %s", (code,)).fetchone()
+    if not row:
+        raise RuntimeError(f"department {code} missing: run scripts/load_rules.py")
+    return row[0]
+
+
 def save_master(conn, r, category, media_id, lat, lng):
     """Insert the master issue (the problem itself, shared by later reporters); return its id."""
-    dept_id = conn.execute(
-        "SELECT id FROM department WHERE code = %s", (r["department_code"],)
-    ).fetchone()[0]
     return conn.execute(
         "INSERT INTO master_issue (category, centroid, ward_id, representative_media_id,"
-        " department_id, routing_confidence, sla_days, state)"
-        f" VALUES (%s, {PIN_SQL}, %s, %s, %s, %s, %s, 'dossier_ready') RETURNING id",
-        (category, lng, lat, r["ward_id"], media_id, dept_id, r["confidence"], r["sla_days"]),
+        " department_id, routing_rule_id, routing_confidence, sla_days, state)"
+        f" VALUES (%s, {PIN_SQL}, %s, %s, %s, %s, %s, %s, 'dossier_ready') RETURNING id",
+        (category, lng, lat, r["ward_id"], media_id, department_id(conn, r["department_code"]),
+         r["rule_id"], r["confidence"], r["sla_days"]),
     ).fetchone()[0]
 
 
@@ -34,8 +41,8 @@ def save_dossier(conn, master_id, report_id, r, category, severity, citizen_text
     15-day deadline: the letter asks for immediate action (B-037)."""
     complaint = build_complaint(category, severity, r, citizen_text, emergency)
     pin = {"lat": lat, "lng": lng, "ward_no": r["ward_no"], "ward_name": r["ward_name"]}
-    routing = {"confidence_label": r["confidence_label"], "curated": r["curated"],
-               "fake": r["fake"]}
+    routing = {key: r[key] for key in ("confidence_label", "curated", "fake", "rule_id",
+                                       "evidence", "candidates", "why", "why_key")}
     deadline = ({"sla_days": None, "label": "immediate"} if emergency
                 else {"sla_days": r["sla_days"], "label": "suggested"})
     return conn.execute(

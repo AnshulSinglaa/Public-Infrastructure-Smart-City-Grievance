@@ -17,12 +17,15 @@ from app import limits, tracing
 from app.auth import current_user
 from app.config import settings
 from app.db import connect
-from app.intake.catalog import categories
+from app.intake import events
+from app.intake.catalog import categories, departments
 from app.intake.emergency import call_first
 from app.intake.graph import config, graph
 from app.intake.store import update_report
 from app.privacy import photo as photo_privacy
-from app.privacy.text import encrypt
+from app.privacy.text import encrypt, mask_pii
+from app.providers import groq
+from app.providers.common import ProviderDown
 from app.routing.engine import general_channels, in_delhi, state_directory
 
 router = APIRouter(prefix="/api/v1")
@@ -81,7 +84,8 @@ def save_draft(conn, user_id, media_id, ui_lang, text, pin):
 
 
 def run_intake(report_id: str, graph_input, notices: list[str]):
-    """Run (or resume) the intake graph, then turn where it stopped into the API envelope."""
+    """Run (or resume) the intake graph, then turn where it stopped into the API envelope.
+    Every outcome is also written to the chat transcript (report_event)."""
     try:
         result = graph().invoke(graph_input, config(report_id))
     finally:
@@ -92,13 +96,15 @@ def run_intake(report_id: str, graph_input, notices: list[str]):
         kind = result.get("emergency_kind")
         if kind:  # dangerous: show "call first" numbers, but never block the report
             body["emergency"] = call_first(conn, kind, result["lat"], result["lng"])
+            events.record_emergency(conn, report_id, body["emergency"])
         # The model never looked at the photo (down, or skipped for privacy): say so (B-032).
         if result.get("image_down") or result.get("image_skipped"):
             body["notices"] = [*notices, "photo_not_checked"]
-        if result.get("__interrupt__"):  # paused at clarify_category
+        if result.get("__interrupt__"):  # paused: clarify_category / issue_question / pick
+            question = result["__interrupt__"][0].value
             update_report(conn, report_id, "needs_clarification")
-            return body | {"state": "needs_clarification",
-                           "next": result["__interrupt__"][0].value}
+            events.record_question(conn, report_id, question)
+            return body | {"state": "needs_clarification", "next": question}
         state = result["terminal"]
         if state == "ai_unavailable":  # kept, but not counted in the daily limit (B-033)
             update_report(conn, report_id, "ai_unavailable")
@@ -107,6 +113,7 @@ def run_intake(report_id: str, graph_input, notices: list[str]):
             return error(429, "rate_limited", "rate_limited_same_spot")
         if state == "rejected_junk":
             update_report(conn, report_id, "rejected_junk", junk_reason=result["junk_reason"])
+            events.record_rejected(conn, report_id, result["junk_reason"])
             return body | {"state": state,
                            "next": {"kind": "retake_photo", "reason": result["junk_reason"]}}
         if state == "out_of_coverage":
@@ -119,7 +126,11 @@ def run_intake(report_id: str, graph_input, notices: list[str]):
                             "channels": general_channels(conn) if delhi else []}
             if not delhi:
                 body["state_directory"] = state_directory(conn, lat, lng)
+            events.record_out_of_coverage(conn, report_id, body["next"],
+                                          body.get("state_directory"))
             return body | {"state": state}
+        events.record_dossier(conn, report_id, result["dossier_id"],
+                              result["decision"]["department_code"])
     return body | {"state": "dossier_ready", "master_id": result["master_id"],
                    "dossier_id": result["dossier_id"]}
 
@@ -182,6 +193,8 @@ def create_report(
             return error(429, "rate_limited", limited)
         media_id = save_photo(conn, img, user_id) if img else None
         report_id = str(save_draft(conn, user_id, media_id, ui_lang, text, pin))
+        events.record(conn, report_id, "user", "report", text=mask_pii(text) if text else "",
+                      has_photo=bool(img))
 
     # 3. The AI intake graph: models -> fuse -> (maybe pause to ask) -> SQL routing.
     return run_intake(report_id, {
@@ -193,31 +206,165 @@ class ClarifyIn(BaseModel):
     category: str = Field(min_length=1, max_length=60)
 
 
+def owns(report_id, user_id) -> bool:
+    with connect() as conn:
+        return conn.execute("SELECT 1 FROM report WHERE id = %s AND user_id = %s",
+                            (report_id, user_id)).fetchone() is not None
+
+
+def pending_question(report_id) -> dict | None:
+    """The question the paused graph is waiting on, or None."""
+    paused = graph().get_state(config(str(report_id))).interrupts
+    return paused[0].value if paused else None
+
+
+def rewind_if_stuck(report_id) -> None:
+    """A failed answer (C1, B-053) uses up the question but leaves the graph mid-step, while
+    the report says needs_clarification. Then run the graph again from the last step that
+    asked: it stops on the same question, so this answer can go ahead. Under the row lock,
+    so two parallel answers don't both rewind. Nothing is done for a healthy report."""
+    g, cfg = graph(), config(str(report_id))
+    with connect() as conn:
+        row = conn.execute("SELECT state FROM report WHERE id = %s FOR UPDATE",
+                           (report_id,)).fetchone()
+        state = g.get_state(cfg)
+        if row and row[0] == "needs_clarification" and not state.interrupts and state.next:
+            asked = next(s.config for s in g.get_state_history(cfg) if s.interrupts)
+            g.invoke(None, asked)
+
+
+def allowed_answers(question: dict) -> dict[str, str]:
+    """value -> label for every answer this question accepts."""
+    allowed = {o["value"]: o["label"] for o in events.options_of(question)}
+    if question["kind"] == "clarify_category" and question["allow_other"]:
+        allowed |= {code: c["name_en"] for code, c in categories().items()}
+    return allowed
+
+
+def claim(conn, report_id, user_id, question: dict) -> bool:
+    """Lock the report row, then check it still waits on `question` (TL#2, B-039). Of two
+    parallel answers only the first passes; a late one (even after a slow LLM call) gets
+    False and must write nothing. The lock is held until `conn`'s transaction ends."""
+    row = conn.execute("SELECT state FROM report WHERE id = %s AND user_id = %s FOR UPDATE",
+                       (report_id, user_id)).fetchone()
+    return bool(row) and row[0] == "needs_clarification" \
+        and pending_question(report_id) == question
+
+
+def resume(report_id, user_id, question: dict, value: str, label: str,
+           text: str | None = None):
+    """Claim the paused report, record the answer, then resume the graph with it."""
+    rid = str(report_id)
+    with connect() as conn:
+        claimed = claim(conn, report_id, user_id, question)
+        if claimed:
+            conn.execute("UPDATE report SET state = 'resuming' WHERE id = %s", (report_id,))
+            events.record(conn, rid, "user", "answer", value=value, text=text or label)
+    if not claimed:
+        return error(409, "wrong_step", "wrong_step")
+    try:
+        return run_intake(rid, Command(resume=value), [])
+    except Exception:
+        # Never leave the report stuck (C1, B-053): it waits for an answer again and the chat
+        # shows the question again. The graph itself is rewound by rewind_if_stuck() at the
+        # next answer, so a second failure here can't leave it half-done.
+        with connect() as conn:
+            update_report(conn, rid, "needs_clarification")
+            events.record_question(conn, rid, question)
+        raise
+
+
 @router.post("/reports/{report_id}/clarify")
 def clarify_report(report_id: uuid.UUID, body: ClarifyIn, user_id: User):
     """Resume a paused report with the category the user picked."""
-    with connect() as conn:
-        owned = conn.execute("SELECT 1 FROM report WHERE id = %s AND user_id = %s",
-                             (report_id, user_id)).fetchone()
-    if not owned:
+    if not owns(report_id, user_id):
         return error(404, "not_found", "report_not_found")
-    paused = graph().get_state(config(str(report_id))).interrupts
-    question = paused[0].value if paused else None
+    rewind_if_stuck(report_id)
+    question = pending_question(report_id)
     if not question or question.get("kind") != "clarify_category":
         return error(409, "wrong_step", "wrong_step")
     answer = body.category.strip()
-    offered = {o["category"] for o in question["options"]}
-    if answer not in offered and not (question["allow_other"] and answer in categories()):
+    allowed = allowed_answers(question)
+    if answer not in allowed:
         return error(422, "validation", "invalid_category")
-    # Claim the paused report in one atomic UPDATE (TL#2): of two parallel answers only one
-    # gets the row back; the other gets 409 instead of making a second dossier.
-    with connect() as conn:
-        claimed = conn.execute(
-            "UPDATE report SET state = 'resuming' WHERE id = %s AND user_id = %s"
-            " AND state = 'needs_clarification' RETURNING 1", (report_id, user_id)).fetchone()
-    if not claimed:
+    return resume(report_id, user_id, question, answer, allowed[answer])
+
+
+MAX_ANSWER_CHARS = 300  # free-text answer limit (contract §2); the UI box has the same cap
+
+
+class AnswerIn(BaseModel):  # lengths are checked in answer_report: 422 invalid_answer (B-048)
+    value: str | None = None
+    text: str | None = None
+
+
+@router.post("/reports/{report_id}/answer")
+def answer_report(report_id: uuid.UUID, body: AnswerIn, user_id: User):
+    """One endpoint for every pending question: {"value": "inner_lane"} (an option), or
+    {"text": "bses wala, laal logo"} which the text model maps to an option."""
+    if not owns(report_id, user_id):
+        return error(404, "not_found", "report_not_found")
+    if (body.value is None) == (body.text is None) or not (body.value or body.text).strip():
+        return error(422, "validation", "invalid_answer")  # exactly one of value / text
+    if len(body.text or "") > MAX_ANSWER_CHARS:
+        return error(422, "validation", "invalid_answer")
+    rewind_if_stuck(report_id)
+    question = pending_question(report_id)
+    if not question:
         return error(409, "wrong_step", "wrong_step")
-    return run_intake(str(report_id), Command(resume=answer), [])
+    allowed = allowed_answers(question)
+    if body.text is not None:
+        with connect() as conn:  # free text costs a model call: limited (SEC-015)
+            if limits.answer_limit_hit(conn, user_id, report_id):
+                return error(429, "rate_limited", "rate_limited_answers")
+            events.record(conn, str(report_id), "user", "model_call")  # counted, not shown
+        masked = mask_pii(body.text.strip())
+        # Only the options of THIS question go to the model (as option_1, ... for
+        # departments, so the model never names a department itself).
+        keys = {f"option_{i}": v for i, v in enumerate(allowed, 1)} \
+            if question["kind"] == "pick_candidate" else {v: v for v in allowed}
+        try:
+            picked = groq.map_answer(masked, {k: allowed[v] for k, v in keys.items()},
+                                     str(report_id))
+        except ProviderDown:
+            return error(503, "ai_unavailable", "ai_unavailable")
+        if picked == "unclear":  # same question again, marked as a retry
+            again = question | {"retry": True, "message_key": "answer_unclear"}
+            with connect() as conn:  # still waiting on it? (a button answer may have won)
+                if not claim(conn, report_id, user_id, question):
+                    return error(409, "wrong_step", "wrong_step")
+                events.record(conn, str(report_id), "user", "answer", text=masked)
+                events.record_question(conn, str(report_id), again)
+            return {"report_id": str(report_id), "state": "needs_clarification",
+                    "next": again, "master_id": None, "dossier_id": None, "notices": []}
+        return resume(report_id, user_id, question, keys[picked], allowed[keys[picked]],
+                      masked)
+    value = body.value.strip()
+    if value not in allowed:
+        return error(422, "validation", "invalid_answer")
+    return resume(report_id, user_id, question, value, allowed[value])
+
+
+@router.get("/reports/{report_id}/conversation")
+def report_conversation(report_id: uuid.UUID, user_id: User):
+    """The chat transcript, oldest first. Owner only; text is masked when stored."""
+    if not owns(report_id, user_id):
+        return error(404, "not_found", "report_not_found")
+    with connect() as conn:
+        return {"messages": events.conversation(conn, str(report_id))}
+
+
+def csv_channels(code: str) -> list[dict]:
+    """A department with no contact rows yet: its helpline and portal from departments.csv."""
+    dept = departments().get(code, {})
+    out = []
+    if dept.get("helpline"):
+        out.append({"type": "helpline", "label": dept["name_en"], "value": dept["helpline"],
+                    "deep_link": f"tel:{dept['helpline']}"})
+    if dept.get("grievance_url"):
+        out.append({"type": "portal", "label": dept["name_en"], "value": dept["grievance_url"],
+                    "deep_link": dept["grievance_url"]})
+    return out
 
 
 @router.get("/dossiers/{dossier_id}")
@@ -240,7 +387,7 @@ def get_dossier(dossier_id: uuid.UUID, user_id: User):
             "SELECT channel_type AS type, label, value, deep_link FROM contact"
             " WHERE department_id = %s ORDER BY id",
             (d["department_id"],),
-        ).fetchall()
+        ).fetchall() or csv_channels(d["code"])
     shareable = d["media_id"] and d["blur_status"] == "ok"
     # "Withheld for privacy" only when blurring itself failed (B-032); a junk photo that
     # wasn't used is not "withheld".

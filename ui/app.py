@@ -6,6 +6,7 @@ from account import (
     DRAFT_KEY,
     PHOTO_KEY,
     TEXT_SIZES,
+    THREAD_KEY,
     TOKEN_KEY,
     browser_save,
     photo_for_browser,
@@ -14,8 +15,9 @@ from account import (
     render_sidebar,
     restore_login,
 )
+from chat import render_thread
 from lib.api import health
-from report import render_dossier, render_emergency, render_form, render_uncovered
+from report import render_dossier, render_form
 from strings import t
 
 st.set_page_config(page_title=t("app_name"), page_icon=":material/location_city:",
@@ -45,16 +47,15 @@ browser_save(TOKEN_KEY, token)
 browser_save(DRAFT_KEY, st.session_state.get("report_text") or "")
 # The same large text on every rerun is cheap: Streamlit caches big messages by hash.
 browser_save(PHOTO_KEY, photo_for_browser(st.session_state.get("photo_draft")))
+browser_save(THREAD_KEY, st.session_state.get("thread") or "")
 
 render_sidebar(token, api_health())
 view = st.session_state.get("view", "new")
-if st.session_state.get("emergency") and view != "reports":  # above everything else
-    render_emergency(st.session_state.emergency)
 if view == "reports":
     render_reports(token)
 elif view == "dossier" and "current" in st.session_state:
     render_dossier(st.session_state.current)
-elif view == "uncovered" and "uncovered" in st.session_state:
-    render_uncovered(st.session_state.uncovered)
+elif st.session_state.get("thread"):  # a sent report: its chat
+    render_thread(token, st.session_state.thread)
 else:
     render_form(token)

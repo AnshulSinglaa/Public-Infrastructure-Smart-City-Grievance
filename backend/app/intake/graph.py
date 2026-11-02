@@ -1,13 +1,17 @@
 """The intake graph (ARCHITECTURE §3, simplified per §0):
 
   START -> assess_image (Gemini) --+
-  START -> assess_text  (Groq)   --+-> fuse -> clarify (PAUSE for the user) -> route -> END
-                                           \\-> route -> END        \\-> END (junk / AI down)
+  START -> assess_text  (Groq)   --+-> fuse --> clarify (PAUSE) --> decide <--> ask (PAUSE)
+                                         |                      /      |
+                                         +---------------------+       +--> save -> END
+                                         +--> END (junk / AI down)
 
-The models only describe the problem. The department is decided by `route`, which is
-the same SQL as before: nothing a model says can change it.
+The models only describe the problem. The department is decided by `decide`, which is
+plain SQL + the rules (app/routing/engine.py): nothing a model says can change it.
+`decide` may need a fact it can't get from the map (road width, drain type, ...): then
+`ask` pauses with a question, and `decide` runs again with the answer.
 The state is saved in Postgres after every step (thread_id = report_id), so a paused
-report can be resumed by POST /reports/{id}/clarify, even after a restart.
+report can be resumed by POST /reports/{id}/answer (or /clarify), even after a restart.
 """
 
 from functools import cache
@@ -26,7 +30,7 @@ from app.intake.emergency import emergency_kind
 from app.privacy import photo as photo_privacy
 from app.providers import gemini, groq
 from app.providers.common import ProviderDown
-from app.routing.engine import route as sql_route
+from app.routing import engine
 
 
 class IntakeState(TypedDict, total=False):
@@ -46,7 +50,10 @@ class IntakeState(TypedDict, total=False):
     severity: str | None
     confidence: float
     emergency_kind: str | None
-    clarify: dict | None      # the question we pause on
+    clarify: dict | None      # the category question we pause on
+    question: dict | None     # the routing question (issue_question / pick_candidate)
+    answers: dict             # question_id -> answer, e.g. {"road_class": "inner_lane"}
+    decision: dict | None     # engine.decide() result once the department is settled
     terminal: str | None      # dossier_ready | out_of_coverage | rejected_junk | ai_unavailable
                               # | rate_limited_same_spot
     junk_reason: str | None
@@ -132,7 +139,7 @@ def fuse(state: IntakeState) -> dict:
 def after_fuse(state: IntakeState) -> str:
     if state.get("terminal"):
         return END
-    return "clarify" if state.get("clarify") else "route"
+    return "clarify" if state.get("clarify") else "decide"
 
 
 def clarify(state: IntakeState) -> dict:
@@ -142,16 +149,51 @@ def clarify(state: IntakeState) -> dict:
     return {"category": answer, "confidence": 1.0, "clarify": None}
 
 
-def route(state: IntakeState) -> dict:
-    """Same-spot limit, blur, the SQL routing, then the master issue + dossier."""
+def decide(state: IntakeState) -> dict:
+    """The SQL routing (engine.decide). Runs again after every answer: an unknown fact
+    -> `ask` pauses with a question; two departments -> `ask` pauses with pick_candidate."""
+    with connect() as conn:
+        # Checked before asking anything, so nobody answers questions only to get a 429.
+        # (save checks again under the lock: that check is the one that counts.)
+        if limits.same_spot_hit(conn, state["user_id"], state["category"], state["lat"],
+                                state["lng"], state["report_id"]):
+            store.update_report(conn, state["report_id"], "rate_limited")
+            return {"terminal": "rate_limited_same_spot"}
+        d = engine.decide(conn, state["category"], state["lat"], state["lng"],
+                          state.get("image"), state.get("answers", {}))
+    # Known now that the category is settled: the "call first" card shows while we ask.
+    kind = emergency_kind(state.get("image"), state.get("text_assess"), state["category"])
+    if d["outcome"] in ("ask", "pick"):
+        return {"question": d["question"], "emergency_kind": kind}
+    return {"question": None, "decision": d, "emergency_kind": kind}
+
+
+def after_decide(state: IntakeState) -> str:
+    if state.get("terminal"):
+        return END
+    return "ask" if state.get("question") else "save"
+
+
+def ask(state: IntakeState) -> dict:
+    """PAUSE with an issue_question or pick_candidate; the answer comes back from
+    POST /reports/{id}/answer (already checked against the options there)."""
+    q = state["question"]
+    answer = interrupt(q)
+    key = q.get("question_id") or q["kind"]  # 'road_class', ... or 'pick_candidate'
+    return {"answers": {**state.get("answers", {}), key: answer}, "question": None}
+
+
+def save(state: IntakeState) -> dict:
+    """Same-spot limit (under the lock), blur, then the master issue + dossier."""
     rid, cat, lat, lng = state["report_id"], state["category"], state["lat"], state["lng"]
-    img, txt = state.get("image"), state.get("text_assess")
+    img, txt, r = state.get("image"), state.get("text_assess"), state["decision"]
     kind = emergency_kind(img, txt, cat)
     # Severity is never the model's free choice (B-035: "Severity critical!!" in the text
     # was obeyed). It is the category's default, raised to critical only by the emergency
-    # flag (Sprint 5 adds the night-safety rule).
+    # flag.
     severity = "critical" if kind else categories()[cat]["default_severity"]
-    intake = {"image": img, "text": txt, "fake": settings.provider_mode == "fake"}
+    intake = {"image": img, "text": txt, "answers": state.get("answers", {}),
+              "fake": settings.provider_mode == "fake"}
     with connect() as conn:
         # Same per-user lock as POST /reports, so two parallel reports can't both pass.
         conn.execute("SELECT pg_advisory_xact_lock(hashtext(%s))", (state["user_id"],))
@@ -162,8 +204,7 @@ def route(state: IntakeState) -> dict:
             blur_photo(conn, state["media_id"], img, state.get("photo_junk", False))
         fields = {"category": cat, "severity": severity, "intake_confidence": state["confidence"],
                   "intake": intake, "photo_quality": "low" if img and img["is_dark"] else "ok"}
-        r = sql_route(conn, cat, lat, lng)
-        if r is None:  # out of coverage: report only, no department claim
+        if r["outcome"] == "out_of_coverage":  # report only, no department claim
             store.update_report(conn, rid, "out_of_coverage", **fields)
             return {"terminal": "out_of_coverage", "emergency_kind": kind, "severity": severity}
         media_id = state.get("media_id")
@@ -208,14 +249,17 @@ def graph():
                                   "row_factory": dict_row})
     g = StateGraph(IntakeState)
     for name, node in [("assess_image", assess_image), ("assess_text", assess_text),
-                       ("fuse", fuse), ("clarify", clarify), ("route", route)]:
+                       ("fuse", fuse), ("clarify", clarify), ("decide", decide),
+                       ("ask", ask), ("save", save)]:
         g.add_node(name, node)
     g.add_edge(START, "assess_image")  # the two assess nodes run in parallel
     g.add_edge(START, "assess_text")
     g.add_edge(["assess_image", "assess_text"], "fuse")  # fuse waits for both
-    g.add_conditional_edges("fuse", after_fuse, ["clarify", "route", END])
-    g.add_edge("clarify", "route")
-    g.add_edge("route", END)
+    g.add_conditional_edges("fuse", after_fuse, ["clarify", "decide", END])
+    g.add_edge("clarify", "decide")
+    g.add_conditional_edges("decide", after_decide, ["ask", "save", END])
+    g.add_edge("ask", "decide")  # with the answer, decide again
+    g.add_edge("save", END)
     return g.compile(checkpointer=PostgresSaver(pool))
 
 

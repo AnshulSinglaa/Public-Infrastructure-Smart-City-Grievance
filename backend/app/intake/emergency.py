@@ -1,6 +1,7 @@
 """The 'call first' card for dangerous issues. It never blocks the report."""
 
 from app.intake.catalog import categories, departments
+from app.routing.engine import discom
 
 # Categories flagged emergency=yes in categories.csv -> what kind of danger it is.
 CATEGORY_KIND = {"LIVE_WIRE": "live_wire", "TRANSFORMER": "live_wire", "GAS_LEAK": "gas_leak",
@@ -30,22 +31,11 @@ def phone(code: str, label: str | None = None) -> dict | None:
     return {"label": label or dept["name_en"], "value": number, "deep_link": f"tel:{number}"}
 
 
-def discom_for(conn, lat: float, lng: float) -> str | None:
-    """Which power company's area the pin is in (special_zone 'discom_area' lookup layer;
-    the zone name starts with the company code, e.g. 'BRPL (coverage wards)')."""
-    row = conn.execute(
-        "SELECT name FROM special_zone WHERE type = 'discom_area'"
-        " AND ST_Covers(geom, ST_SetSRID(ST_MakePoint(%s, %s), 4326)) LIMIT 1",
-        (lng, lat),
-    ).fetchone()
-    return row[0].split()[0] if row else None
-
-
 def call_first(conn, kind: str, lat: float, lng: float) -> dict:
     """112 always, plus the helpline for this kind of danger when we know it."""
     numbers = [{"label": "Emergency 112", "value": "112", "deep_link": "tel:112"}]
     if kind == "live_wire":
-        code = discom_for(conn, lat, lng)
+        code = discom(conn, lat, lng)
         extras = ([phone(code)] if code else
                   [phone(c, f"{departments()[c]['name_en']} ({area})") for c, area in DISCOMS.items()])
     else:

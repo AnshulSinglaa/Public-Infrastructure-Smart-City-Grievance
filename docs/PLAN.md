@@ -44,6 +44,15 @@
 
 ## 3. Sprints (1 week each)
 
+> **Status (2 Nov 2026): Sprint 5 ✅ done.**
+>
+> | Sprint | Status | What shipped |
+> |---|---|---|
+> | 1–4 | ✅ done | Skeleton, thin slice, GPS/login/privacy, real AI intake (Gemini + Groq, LangGraph) |
+> | 5 | ✅ done | **Real routing**: 73 rules in PostGIS (59 reached by scenario tests, 14 flagged with reasons), divided-road rule, discom + I&FC drain lookups, migrations 0005–0006. **Chat intake**: interrupts → chat questions, `POST /reports/{id}/answer`, `GET /reports/{id}/conversation`, `ui/chat.py`. Tests: 261 backend (+1 live eval skipped; 12/12 when run) + 61 UI. Bugs B-039..B-053 fixed. Tech-lead review: `REVIEW-S5.md`. Security R5: SEC-015 (answer rate limit) + SEC-016 (pyasn1) fixed; R6 verification running |
+> | **Next: deploy mini-sprint** | 🔜 | Owner: devops. Hosted API + UI, HTTPS + HSTS, Supabase email login, Turnstile, least-privilege DB user, daily encrypted backup, fakes removed. **Done when:** the chat flow works on the hosted URL and the security R6 check passes. Depends on: R6 verification |
+> | Sprint 6 | ⏳ next after deploy | RAG over rule documents (Qdrant), cited claims, Ragas, follow-up Q&A. Owner: backend. Depends on: deploy mini-sprint |
+
 > **Changes after Sprint 2 (2026-10-28), override the rows below:**
 > - **Coverage** is ~25 wards (not 8), with all 32 departments and 37 problem types (`data/`). **Vectors** are in Qdrant. **No voice input.**
 > - **Sprint 3** = real GPS + map pin, landmark geocode (pulled in from W5), photo privacy (EXIF strip, face/plate blur), text masking + encryption, **dev login**, rate limits, 25 wards. Contract: `docs/contracts/sprint3-api.md`.
@@ -53,7 +62,6 @@
 > - **Conversational (user, 2026-10-29):** **Sprint 5 adds chat intake.** The composer becomes a chat: the agent's LangGraph pauses become chat questions, answered with quick-reply buttons or free text in any language, and the dossier arrives as a chat card. **Sprint 6 adds follow-up Q&A**, answered only from cited rules plus the user's own ticket, with action buttons (Draft appeal / RTI). Uses `st.chat_message` / `st.chat_input`. Tests: chat cases join the eval set and the break-it catalog.
 > - **Added features (user, 2026-10-29):**
 >   - Sprint 4–5: **state directory** for pins outside coverage.
->   - Sprint 5: **night-safety priority** (night + near a school, metro, bus stop, hospital or market raises severity, with the reason shown).
 >   - After Sprint 6: **research agent** limited to government domains.
 >   - Sprint 7: **monsoon hotspot alerts** (official waterlogging hotspot list + our past reports).
 >

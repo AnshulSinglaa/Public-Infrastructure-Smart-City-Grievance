@@ -5,7 +5,7 @@ from functools import cache
 from app.config import settings
 from app.providers import fakes
 from app.providers.common import ProviderDown, Retryable, load_prompt, run
-from app.providers.schemas import TextAssessment
+from app.providers.schemas import AnswerChoice, TextAssessment
 
 
 @cache
@@ -24,14 +24,14 @@ def user_block(text: str) -> str:
     return f"<user_text>\n{text}\n</user_text>"
 
 
-def call_groq(system: str, text: str) -> tuple[str, dict]:
+def call_groq(system: str, text: str, prefix: str = "") -> tuple[str, dict]:
     import groq
 
     try:
         resp = client().chat.completions.create(
             model=settings.text_model, temperature=0, response_format={"type": "json_object"},
             messages=[{"role": "system", "content": system},
-                      {"role": "user", "content": user_block(text)}])
+                      {"role": "user", "content": prefix + user_block(text)}])
     except groq.RateLimitError as e:  # honour the wait Groq asks for (B-031)
         raise Retryable("429", retry_after=retry_after(e.response.headers)) from e
     except (groq.InternalServerError, groq.APITimeoutError, groq.APIConnectionError) as e:
@@ -57,3 +57,22 @@ def assess_text(text: str, report_id: str | None = None) -> dict:
     return run("assess_text", TextAssessment, call,
                model="fake" if fake else settings.text_model, prompt_version=version,
                system=system, input_bytes=text.encode(), report_id=report_id, trace_input=text)
+
+
+def map_answer(text: str, options: dict[str, str], report_id: str | None = None) -> str:
+    """Free-text answer ('bses wala, laal logo') -> one of options {value: label}, or
+    'unclear'. The caller passes MASKED text; the model sees only the option labels,
+    never routing data. Raises ProviderDown when Groq can't be reached."""
+    version, system = load_prompt("map_answer")
+    listing = "".join(f"- {value}: {label}\n" for value, label in options.items())
+    prefix = f"Options:\n{listing}\n"
+    fake = settings.provider_mode == "fake"
+    if fake:
+        call = lambda: fakes.answer_call(prefix + text)
+    else:
+        call = lambda: call_groq(system, text, prefix)
+    out = run("map_answer", AnswerChoice, call, model="fake" if fake else settings.text_model,
+              system=system,
+              prompt_version=version, input_bytes=(prefix + text).encode(),
+              report_id=report_id, trace_input=prefix + text)
+    return out["value"] if out["value"] in options else "unclear"

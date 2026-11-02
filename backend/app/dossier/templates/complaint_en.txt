@@ -1,3 +1,4 @@
+To: $department_en
 Subject: Complaint about a $category_en in Ward $ward_no ($ward_name)
 
 Sir/Madam,

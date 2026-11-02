@@ -4,7 +4,7 @@
 
 A **multimodal agentic RAG** application for civic complaints, with geospatial routing. **Pilot city: Delhi.** The code is city-agnostic: wards, roads, rules and contacts are data files.
 
-![status](https://img.shields.io/badge/status-Sprint%204%20done-blue) ![python](https://img.shields.io/badge/python-3.12-blue) ![tests](https://img.shields.io/badge/tests-204%20passing-brightgreen)
+![status](https://img.shields.io/badge/status-Sprint%205%20done-blue) ![python](https://img.shields.io/badge/python-3.12-blue) ![tests](https://img.shields.io/badge/tests-322%20passing-brightgreen)
 
 ---
 
@@ -24,20 +24,21 @@ In Delhi, a pothole on a road **≥ 60 ft wide** belongs to **PWD**, but on a na
 
 The app **never files complaints on the citizen's behalf**: it routes and prepares, and the citizen files on the official channel. It **never guesses**: when it's unsure it asks, and when it doesn't cover an area it says so and shows the general helplines.
 
-## Current status (Sprint 4 of 14)
+## Current status (Sprint 5 of 14)
 
 | Done ✅ | Next 🔜 |
 |---|---|
-| **Real multimodal AI**: Gemini (`gemini-3.5-flash-lite`) reads the photo, Groq (`gpt-oss-120b`) reads Hindi/English/Hinglish text, in a **LangGraph agent** that pauses to ask "Is it X or Y?" when unsure | Sprint 5: road-level routing with the **73 department rules** (e.g. live wire → power company, sewer → DJB), **chat intake**, night-safety priority |
-| Emergency path (live wire, gas leak, open manhole, …) shows "call 112 / helpline first"; junk photos (selfie, meme, blank) get a friendly retake | Sprint 6: **RAG** over rule documents (Qdrant), cited claims, Ragas, follow-up Q&A |
-| Prompt injection can't change the department or severity (tested with DeepEval against the real model) | After Sprint 6: research agent (government sites only) for places outside coverage |
-| Privacy: photos are **blurred before** they reach the AI; text is masked; the user is told which AI services see the report | Sprint 7–8: duplicates, monsoon hotspot alerts, full evaluation, Locust, deploy (HTTPS, backups, email login) |
-| Outside Delhi: the state's official grievance portal (36 states/UTs, 29 verified) + CPGRAMS | Later: tracker + appeals, votes, final demo |
-| Langfuse tracing (masked, off until keys are set), strict JSON checks, retries within a < 60 s budget, cache | |
-| Chat-style English UI, GPS + map pin, login, rate limits, 250 Delhi wards (25 covered) | |
-| 204 tests, CI green, 38 bugs found and fixed, security audits passed (AI re-audit included) | |
+| **Real routing (SQL, PostGIS)**: 73 department rules (59 checked by scenario tests, 14 flagged with reasons), PWD road list, the divided-road rule (other carriageway on the PWD list), power company (discom) and I&FC drain lookups | **Deploy mini-sprint**: put the app online (HTTPS, email login, backups) |
+| **Chat intake**: the agent's questions (main road or lane? which drain? which power company? which department?) appear as chat messages; answer with a button or free text in any language. The AI only maps text to the offered options; it **never picks the department** | Sprint 6: **RAG** over rule documents (Qdrant), cited claims, Ragas, follow-up Q&A |
+| **Real multimodal AI**: Gemini (`gemini-3.5-flash-lite`) reads the photo, Groq (`gpt-oss-120b`) reads Hindi/English/Hinglish text, in a **LangGraph agent** | After Sprint 6: research agent (government sites only) for places outside coverage |
+| Emergency path (live wire, gas leak, open manhole, …) shows "call 112 / helpline first"; junk photos get a friendly retake | Sprint 7–8: duplicates, monsoon hotspot alerts, full evaluation, Locust |
+| Prompt injection can't change the department or severity (tested with DeepEval against the real model) | Later: tracker + appeals, votes, final demo |
+| Privacy: photos are **blurred before** they reach the AI; text is masked; the user is told which AI services see the report | |
+| Outside Delhi: the state's official grievance portal (36 states/UTs, 29 verified) + CPGRAMS | |
+| Langfuse tracing (masked), strict JSON checks, retries within a < 60 s budget, rate limits (incl. chat answers) | |
+| **322 tests** (261 backend + 61 UI; the live AI eval passes 12/12 when run), CI green, 53 bugs found and fixed, security audits passed | |
 
-> ℹ️ The AI is **real** from Sprint 4. Department routing is still the simple ward lookup until the 73 rules land in Sprint 5.
+> ℹ️ From Sprint 5 the department comes from the 73 rules in PostGIS, not the simple ward lookup.
 
 ## Architecture
 
@@ -136,7 +137,7 @@ Copy `.env.example` to `.env`. **Sprints 1–2 need only the first two;** everyt
 
 ```powershell
 uv run ruff check .     # lint
-uv run pytest -q        # 134 tests: API, auth, privacy, limits, routing, DB, Qdrant, UI (Streamlit AppTest)
+uv run pytest -q        # 261 backend + 61 UI tests: API, auth, privacy, limits, routing, chat, DB, Qdrant, UI (Streamlit AppTest)
 ```
 
 DB and Qdrant tests are skipped automatically when those services aren't running.
@@ -147,14 +148,15 @@ DB and Qdrant tests are skipped automatically when those services aren't running
 backend/
   app/
     api/reports.py        POST /reports, dossier, media endpoints
-    routing/engine.py     pin → ward → department (SQL)
+    routing/engine.py     pin → ward → road → rule → department (SQL); conditions.py = rule conditions
+    intake/               LangGraph agent, chat events (events.py), emergency path
     dossier/              bilingual complaint templates
     providers/fakes.py    simulated AI (replaced in Sprint 4)
     vectors.py            Qdrant: create collections, upsert, search
     config.py · db.py · main.py
-  migrations/             Alembic: 0001 tables, 0002 vectors moved to Qdrant
+  migrations/             Alembic 0001–0006 (tables, Qdrant move, …, 0005 routing rules, 0006 geography indexes)
   tests/
-ui/                       Streamlit app: login, composer, location (GPS/map/landmark), dossier, My reports, English strings, theme
+ui/                       Streamlit app: login, chat (chat.py), composer, location (GPS/map/landmark), dossier, My reports, English strings, theme
 data/                     ward maps, roads, PWD list, departments, categories, rules (+ COVERAGE.md, DEPARTMENTS.md)
 scripts/                  fetch/load wards, import OSM roads, match PWD names, reindex Qdrant
 infra/                    docker-compose (Postgres+PostGIS, Qdrant, Mailpit), Dockerfiles
@@ -176,6 +178,8 @@ docs/                     PRD, requirements, UX, architecture, plan, bugs, test 
 | [BUGS](docs/BUGS.md) | Bugs found and fixed |
 | [Sprint 2 API contract](docs/contracts/sprint2-api.md) | Request/response shapes and error keys |
 | [Sprint 3 API contract](docs/contracts/sprint3-api.md) | Login, pin, privacy rules, rate limits, new error keys |
+| [Sprint 5 API contract](docs/contracts/sprint5-api.md) | Routing rules, chat questions, `/answer` and `/conversation` |
+| [REVIEW-S5](docs/REVIEW-S5.md) | Tech-lead review of Sprint 5 |
 
 ## Data sources and honesty notes
 

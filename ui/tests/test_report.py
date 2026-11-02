@@ -57,6 +57,23 @@ def submit(app, text, pin=PIN):
     assert not app.exception
 
 
+def open_letter(app):
+    """Click "Open full letter" in the chat's dossier bubble."""
+    [btn] = [b for b in app.button if b.key.startswith("open_letter_")]
+    btn.click().run()
+    assert not app.exception and app.session_state["view"] == "dossier"
+
+
+def reply(app, value):
+    app.button(key=f"reply_{value}").click().run()
+    assert not app.exception and not app.error
+
+
+def type_answer(app, text):
+    app.chat_input(key="answer_text").set_value(text).run()
+    assert not app.exception and not app.error
+
+
 def upload_photo(app):
     app.button(key="btn_upload").click().run()
     app.file_uploader(key="photo_upload").upload("p.png", PNG, "image/png").run()
@@ -157,7 +174,7 @@ def test_second_gps_fix_at_submit_sends_better_pin(new_app, monkeypatch):
     new_app.button(key="prepare").click().run()
     assert not new_app.exception and not new_app.error
     assert new_app.session_state["pin"]["acc"] == 8  # the better fix won
-    assert new_app.session_state["view"] == "dossier"
+    assert new_app.session_state["thread"]  # sent: the page is now its chat
 
 
 def test_second_gps_fix_that_drifts_stops_and_warns(new_app, monkeypatch):
@@ -166,22 +183,28 @@ def test_second_gps_fix_that_drifts_stops_and_warns(new_app, monkeypatch):
     new_app.run()
     new_app.text_area(key="report_text").input("gaddha").run()
     new_app.button(key="prepare").click().run()
-    assert new_app.session_state.get("view", "new") == "new"  # not sent: ~111 m apart
+    assert "thread" not in new_app.session_state  # not sent: ~111 m apart
     assert TEXT["loc_shaky"] in page_text(new_app)
     new_app.button(key="prepare").click().run()  # user checked the pin; second click sends
-    assert new_app.session_state["view"] == "dossier"
+    assert new_app.session_state["thread"]
 
 
-def test_text_submit_shows_dossier(app):
+def test_text_submit_shows_chat_then_full_letter(app):
     submit(app, "Bada gaddha hai school ke saamne")
     assert not app.error
     page = page_text(app)
-    assert "Municipal Corporation of Delhi" in page
-    assert "Curated data" in page and "15 days" in page and "Very likely" in page
-    assert "Bada gaddha hai school ke saamne" in page  # citizen text, exactly as written
+    assert "Bada gaddha hai school ke saamne" in page  # the user's bubble, as written
+    assert "Municipal Corporation of Delhi" in page  # the dossier bubble
+    assert "narrower than 60 ft, so Municipal Corporation of Delhi" in page  # the why line
+    assert "Road width" in page and "Zone:" not in page  # evidence pills, as the real API
     assert "AI is simulated" in page
+    open_letter(app)
+    page = page_text(app)
+    assert "Curated data" in page and "15 days" in page and "Very likely" in page
     [letter] = app.code
     assert letter.value.startswith("To, Municipal")  # English letter only
+    app.button(key="back_to_chat").click().run()
+    assert app.session_state["view"] == "new" and app.session_state["thread"]
 
 
 def test_dossier_shows_blurred_photo_not_raw_upload(app, monkeypatch):
@@ -191,6 +214,7 @@ def test_dossier_shows_blurred_photo_not_raw_upload(app, monkeypatch):
     monkeypatch.setattr(report, "get_photo", lambda tok, url: calls.append(url) or BLURRED)
     upload_photo(app)
     submit(app, "kooda")
+    open_letter(app)
     assert calls == ["/api/v1/media/00000000-0000-0000-0000-00000000d055"]
     assert app.session_state["current"]["photo"] == BLURRED
     assert "Photo location not verified" in page_text(app)  # uploaded, not camera
@@ -199,6 +223,7 @@ def test_dossier_shows_blurred_photo_not_raw_upload(app, monkeypatch):
 def test_withheld_photo_says_so(app):
     upload_photo(app)
     submit(app, "kooda #withheld")
+    open_letter(app)
     assert TEXT["photo_withheld"] in [c.value for c in app.caption]
 
 
@@ -213,20 +238,22 @@ def test_rate_limit_shows_message(app):
     assert [e.value for e in app.error] == [TEXT["rate_limited_daily"]]
 
 
-def test_my_reports_lists_reports_and_opens_dossier(app):
+def test_my_reports_opens_the_thread(app):
     app.button(key="nav_reports").click().run()
     page = page_text(app)
     assert "Pothole · Ward 185" in page and "MCD" in page and "2026-10-26" in page
     app.button(key="open_00000000-0000-0000-0000-0000000000a0").click().run()
     assert not app.exception
-    assert app.session_state["view"] == "dossier"
+    assert app.session_state["thread"] == "00000000-0000-0000-0000-0000000000a0"
+    assert "Sadak pe bada gaddha hai" in page_text(app)  # its chat, from GET /conversation
 
 
-def test_sidebar_recent_opens_dossier(app):
+def test_sidebar_recent_opens_the_thread(app):
     recent = [b for b in app.sidebar.button if b.key.startswith("recent_")]
     assert 1 <= len(recent) <= 5
     recent[-1].click().run()
-    assert app.session_state["view"] == "dossier"
+    assert app.session_state["thread"] == recent[-1].key.removeprefix("recent_")
+    assert [m for m in app.chat_message]  # the thread's bubbles
 
 
 def test_text_size_change_keeps_pin_and_photo(app):
@@ -344,9 +371,9 @@ def links(app) -> dict:
 
 def test_outside_delhi_shows_state_portal_helpline_and_cpgrams(app):  # B-018, Sprint 4
     submit(app, "gaddha", pin=MUMBAI)
-    caption = " ".join(c.value for c in app.caption)
-    assert TEXT["outside_title"] in page_text(app) and "Maharashtra" in caption
-    assert "anywhere in Delhi" not in caption  # no Delhi helplines outside Delhi
+    page = page_text(app)
+    assert TEXT["outside_title"] in page and "Maharashtra" in page
+    assert "anywhere in Delhi" not in page  # no Delhi helplines outside Delhi
     assert links(app) == {"Aaple Sarkar": "https://grievances.maharashtra.gov.in",
                           "Call 1800120800": "tel:1800120800",
                           "CPGRAMS": "https://pgportal.gov.in"}
@@ -355,59 +382,49 @@ def test_outside_delhi_shows_state_portal_helpline_and_cpgrams(app):  # B-018, S
 def test_unverified_state_shows_cpgrams_only(app):
     submit(app, "gaddha #unverified", pin=MUMBAI)
     assert links(app) == {"CPGRAMS": "https://pgportal.gov.in"}
-    assert TEXT["state_unknown_help"] in [c.value for c in app.caption]
+    assert "national portal" in page_text(app)
 
 
-def test_clarify_flow_reaches_dossier(app):
+def test_clarify_category_is_answered_in_the_chat(app):
     submit(app, "kuch toh hai #clarify")
-    assert TEXT["clarify_q"] in page_text(app)
-    assert "report_text" not in [w.key for w in app.text_area]  # the card replaces the composer
-    assert app.button(key="opt_POTHOLE").label == "Pothole · likely"  # name_en from the API
-    assert app.button(key="opt_WATERLOGGING").label == "Waterlogging · maybe"
-    app.button(key="opt_POTHOLE").click().run()
-    assert not app.exception and app.session_state["view"] == "dossier"
-    assert "clarify" not in app.session_state
-
-
-def test_clarify_something_else_uses_the_select(app):
-    submit(app, "kuch toh hai #clarify")
-    app.button(key="opt_other").click().run()
-    select = app.selectbox(key="other_category")
-    assert "Dead animal" in select.options  # read from GET /categories, not hard-coded
-    select.set_value("DEAD_ANIMAL").run()
-    app.button(key="use_other").click().run()
-    assert app.session_state["view"] == "dossier"
+    assert "We're not sure — which is it?" in page_text(app)
+    assert "report_text" not in [w.key for w in app.text_area]  # the chat replaces the composer
+    assert app.button(key="reply_POTHOLE").label == "Pothole · likely"
+    reply(app, "POTHOLE")
+    assert "Municipal Corporation of Delhi" in page_text(app)  # dossier bubble
 
 
 def test_mismatch_question_names_both(app):
     submit(app, "light kharab hai #mismatch")
     assert ("Your photo looks like garbage dump, your text says streetlight not working"
             in page_text(app))
-    app.button(key="opt_STREETLIGHT_OUT").click().run()
-    assert app.session_state["view"] == "dossier"
+    reply(app, "STREETLIGHT_OUT")
+    assert TEXT["who_fixes"] in page_text(app)
 
 
 def test_retake_keeps_text_and_opens_camera(app):
     submit(app, "gaddha hai #junk_selfie")
-    assert TEXT["retake_selfie"] in " ".join(c.value for c in app.caption)
+    assert TEXT["retake_selfie"] in page_text(app)
     app.button(key="retake_btn").click().run()
     assert app.session_state["report_text"] == "gaddha hai #junk_selfie"
-    assert app.session_state["attach"] == "camera" and "retake" not in app.session_state
+    assert app.session_state["attach"] == "camera" and "thread" not in app.session_state
 
 
-def test_emergency_card_sits_above_the_dossier(app):
+def test_emergency_card_comes_first(app):
     submit(app, "taar gira hua hai #emergency")
-    assert app.session_state["view"] == "dossier"
     page = page_text(app)
-    assert page.index(TEXT["emergency_call_first"]) < page.index(TEXT["dossier_title"])
+    assert page.index(TEXT["emergency_call_first"]) < page.index("taar gira hua hai")
+    assert page.index("taar gira hua hai") < page.index(TEXT["who_fixes"])  # chat continues
     assert list(links(app).values())[:2] == ["tel:112", "tel:19123"]  # call-first come first
+    # B-047: every call button shows its number (first, so a narrow phone can't cut it off)
+    assert list(links(app))[:2] == ["Emergency 112", "19123 · BSES Rajdhani"]
 
 
 def test_ai_unavailable_keeps_the_draft(app):
     submit(app, "gaddha #503")
     assert [e.value for e in app.error] == [TEXT["ai_unavailable"]]
     assert app.session_state["report_text"] == "gaddha #503"
-    assert app.session_state.get("view", "new") == "new"
+    assert "thread" not in app.session_state  # nothing was sent: the composer stays
 
 
 def test_sprint4_keys_have_text():
@@ -510,6 +527,7 @@ def test_photo_kept_when_the_vision_model_was_down(app, monkeypatch):  # B-032
     monkeypatch.setattr(report, "get_photo", lambda tok, url: BLURRED)
     upload_photo(app)
     submit(app, "kooda #photo_down")
+    open_letter(app)
     captions = [c.value for c in app.caption]
     assert TEXT["photo_withheld"] not in captions and TEXT["photo"] in captions
     assert escape(TEXT["photo_not_checked"]) in page_text(app)  # pills are HTML-escaped
@@ -531,3 +549,143 @@ def test_emergency_dossier_shows_immediate_action_not_days(app):  # B-037
     app.run()
     page = page_text(app)
     assert TEXT["deadline_immediate"] in page and "days" not in page.split("Who fixes")[-1][:400]
+
+
+# ---------- Sprint 5: chat intake ----------
+
+def test_road_question_answered_by_button(app):
+    submit(app, "gaddha hai #road_q")
+    assert "Is this on a main road or an inner lane?" in page_text(app)
+    assert TEXT["who_fixes"] not in page_text(app)  # paused: no department yet
+    reply(app, "inner_lane")
+    page = page_text(app)
+    assert "Inner lane / gali" in page  # the answer became the user's bubble
+    assert TEXT["who_fixes"] in page
+    # B-049: like the real API, the answer is the evidence (not the map's width or a zone)
+    assert TEXT["ev_user_answer"] in page and "Road width" not in page and "Zone:" not in page
+    assert not [b for b in app.button if b.key.startswith("reply_")]  # question closed
+
+
+def test_discom_question_answered_by_free_text(app):
+    submit(app, "light kharab hai #discom_q")
+    assert "Which company sends your electricity bill?" in page_text(app)
+    type_answer(app, "bses wala, laal logo")
+    page = page_text(app)
+    assert "bses wala, laal logo" in page and TEXT["who_fixes"] in page
+
+
+def test_unclear_answer_is_asked_again(app):
+    submit(app, "gaddha #unclear")
+    type_answer(app, "pata nahi yaar")
+    page = page_text(app)
+    assert TEXT["answer_unclear"] in page  # a gentle re-ask, same question
+    assert page.count("Is this on a main road or an inner lane?") == 2
+    reply(app, "main_road")  # the quick replies are still there
+    assert TEXT["who_fixes"] in page_text(app)
+
+
+def test_not_sure_leads_to_pick_candidate(app):
+    submit(app, "gaddha #road_q")
+    reply(app, "not_sure")
+    page = page_text(app)
+    assert "More than one department could handle this. Which fits?" in page
+    # B-046: each card says why and how sure, so the user can choose
+    assert "so Public Works Department (GNCTD) maintains it" in page
+    assert "may also be responsible here" in page
+    assert TEXT["conf_likely"] in page and TEXT["conf_possible"] in page
+    assert app.button(key="reply_PWD").label == "Public Works Department (GNCTD)"
+    reply(app, "PWD")
+    assert TEXT["who_fixes"] in page_text(app)
+
+
+def test_pick_candidate_switch(app):
+    submit(app, "Mathura Road pe gaddha #pick")
+    reply(app, "NHAI")
+    page = page_text(app)  # B-049: the dossier is for the department the user chose
+    assert "You chose National Highways Authority of India. It may also be" in page
+    assert "NHAI" in page and page.count(TEXT["ev_user_answer"]) == 1
+
+
+def test_refresh_rebuilds_the_thread(app, new_app, monkeypatch):
+    import json
+
+    import account
+
+    submit(app, "gaddha #road_q")
+    thread = app.session_state["thread"]
+    monkeypatch.setattr(account, "streamlit_js_eval",
+                        FakeBrowser(json.dumps(["fake-token", "", None, thread])))
+    new_app.run()  # F5: a new session, only the browser's copy is left
+    assert not new_app.exception
+    assert new_app.session_state["thread"] == thread
+    assert "Is this on a main road or an inner lane?" in page_text(new_app)
+    reply(new_app, "main_road")  # and it can still be answered
+    assert TEXT["who_fixes"] in page_text(new_app)
+
+
+def test_sprint5_keys_have_text():
+    # The question and "why" texts come from the API as plain text (no UI copies).
+    for key in ("invalid_answer", "answer_unclear", "conf_possible", "outside_help"):
+        assert key in TEXT
+
+
+def test_evidence_pills_have_text():  # B-050
+    from chat import evidence_label
+
+    assert evidence_label("pwd_list_parallel") == "Other carriageway on the PWD list"
+    assert evidence_label("road_ref") == "National highway (NH-48)"
+
+
+def test_no_live_buttons_after_the_dossier(app):  # B-039
+    from lib import fake_api
+
+    submit(app, "gaddha #road_q")
+    reply(app, "inner_lane")
+    thread = app.session_state["thread"]  # a stale re-ask landed after the dossier
+    fake_api.CONV[thread].append({"role": "assistant", "kind": "question", "retry": True,
+                                  "text": "Is this on a main road or an inner lane?",
+                                  "options": fake_api.QUESTIONS["#road_q"][2], "at": "x"})
+    app.run()
+    assert not [b for b in app.button if b.key.startswith("reply_")]
+    assert not app.chat_input
+
+
+def test_reopened_outside_delhi_thread_says_outside_delhi(app):  # B-045
+    submit(app, "gaddha", pin=MUMBAI)
+    app.session_state["sent"] = {}  # as if opened from Recent in another session
+    app.run()
+    page = page_text(app)
+    assert TEXT["outside_title"] in page and TEXT["uncovered_title"] not in page
+
+
+def test_reopened_rejected_thread_keeps_the_reason(app):  # B-045
+    submit(app, "gaddha hai #junk_meme")
+    app.session_state["sent"] = {}
+    app.run()
+    assert TEXT["retake_meme"] in page_text(app)
+
+
+def test_non_mcd_dossier_without_a_call_link_does_not_crash(app):  # B-052
+    from lib import fake_api
+
+    submit(app, "taar gira hua hai #discom_q")
+    reply(app, "brpl")
+    fake_api.LAST["decided"] |= {"channels": [  # a contact row with no deep_link
+        {"type": "helpline", "label": "BSES Rajdhani", "value": "19123", "deep_link": None}]}
+    app.session_state["dossiers"] = {}
+    app.run()
+    assert not app.exception
+    assert "Call 19123" in page_text(app)  # the number as text, no button
+    assert "tel:19123" not in links(app).values()
+    open_letter(app)  # the full dossier page too
+    assert not app.exception and "Call 19123" in page_text(app)
+
+
+def test_answer_error_shows_at_the_bottom(app):  # B-054
+    submit(app, "gaddha #road_q")
+    app.chat_input(key="answer_text").set_value("hmm #429").run()
+    assert not app.exception
+    [err] = app.error
+    assert err.value == TEXT["rate_limited_answers"]
+    # in the last chat bubble (where the user typed), not in the slot at the top
+    assert app.chat_message[-1].error[0].value == TEXT["rate_limited_answers"]

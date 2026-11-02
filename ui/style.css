@@ -203,3 +203,43 @@ button:focus-visible, a:focus-visible, textarea:focus-visible, input:focus-visib
 .st-key-card_retake { border-left: 3px solid #E0A43A !important; margin-bottom: 12px; }
 .st-key-card_retake h4 { margin: 0; }
 .st-key-state_actions { flex-wrap: wrap; }
+
+/* ---------- Chat (Sprint 5) ---------- */
+/* Assistant: plain text on the page. User: a soft card bubble, like a chat app. */
+[data-testid="stChatMessage"] { background: transparent; padding: 6px 0; gap: 12px; }
+[data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) {
+  background: #30302E; border: 1px solid #3E3E3A; border-radius: 14px; padding: 12px 16px;
+  width: 85% !important; margin-left: auto; box-sizing: border-box;
+}
+[data-testid="stChatMessageAvatarUser"], [data-testid="stChatMessageAvatarAssistant"] {
+  background: #262624; border: 1px solid #3E3E3A; color: #5B9CF5;
+}
+.chat-text { margin: 4px 0 8px !important; line-height: 1.6; white-space: pre-wrap; }
+.chat-card { margin: 4px 0 10px; padding: 16px 20px; }
+.chat-card .why { margin: 8px 0 0 !important; font-size: 0.95rem; }
+.letter-preview {
+  margin: 12px 0 0 !important; padding: 10px 14px; border-left: 3px solid #3E3E3A;
+  color: #A3A19A; font-size: 0.9rem; white-space: pre-wrap;
+}
+/* Quick replies: pill chips; two per row on phones. */
+.st-key-replies { flex-wrap: wrap; gap: 8px; }
+.st-key-replies button { border-radius: 999px; min-height: 40px; }
+@media (max-width: 640px) {
+  [data-testid="stChatMessage"]:has([data-testid="stChatMessageAvatarUser"]) { width: 100% !important; }
+  .st-key-replies { display: grid !important; grid-template-columns: 1fr 1fr; }
+  .st-key-replies .stElementContainer, .st-key-replies button { width: 100% !important; }
+  .st-key-replies button p { white-space: normal; line-height: 1.3; }
+}
+/* Free-text answer box at the bottom: page-coloured, thin border. */
+[data-testid="stChatInput"] { border: 1px solid #3E3E3A; border-radius: 12px; }
+[data-testid="stBottom"] > div { background: #262624; }
+/* Emergency call buttons (B-047): one per row on phones, the label wraps instead of being
+   cut off, so the number and the area ("South & West Delhi") always show. */
+@media (max-width: 640px) {
+  .st-key-emergency_calls { flex-direction: column; align-items: stretch; }
+  .st-key-emergency_calls .stElementContainer, .st-key-emergency_calls a { width: 100% !important; max-width: 100%; }
+  .st-key-emergency_calls a p { white-space: normal !important; overflow: visible; text-overflow: clip; line-height: 1.3; }
+}
+/* pick_candidate: one small card per department, with its reason (B-046). */
+.pick-card { padding: 12px 16px; }
+.pick-card .pill { margin-left: 6px; }

@@ -26,9 +26,17 @@ queue: dict[str, list] = {"image": [], "text": []}
 calls = {"image": 0, "text": 0}
 
 
-def script(image: list | None = None, text: list | None = None) -> None:
+# The free-text answer mapper (/answer with "text"): default answer is "unclear".
+answers: list = []
+answer_inputs: list[str] = []  # what the mapper was sent (tests check it is masked)
+
+
+def script(image: list | None = None, text: list | None = None,
+           answer: list | None = None) -> None:
     queue["image"], queue["text"] = list(image or []), list(text or [])
     calls["image"] = calls["text"] = 0
+    answers[:] = list(answer or [])
+    answer_inputs.clear()
 
 
 def answer(kind: str, default: dict) -> tuple[str, dict]:
@@ -52,3 +60,9 @@ def image_call() -> tuple[str, dict]:
 
 def text_call() -> tuple[str, dict]:
     return answer("text", TEXT)
+
+
+def answer_call(user: str) -> tuple[str, dict]:
+    answer_inputs.append(user)
+    value = answers.pop(0) if answers else "unclear"
+    return json.dumps({"value": value}), {"input": 0, "output": 0}

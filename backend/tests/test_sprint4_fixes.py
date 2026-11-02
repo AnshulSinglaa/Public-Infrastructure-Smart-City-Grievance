@@ -39,10 +39,14 @@ def test_slow_providers_answer_within_the_budget(headers, tmp_path, monkeypatch)
     monkeypatch.setattr(common, "BUDGET_S", 2.5)
     fakes.script(image=["slow"] * 3, text=["slow"] * 3)  # every request times out
     start = time.monotonic()
-    r = post(headers, jpeg(), text="slow gaddha")
+    # A small photo: the OpenCV pre-blur (~1.5 s on 2000x1500, before the model budget
+    # starts and not scaled down) would otherwise eat the 1 s of slack.
+    r = post(headers, jpeg(size=(400, 300)), text="slow gaddha")
     took = time.monotonic() - start
     assert r.status_code == 503 and r.json()["error"]["message_key"] == "ai_unavailable"
-    assert took < common.BUDGET_S + 1  # = "under 60 s" at full scale
+    # + 1.5 s: the fixed, unscaled work per request (photo clean, DB, LangGraph checkpoints,
+    # ~1.3 s here). At full scale: 50 s budget + that = "under 60 s".
+    assert took < common.BUDGET_S + 1.5
     assert fakes.calls == {"image": 2, "text": 2}
 
 

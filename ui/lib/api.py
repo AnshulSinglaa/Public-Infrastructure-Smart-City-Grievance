@@ -127,9 +127,15 @@ def my_reports(token: str) -> list[dict]:
     return _call("GET", "/me/reports", token, pick="reports")
 
 
-def clarify(token: str, report_id: str, category: str) -> dict:
-    """Answer a paused report's category question. Returns the same envelope as POST /reports."""
-    return _call("POST", f"/reports/{report_id}/clarify", token, json={"category": category})
+def answer(token: str, report_id: str, body: dict) -> dict:
+    """Answer the report's pending question: {"value": "inner_lane"} (a quick reply) or
+    {"text": "bses wala"} (free text, any language). Same envelope as POST /reports."""
+    return _call("POST", f"/reports/{report_id}/answer", token, json=body)
+
+
+def conversation(token: str, report_id: str) -> list[dict]:
+    """The report's chat thread, oldest first: [{"role", "kind", "text", ...}]."""
+    return _call("GET", f"/reports/{report_id}/conversation", token, pick="messages")
 
 
 def categories(token: str) -> list[dict]:

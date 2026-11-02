@@ -133,6 +133,11 @@ def test_photo_text_mismatch_asks(headers, tmp_path, monkeypatch):
 def test_emergency_adds_call_first_and_still_gives_dossier(headers, answer, kind, second):
     fakes.script(text=[answer])
     body = post(headers, text="khatra hai").json()
+    if body["state"] == "needs_clarification":  # open manhole: "nala or sewer?" first
+        assert body["next"]["question_id"] == "drain_type"
+        assert body["emergency"]["kind"] == kind  # the call-first card doesn't wait
+        body = client.post(f"/api/v1/reports/{body['report_id']}/answer", headers=headers,
+                           json={"value": "sewer_manhole"}).json()
     assert body["state"] == "dossier_ready" and body["dossier_id"]
     assert body["emergency"]["kind"] == kind
     numbers = [c["value"] for c in body["emergency"]["call_first"]]

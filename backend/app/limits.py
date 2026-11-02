@@ -42,6 +42,20 @@ def cooldown_hit(conn, user_id: uuid.UUID) -> bool:
     ).fetchone()[0]
 
 
+def answer_limit_hit(conn, user_id: uuid.UUID, report_id) -> bool:
+    """Free-text answers cost a model call (SEC-015): at most 5 per report and 30 per user in
+    24 h. Each call leaves one 'model_call' event, written right after this check in the
+    same transaction, under the per-user lock, so parallel requests can't both pass."""
+    conn.execute("SELECT pg_advisory_xact_lock(hashtext(%s))", (str(user_id),))
+    per_report, per_user = conn.execute(
+        "SELECT count(*) FILTER (WHERE e.report_id = %s), count(*) FROM report_event e"
+        " JOIN report r ON r.id = e.report_id"
+        " WHERE r.user_id = %s AND e.kind = 'model_call' AND e.at > now() - interval '1 day'",
+        (report_id, user_id),
+    ).fetchone()
+    return per_report >= settings.rate_answers_report or per_user >= settings.rate_answers_day
+
+
 def check(conn, user_id: uuid.UUID) -> str | None:
     """Checked before any model call: the 429 message_key, or None if the user may go on.
     The same-spot rule needs the category, so the intake graph checks it at `route`."""

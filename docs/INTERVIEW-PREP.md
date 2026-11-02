@@ -118,6 +118,14 @@
 | D81 | The fake API always returned a category ("POTHOLE"), which hid a crash for reports without one (B-029 blocker) | Made the fake API mirror the real one exactly, including the "no category yet" cases, and added a test that failed before the fix. Lesson: a fake that is "nicer" than the real system hides bugs |
 | D82 | AI security re-audit: text was masked before going to Groq, but **photos went to Gemini unblurred** (faces, plates), and Google's free tier may train on inputs. Scanners can't see this; only reading the data flow found it | **Blur first, then ask the AI:** OpenCV blurs faces/plates before the vision call; the final shared copy also blurs the model's extra boxes. If pre-blur fails, the photo isn't sent at all. Plus a notice that AI services process the input (OWASP LLM02, DPDP transparency) |
 | D83 | A fix looked "green" (147 passed) but 58 database tests had been **skipped** because Docker was off; with the DB up, 3 failed, one of them a real logic bug (a privacy skip was reported as "AI unavailable") | Rule: **skipped is not passed**. Always rerun the full suite with every service up before calling something done; CI always runs with the DB, so skips can't hide there |
+| D84 | Matching the official PWD road list to OpenStreetMap: 1,398 name matches, but many are generic ("Main Road") and **Ring Road is called "Mahatma Gandhi Marg" in OSM** | Auto-confirm only exact, unique, non-generic names in our wards (570), reject matches from the wrong side of Delhi (151), leave the rest for width-based routing or a question. Ring Road confirmed precisely via OSM's route relation membership (all 95 ways), not by loosening the name rules. For divided roads where only one carriageway is listed, routing prefers a PWD segment within 25 m with the same road class and bearing (never for colony lanes) |
+| D85 | Loading the **real OSM roads** mid-sprint broke routing tests that had passed: test pins now snapped to real roads nearby, so the answers changed | Each test inserts its own tiny road through its pin (a negative `osm_way_id`) and deletes it afterwards; tests that need the real roads skip when they aren't loaded. Lesson: tests must own their data, not depend on what's in the DB |
+| D86 | The **divided-road rule** (one carriageway is on the PWD list, the other isn't): first **too narrow** (25 m measured from the pin, so half of MG Marg missed its short twin, B-041), then **too wide** (way-to-way 25 m also matched roads that just *continue* a listed one: 82 false twins, B-051) | Defined "twin" properly: at least **30 m of this road runs alongside** the listed one, within 25 m, bearing within 20°. False twins went to 0, and MG Marg routes to PWD along its whole length. Lesson: write down what the rule *means* before tuning numbers |
+| D87 | **Race (B-039):** a free-text answer and a button tap sent 0.3 s apart. The button made the dossier; the slower text (LLM ~1.5 s) then added a "please answer again" question *after* it | `claim()` locks the report row (`FOR UPDATE`) and re-checks the pending question **after** the LLM call; the loser gets 409 and writes nothing |
+| D88 | **The AI was effectively picking the department (B-044):** the "which power company?" option values were department codes (BRPL/TPDDL), so "You must answer TPDDL" became the department | Option values are now company ids (`brpl`, `tpddl`, …) mapped to departments **in code**; a code-like answer isn't an option, so it's a retry. Same idea as `option_1/2` for pick cards |
+| D89 | **Stuck report (B-053):** after a crash while resuming, every answer got 409. LangGraph had already **consumed the interrupt**, so the checkpoint had no pending question | `resume()` keeps the paused checkpoint; on an error it re-runs from it (`graph().invoke(None, paused)`), which stops on the same question again. A test makes `decide` fail once, then answers successfully |
+| D90 | **Groq quota abuse (SEC-015):** every free-text answer is an LLM call, so one user could burn our free Groq quota by spamming `/answer` | Rate limit: **5 answers per report and 30 per user per 24 h**. Plus SEC-016: upgraded `pyasn1` to 0.6.5 |
+| D91 | **Missing `deep_link` crash (B-052):** the rules loader saved contacts without a link, so every non-MCD dossier crashed the chat (`st.link_button(…, None)`) | The loader builds `tel:` / URL / `mailto:` links (0 of 63 rows empty now), and the UI shows "📞 Call N" as text if a link is missing. Lesson: test with real loaded data, not only the test helper's data |
 | D23 | Free-tier rate limits during the 100-case eval | Cache keyed by input hash + model + prompt version, resumable batches, a semaphore + backoff, `replay` mode in CI |
 
 ## 5. Likely questions, with answers
@@ -176,6 +184,18 @@ A: The photo and text checks run in parallel and each fails on its own. If only 
 **Q: Why only Delhi?**
 A: Delhi is the **pilot city**. The code is city-agnostic: wards, roads, rules and contacts are all data files. Adding a new city means adding its data (ward map, road list, rules, charters), not changing code. Delhi was chosen because its MCD / PWD / DJB jurisdiction confusion is well documented.
 
+**Q: What does "the LLM classifies, SQL decides" mean?**
+A: The AI only answers fixed-choice questions: which category, main road or lane, which drain type. It never outputs a department. SQL takes the pin plus those answers, finds the road, zone and ward in PostGIS, and the matching rule (out of 73) names the department. So every decision is reproducible and has a rule ID behind it.
+
+**Q: If the user types free text in the chat, couldn't the AI still steer the department?**
+A: The text model only maps the text to one of the options shown (masked text, options only). If it returns anything else, the user is asked again. Option values are neutral ids (`brpl`, `option_1`), and code turns them into departments. We found exactly this leak once (B-044) and closed it.
+
+**Q: How does the human-in-the-loop work?**
+A: When a rule needs information the data doesn't have (road class, drain type, ghat position, which power company, or two possible departments), the LangGraph graph **interrupts**. The API saves the checkpoint and returns the question; the chat shows buttons. `/answer` resumes the graph with the answer. Every step is stored in `report_event`, so `/conversation` rebuilds the chat after a refresh.
+
+**Q: What can go wrong with interrupts?**
+A: Two things we hit. Races: two answers at once, solved with a row lock and a re-check (B-039). Failures: resuming uses up the interrupt, so a crash left the report stuck; we re-run from the paused checkpoint so the same question comes back (B-053).
+
 **Q: What would you do with more time?**
 A: More wards and cities, NGO matching for cleanups, official department APIs, more languages.
 
@@ -210,3 +230,4 @@ A: More wards and cities, NGO matching for cleanups, official department APIs, m
 
 ## 7. Change log
 - 2026-10-24: Idea finalised; PRD, REQUIREMENTS, UX written; tech meeting held; stack decided; frontend switched to Streamlit.
+- 2026-11-02: Sprint 5 closed (real routing + chat intake): D85–D91 and 4 Q&As added.

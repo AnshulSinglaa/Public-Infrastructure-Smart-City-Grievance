@@ -41,6 +41,8 @@ class Settings(BaseSettings):
     photo_max_px: int = 1280
     gps_accuracy_max_m: float = 50
     rate_reports_day: int = 10
+    rate_answers_report: int = 5   # free-text /answer model calls per report (SEC-015)
+    rate_answers_day: int = 30     # ... and per user in 24 h; button answers are free
     rate_same_spot_h: int = 24
     rate_same_spot_m: int = 50
 

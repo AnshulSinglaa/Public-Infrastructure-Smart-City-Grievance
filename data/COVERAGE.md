@@ -120,3 +120,59 @@ Exclude them from the "pin → special zone" step or every pin in coverage would
   page shows the number. Not verified (blank URL, `verified=no`): LD, NL, SK, WB (no state-wide portal found),
   MN (CM Da Haisi was under maintenance), ML (megpgrams.gov.in, linked from meghalaya.gov.in, did not load),
   and TN (the CM Helpline is on tnega.org, which is not a government domain). Saved pages: `data/raw/states/portals/`.
+
+## PWD match curation (Sprint 5, 2026-10-30)
+
+`scripts/match_pwd.py` now fills `confirmed` in `pwd_matches.csv` (a curator's own `yes` / `no` is kept on re-runs):
+
+| confirmed | proposals |
+|---|---|
+| `auto` | 570 (on 327 OSM ways → `road_segment.pwd_listed`) |
+| unconfirmed (empty) | 677 |
+| `rejected` | 151 |
+
+- **auto** = score 1.0 (exact normalised name), exactly one PWD row with that name, way in a coverage ward,
+  name not generic. **Exception:** `STRETCH_ROADS` (Ring, Outer Ring, Mathura, Lala Lajpat Rai, Rani Jhansi
+  flyover, Rohtak, New Rohtak, Maharaja Agarsen, Narela–Bawana) are one road split into several PWD stretch rows,
+  so any stretch counts as PWD. All their stretch proposals are auto; `load_rules.py` takes the lowest road_id
+  and the smallest RoW.
+- **rejected** = the PWD row's division is on the opposite side of Delhi from the ward (e.g. North West Road
+  Division "Bhagwan Mahavir Marg" matched to a way in Vasant Kunj): same name, other road. This is a coarse
+  compass check from the inventory's division field, not geometry.
+- **Generic-name blocklist** (normalised, never auto): mahatma gandhi, gurudwara, main, link, service, mandir,
+  shiv mandir, gopal mandir, mata mandir, hospital, church, idgah, power house, central, mall, main bazar,
+  naya bazar, shani bazar, arya samaj, sadar thana, school, station, market, internal, approach, pusta,
+  kotla, plus any name containing gali / "no <digit>" / block / pocket / sector.
+- "Mahatma Gandhi Marg" is also Ring Road's OSM name (about 400 proposals). It stays unconfirmed because other
+  MG roads exist; a curator can confirm the Ring Road ways by hand. Sri Aurobindo Marg has no exact-score match.
+- Spot-check of 15 auto matches against the inventory's PWD division: Mathura Rd (Badarpur), Ring Rd (Civil Lines),
+  LLR Path (Andrews Ganj), Outer Ring Rd (Pitam Pura), Lodhi Rd, Nelson Mandela Marg, Aruna Asaf Ali Marg,
+  Rohtak Rd (Nangloi), Najafgarh–Bahadurgarh Rd, Sarita Vihar Rd, Chandni Chowk, Siri Fort Rd, Jaitpur Rd and
+  Madanpur Khadar Rd all fit their division. Bhagwan Mahavir Marg (Vasant Kunj vs North West division) was
+  wrong; the division check now rejects it.
+
+### Ring Road route relation (2026-10-30)
+
+- OSM route relations Ring Road Delhi (1208531, 331 ways) and Delhi Outer Ring Road (1208532, 223 ways); members
+  are cached in `data/raw/ring_road_relations.json`. A proposal becomes `confirmed=auto_route` only when its way
+  is a member of the relation AND the PWD row is a Ring Road (or Outer Ring Road) stretch. The
+  "Mahatma Gandhi Marg" blocklist still applies everywhere else.
+- Result: 127 `auto_route` proposals on 42 ways. 53 of the 95 Ring Road member ways in the coverage wards are now
+  PWD-listed. The other 42 are flyovers / underpasses / unnamed links with no name proposal (e.g. Ashram
+  Railway Flyover, Moolchand Underpass); a curator could add them.
+- Outer Ring Road has no naming problem (its ways are already named "Outer Ring Road" → `auto`). 4 of its 24
+  member ways in coverage are confirmed; the rest are named Palam Marg / flyovers and get no proposal.
+- Totals now: auto 570, auto_route 127, rejected 151, unconfirmed 550; 369 PWD-listed road segments.
+- Snap check: 28.570N 77.250E is about 400 m from Ring Road, so it snaps to colony lanes. A point on the
+  Ring Road carriageway near Lajpat Nagar (28.5714N 77.2568E) snaps at 2 m to Mahatma Gandhi Marg,
+  `pwd_listed`, RD-00504.
+- **Route-relation rule (load_rules.py):** every member way of Ring Road relation 1208531 in the coverage wards is
+  now PWD-listed with `row_source = route_relation`, whether or not its name matched (flyovers, underpasses,
+  unnamed links). It takes the `pwd_road_id` and `row_m` of the nearest name-confirmed Ring Road way. This adds
+  42 ways, so 411 segments are PWD-listed (369 `pwd_list` + 42 `route_relation`).
+- Outer Ring Road (1208532) is unchanged: its 13 PWD stretch rows leave gaps (e.g. Africa Avenue → NH-8,
+  Burari → Badli), so they don't clearly cover the whole route.
+- Lajpat Nagar check: 28.5714N 77.2568E snaps (4.9 m) to way 312031901, PWD (RD-00504). The parallel
+  carriageway way 37751255 (3–9 m away) is NOT a member of relation 1208531 in OSM, so it stays unlisted.
+  A pin on that side within 25 m still finds the PWD way, but nearest-first snapping can pick 37751255.
+  Fix options: add it to the OSM relation upstream, or have a curator mark it `yes` in pwd_matches.csv.

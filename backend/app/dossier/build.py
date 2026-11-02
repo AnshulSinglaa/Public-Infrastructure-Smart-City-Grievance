@@ -4,7 +4,7 @@ English only (UX §14); a Hindi "Translate" action may come back later."""
 from pathlib import Path
 from string import Template
 
-from app.intake.catalog import categories
+from app.intake.catalog import categories, departments
 
 TEMPLATE = Path(__file__).parent / "templates" / "complaint_en.txt"
 
@@ -13,6 +13,7 @@ def build_complaint(category: str, severity: str, route: dict, citizen_text: str
                     emergency: bool = False) -> str:
     """citizen_text must already be masked; it is quoted as written (Hindi/Hinglish too)."""
     values = {
+        "department_en": departments()[route["department_code"]]["name_en"],
         "ward_no": route["ward_no"],
         "ward_name": route["ward_name"],
         "sla_days": route["sla_days"],

@@ -51,3 +51,9 @@ class TextAssessment(Assessment):
 def unsure(schema: type[Assessment]) -> dict:
     """What we use when the model's output stays invalid: no category, confidence 0."""
     return schema(category=None, confidence=0).model_dump()
+
+
+class AnswerChoice(BaseModel):
+    """The text model mapping a free-text answer to one option: an option value or
+    'unclear'. (Checked against the real options afterwards; anything else = unclear.)"""
+    value: str = "unclear"

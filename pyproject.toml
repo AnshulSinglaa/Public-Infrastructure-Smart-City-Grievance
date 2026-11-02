@@ -40,8 +40,9 @@ dev = [
 # Supply-chain cooldown (SEC-009): never resolve a package version published in the last 7 days.
 exclude-newer = "7 days"
 # Exception: qdrant-client must match the Qdrant 1.20 server we run (released < 7 days ago).
-# Remove this line once 1.20 is older than the cooldown.
-exclude-newer-package = { qdrant-client = false }
+# pyasn1: 0.6.5 fixes 4 BER/DER CPU-exhaustion advisories (SEC-016) and is newer than 7 days.
+# Remove each exception once that release is older than the cooldown.
+exclude-newer-package = { qdrant-client = false, pyasn1 = false }
 package = false
 
 [tool.ruff]

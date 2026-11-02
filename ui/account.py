@@ -13,7 +13,6 @@ from report import (
     cat_name,
     go,
     html,
-    open_dossier,
     page_title,
     pill,
     show_error,
@@ -26,10 +25,11 @@ STATE_DOT = {"dossier_ready": ":green[●]", "out_of_coverage": ":orange[●]",
              "needs_clarification": ":blue[●]", "rejected_junk": ":red[●]"}
 IST = timezone(timedelta(hours=5, minutes=30))  # India has one time zone and no DST
 # Names in the browser's localStorage. It survives a refresh; st.session_state does not.
-TOKEN_KEY, DRAFT_KEY, PHOTO_KEY = "cgr_token", "cgr_draft", "cgr_photo"
+TOKEN_KEY, DRAFT_KEY, PHOTO_KEY, THREAD_KEY = "cgr_token", "cgr_draft", "cgr_photo", "cgr_thread"
 # The photo is NOT blurred yet, so it goes in sessionStorage: it survives a refresh but the
 # browser deletes it when the tab closes (SEC-012: a shared phone must not keep it).
-STORE = {TOKEN_KEY: "localStorage", DRAFT_KEY: "localStorage", PHOTO_KEY: "sessionStorage"}
+STORE = {TOKEN_KEY: "localStorage", DRAFT_KEY: "localStorage", PHOTO_KEY: "sessionStorage",
+         THREAD_KEY: "localStorage"}
 # localStorage holds about 5 MB per site; a bigger photo isn't kept (the user re-attaches).
 MAX_KEPT_B64 = 1_500_000
 
@@ -49,7 +49,7 @@ def browser_save(name: str, value: str) -> None:
 
 
 def browser_forget() -> None:
-    js = "; ".join(f"{STORE[k]}.removeItem('{k}')" for k in (TOKEN_KEY, DRAFT_KEY, PHOTO_KEY))
+    js = "; ".join(f"{STORE[k]}.removeItem('{k}')" for k in STORE)
     streamlit_js_eval(js_expressions=js, want_output=False, key="forget")
 
 
@@ -81,13 +81,13 @@ def restore_login() -> None:
         return
     if st.session_state.get("restore_done"):
         return
-    keys = ", ".join(f"{STORE[k]}.getItem('{k}')" for k in (TOKEN_KEY, DRAFT_KEY, PHOTO_KEY))
+    keys = ", ".join(f"{STORE[k]}.getItem('{k}')" for k in STORE)
     js = f"JSON.stringify([{keys}])"
     saved = streamlit_js_eval(js_expressions=js, key="restore")
     if saved is None:  # the browser hasn't answered yet; its answer triggers a rerun
         return
     st.session_state.restore_done = True
-    token, draft, photo = json.loads(saved)
+    token, draft, photo, thread = (json.loads(saved) + [None])[:4]  # older pages kept 3
     if not token:
         return
     try:
@@ -99,6 +99,8 @@ def restore_login() -> None:
         st.session_state.report_text = draft
     if photo:
         photo_from_browser(photo)
+    if thread:
+        st.session_state.thread = thread  # the chat is rebuilt from GET /conversation
     st.rerun()
 
 
@@ -158,22 +160,10 @@ def one_line(r: dict) -> str:
     return f"{cat_name(r['category'])} · {where}"
 
 
-def open_report(token: str, r: dict, slot) -> None:
-    try:
-        st.session_state.pop("emergency", None)  # only shown right after reporting
-        open_dossier(token, r["dossier_id"])
-    except ApiError as e:
-        show_error(e, slot)
-        return
-    st.rerun()
-
-
-def report_clicked(token: str, r: dict, slot) -> None:
-    if r.get("dossier_id"):
-        open_report(token, r, slot)
-    else:  # out of coverage: no dossier, show the helplines page again
-        go("reports")
-        st.rerun()
+def open_thread(report_id: str) -> None:
+    """Show a report as its chat thread (rebuilt from GET /conversation)."""
+    st.session_state.thread = report_id
+    go("new")
 
 
 def render_sidebar(token: str, api_ok: bool) -> None:
@@ -195,9 +185,9 @@ def render_sidebar(token: str, api_ok: bool) -> None:
             st.caption(t("no_recent"))
         for r in recent:
             dot = STATE_DOT.get(r["state"], "○")
-            if st.button(f"{dot} {one_line(r)}", key=f"recent_{r['report_id']}",
-                         type="tertiary", width="stretch"):
-                report_clicked(token, r, slot)
+            st.button(f"{dot} {one_line(r)}", key=f"recent_{r['report_id']}",
+                      type="tertiary", width="stretch", on_click=open_thread,
+                      args=(r["report_id"],))
 
         # Pinned to the bottom by CSS (.st-key-side_user).
         with st.container(key="side_user", horizontal=True, vertical_alignment="center"):
@@ -236,8 +226,6 @@ def render_reports(token: str) -> None:
             html(f'<div class="report-row"><p class="report-title">{escape(one_line(r))}</p>'
                  f'<p class="muted report-date">{escape(ist_date(r["created_at"]))}</p>'
                  f'<div class="pills">{"".join(pills)}</div></div>')
-            # Out-of-coverage reports have no dossier to open.
-            if r.get("dossier_id") and st.button(t("open"), key=f"open_{r['report_id']}",
-                                                 icon=":material/arrow_forward:",
-                                                 icon_position="right"):
-                open_report(token, r, error)
+            st.button(t("open"), key=f"open_{r['report_id']}", on_click=open_thread,
+                      args=(r["report_id"],), icon=":material/arrow_forward:",
+                      icon_position="right")
