@@ -4,6 +4,7 @@ from contextlib import asynccontextmanager
 import psycopg
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -12,7 +13,7 @@ from app.api.geocode import router as geocode_router
 from app.api.reports import router as reports_router
 from app.auth import check_auth_mode
 from app.auth import router as auth_router
-from app.config import settings
+from app.config import check_prod, settings
 from app.db import connect
 from app.privacy.text import fernet
 
@@ -23,7 +24,9 @@ log = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     """Create the Qdrant collections on startup. Qdrant down = warn and start anyway
     (/healthz?db=1 will then show qdrant: false). Unsafe auth or a missing PII_KEY outside
-    local stops the app here (uvicorn exits with "Application startup failed")."""
+    local stops the app here (uvicorn exits with "Application startup failed"), and so does
+    any missing or weak secret in prod (check_prod, SEC-007)."""
+    check_prod()
     check_auth_mode()
     fernet()
     try:
@@ -39,12 +42,30 @@ app = FastAPI(title="Civic Grievance Router API", lifespan=lifespan,
               openapi_url="/openapi.json" if settings.app_env == "local" else None)
 
 
+SECURITY_HEADERS = {
+    "X-Content-Type-Options": "nosniff",  # a photo stays an image, never HTML
+    "X-Frame-Options": "DENY",  # no page may frame the API
+    "Referrer-Policy": "no-referrer",
+    # The API serves JSON and photos, never pages: no scripts, no framing.
+    "Content-Security-Policy": "default-src 'none'; img-src 'self'; frame-ancestors 'none'",
+}
+if settings.app_env != "local":  # browsers then refuse plain http for a year (HTTPS only)
+    SECURITY_HEADERS["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+
+
 @app.middleware("http")
-async def nosniff(request: Request, call_next):
-    """Browsers must trust our Content-Type (e.g. a photo stays an image, never HTML)."""
+async def security_headers(request: Request, call_next):
     response = await call_next(request)
-    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers.update(SECURITY_HEADERS)
     return response
+
+
+# The Streamlit server calls the API server-to-server, so no browser needs CORS. Listing
+# only the UI's origin means a page on any other site can't call the API from a browser.
+app.add_middleware(CORSMiddleware, allow_methods=["GET", "POST"],
+                   allow_headers=["Authorization", "Content-Type"],
+                   allow_origins=[o.strip() for o in settings.allowed_origins.split(",")
+                                  if o.strip()])
 
 
 app.include_router(auth_router)

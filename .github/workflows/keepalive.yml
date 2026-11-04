@@ -1,7 +1,11 @@
 name: Keepalive
+# Warm-up: Render's free API sleeps after 15 min idle (the next visit waits ~1 min), Supabase
+# pauses a free project after 7 idle days and Qdrant Cloud suspends idle free clusters.
+# One /healthz?db=1 every 10 min in the daytime (IST) touches all three. Public repos get
+# Actions minutes free; GitHub may run a scheduled job a few minutes late.
 on:
   schedule:
-    - cron: "0 6 * * *"
+    - cron: "*/10 2-17 * * *"   # 07:30-23:30 IST (cron is UTC); fits Render's 750 free h/month
   workflow_dispatch:
 
 permissions:
@@ -14,4 +18,4 @@ jobs:
       API_URL: ${{ secrets.API_URL }}
     steps:
       - if: env.API_URL != ''
-        run: curl -fsS --retry 3 --max-time 60 "$API_URL/healthz?db=1"
+        run: curl -fsS --retry 3 --retry-delay 20 --max-time 90 "$API_URL/healthz?db=1"

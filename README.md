@@ -4,7 +4,7 @@
 
 A **multimodal agentic RAG** application for civic complaints, with geospatial routing. **Pilot city: Delhi.** The code is city-agnostic: wards, roads, rules and contacts are data files.
 
-![status](https://img.shields.io/badge/status-Sprint%205%20done-blue) ![python](https://img.shields.io/badge/python-3.12-blue) ![tests](https://img.shields.io/badge/tests-322%20passing-brightgreen)
+![status](https://img.shields.io/badge/status-Sprint%205%20done-blue) ![python](https://img.shields.io/badge/python-3.12-blue) ![tests](https://img.shields.io/badge/tests-278%20passing-brightgreen)
 
 ---
 
@@ -36,7 +36,7 @@ The app **never files complaints on the citizen's behalf**: it routes and prepar
 | Privacy: photos are **blurred before** they reach the AI; text is masked; the user is told which AI services see the report | |
 | Outside Delhi: the state's official grievance portal (36 states/UTs, 29 verified) + CPGRAMS | |
 | Langfuse tracing (masked), strict JSON checks, retries within a < 60 s budget, rate limits (incl. chat answers) | |
-| **322 tests** (261 backend + 61 UI; the live AI eval passes 12/12 when run), CI green, 53 bugs found and fixed, security audits passed | |
+| **278 tests** (210 backend + 68 UI; the live AI eval passes 12/12 when run), CI green, 53 bugs found and fixed, security audits passed | |
 
 > ℹ️ From Sprint 5 the department comes from the 73 rules in PostGIS, not the simple ward lookup.
 
@@ -129,15 +129,22 @@ Copy `.env.example` to `.env`. **Sprints 1–2 need only the first two;** everyt
 | `QDRANT_URL`, `QDRANT_API_KEY` | optional | Default local Docker; set both for Qdrant Cloud |
 | `LANGFUSE_*` | Sprint 4 | Monitoring keys; tracing is off while empty |
 | `PII_KEY` | Sprint 3 | Encryption key for personal data (command in `.env.example`) |
-| `SUPABASE_*` | deploy | Only for the online demo |
+| `APP_ENV`, `AUTH_MODE` | deploy | `local`/`dev` on a laptop; `prod`/`supabase` online (prod refuses to start with a missing or weak secret) |
+| `SUPABASE_*`, `TURNSTILE_*`, `ALLOWED_ORIGINS` | deploy | Only for the online demo, see [DEPLOY.md](docs/DEPLOY.md) |
 
 **Never commit `.env`.** It's git-ignored, and CI runs gitleaks to catch leaked keys.
+
+## Deploy (free tier)
+
+The live demo runs on **Render** (API, Docker: `infra/api/Dockerfile` + `render.yaml`), **Streamlit Community Cloud** (UI), **Supabase** (Postgres + PostGIS + email-code login), **Qdrant Cloud** and **Cloudflare Turnstile**, with GitHub Actions for CI, warm-up pings and encrypted daily backups. One command loads a fresh database (tables + all data): `uv run python scripts/load_all.py`.
+
+Step-by-step checklist (accounts, which value goes in which dashboard, git steps): **[docs/DEPLOY.md](docs/DEPLOY.md)**.
 
 ## Tests
 
 ```powershell
 uv run ruff check .     # lint
-uv run pytest -q        # 261 backend + 61 UI tests: API, auth, privacy, limits, routing, chat, DB, Qdrant, UI (Streamlit AppTest)
+uv run pytest -q        # 278 tests (210 backend + 68 UI): API, auth, privacy, limits, routing, chat, DB, Qdrant, UI (Streamlit AppTest)
 ```
 
 DB and Qdrant tests are skipped automatically when those services aren't running.
@@ -179,6 +186,8 @@ docs/                     PRD, requirements, UX, architecture, plan, bugs, test 
 | [Sprint 2 API contract](docs/contracts/sprint2-api.md) | Request/response shapes and error keys |
 | [Sprint 3 API contract](docs/contracts/sprint3-api.md) | Login, pin, privacy rules, rate limits, new error keys |
 | [Sprint 5 API contract](docs/contracts/sprint5-api.md) | Routing rules, chat questions, `/answer` and `/conversation` |
+| [Deploy API contract](docs/contracts/deploy-api.md) | Email-code login, Turnstile, token handling, login limits |
+| [DEPLOY](docs/DEPLOY.md) | Deploy runbook and your setup checklist |
 | [REVIEW-S5](docs/REVIEW-S5.md) | Tech-lead review of Sprint 5 |
 
 ## Data sources and honesty notes

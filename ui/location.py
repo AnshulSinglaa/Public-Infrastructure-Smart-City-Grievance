@@ -76,8 +76,10 @@ def gps_round_key() -> str:
 
 
 def reset_location() -> None:
-    """Forget the pin and ask for GPS again (a new component key = a fresh reading)."""
-    for key in ("pin", "gps", "gps_drift", "gps_error", "candidates", "submitting"):
+    """Forget the pin and ask for GPS again (a new component key = a fresh reading).
+    pin_prev too: the last report's "Pin moved · Undo" has no pin to compare with (B-055)."""
+    for key in ("pin", "pin_prev", "gps", "gps_drift", "gps_error", "candidates",
+                "submitting"):
         st.session_state.pop(key, None)
     st.session_state.gps_round = st.session_state.get("gps_round", 0) + 1
 
@@ -102,6 +104,23 @@ def on_map_click() -> None:
 
 def undo_pin() -> None:
     st.session_state.pin = st.session_state.pop("pin_prev")
+
+
+# Real-road pins inside the covered wards, each checked against the routing engine. In the
+# hosted demo most searched places fall outside the 25 wards, so these show it working.
+DEMO_SPOTS = {
+    "Pothole on Ring Road, Lajpat Nagar (ward 144) → PWD": (28.571436, 77.256770),
+    "Pothole in a Jaitpur lane (ward 184) → MCD": (28.510716, 77.334081),
+    "Pothole on NH-48, Mahipalpur (ward 133) → NHAI": (28.535919, 77.112268),
+    "Streetlight out, Pitam Pura lane (ward 57) → TPDDL power company": (28.702625, 77.143285),
+}
+
+
+def pick_demo_spot() -> None:
+    label = st.session_state.get("demo_spot")
+    if label:
+        set_pin(*DEMO_SPOTS[label], "landmark", label=label.split(" → ")[0])
+        st.session_state.demo_spot = None  # so the same spot can be picked again
 
 
 def pick_candidate(c: dict) -> None:
@@ -195,3 +214,5 @@ def render_location_panel(token: str) -> None:
         if pin:
             st.caption(f"{pin['lat']:.5f}, {pin['lng']:.5f}")
         landmark_search(token)
+        st.selectbox(t("demo_spots"), list(DEMO_SPOTS), index=None, key="demo_spot",
+                     placeholder=t("demo_spots_ph"), on_change=pick_demo_spot)

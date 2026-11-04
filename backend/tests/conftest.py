@@ -3,7 +3,7 @@ import uuid
 import pytest
 from api_helpers import client
 
-from app.auth import login_times, make_token
+from app.auth import make_token
 
 
 @pytest.fixture
@@ -23,7 +23,13 @@ def token_headers():
 @pytest.fixture(autouse=True)
 def fresh_login_limit():
     """Every test client shares the IP "testclient", so reset the login limit per test."""
-    login_times.clear()
+    from test_health import db_is_up
+
+    from app.db import connect
+
+    if db_is_up():
+        with connect() as conn:
+            conn.execute("DELETE FROM login_attempt")
 
 
 @pytest.fixture(autouse=True)

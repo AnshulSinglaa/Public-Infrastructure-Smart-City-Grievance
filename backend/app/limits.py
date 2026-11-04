@@ -64,3 +64,21 @@ def check(conn, user_id: uuid.UUID) -> str | None:
     if daily_limit_hit(conn, user_id):
         return "rate_limited_daily"
     return None
+
+
+LOGIN_WINDOW_S = 600  # all login limits count the last 10 minutes
+
+
+def login_limited(conn, key: str, limit: int) -> bool:
+    """SEC-004: login tries live in Postgres, so the count survives restarts and is shared
+    by every worker. Locks the key so parallel tries can't both slip under the limit,
+    drops rows older than the window (the table stays tiny), then counts and records."""
+    conn.execute("SELECT pg_advisory_xact_lock(hashtext(%s))", (key,))
+    conn.execute("DELETE FROM login_attempt WHERE at < now() - make_interval(secs => %s)",
+                 (LOGIN_WINDOW_S,))
+    count = conn.execute("SELECT count(*) FROM login_attempt WHERE key = %s",
+                         (key,)).fetchone()[0]
+    if count >= limit:
+        return True
+    conn.execute("INSERT INTO login_attempt (key) VALUES (%s)", (key,))
+    return False

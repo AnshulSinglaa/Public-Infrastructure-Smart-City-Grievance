@@ -1,0 +1,41 @@
+# Render Blueprint: the API as one free Docker web service.
+# Render dashboard -> New -> Blueprint -> pick this repo. Secrets (sync: false) are typed into
+# the dashboard once; they are never stored in this file. Guide: docs/DEPLOY.md
+services:
+  - type: web
+    name: civic-api
+    runtime: docker
+    plan: free
+    region: singapore            # closest free region to Delhi
+    dockerfilePath: ./infra/api/Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    autoDeployTrigger: checksPass  # a push to main deploys only after CI is green
+    envVars:
+      - key: APP_ENV
+        value: prod
+      - key: AUTH_MODE
+        value: supabase
+      - key: PROVIDER_MODE
+        value: live
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: TURNSTILE_SECRET
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: QDRANT_URL
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: PII_KEY
+        sync: false
+      # Optional, add in the dashboard later: LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY

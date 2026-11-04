@@ -75,6 +75,16 @@ def dev_login(name: str, email: str) -> dict:
     return _call("POST", "/auth/dev-login", json=body)
 
 
+def send_code(email: str, captcha: str) -> dict:
+    """AUTH_MODE=supabase step 1: email a sign-in code. `captcha` = the Turnstile token."""
+    return _call("POST", "/auth/otp", json={"email": email, "captcha": captcha})
+
+
+def verify_code(email: str, code: str, name: str) -> dict:
+    """Step 2: the emailed code -> {"token", "user": {"id", "name"}} (same as dev_login)."""
+    return _call("POST", "/auth/verify", json={"email": email, "code": code, "name": name})
+
+
 def me(token: str) -> dict:
     """{"id", "name"} of the token's user. Checks a token kept across a refresh."""
     return _call("GET", "/me", token, pick="user")

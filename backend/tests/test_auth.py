@@ -70,22 +70,30 @@ def test_non_ascii_token_is_401_not_500(token):
     assert r.status_code == 401 and r.json() == UNAUTHORIZED
 
 
-def test_login_rate_limit_per_ip(monkeypatch):
-    monkeypatch.setattr(auth, "connect", lambda: pytest.fail("limit must stop it first"))
-    auth.login_times["testclient"].extend([auth.time.monotonic()] * auth.LOGIN_LIMIT)
+@needs_db
+def test_login_rate_limit_per_ip_lives_in_postgres():  # SEC-004
+    from app.db import connect
+
+    with connect() as conn:
+        conn.execute("INSERT INTO login_attempt (key) SELECT 'ip:testclient'"
+                     " FROM generate_series(1, %s)", (auth.LOGIN_LIMIT,))
     r = client.post("/api/v1/auth/dev-login", json={"name": "Spam"})
     assert r.status_code == 429
     assert r.json() == {"error": {"code": "rate_limited", "message_key": "rate_limited_login"}}
-    assert not auth.login_limited("10.0.0.9")  # other IPs are not affected
+    assert not auth.limited(("ip:10.0.0.9", auth.LOGIN_LIMIT))  # other IPs are not affected
 
 
-def test_login_window_slides(monkeypatch):
-    clock = [1000.0]
-    monkeypatch.setattr(auth.time, "monotonic", lambda: clock[0])
-    assert not any(auth.login_limited("1.2.3.4") for _ in range(auth.LOGIN_LIMIT))
-    assert auth.login_limited("1.2.3.4")  # 11th inside 10 min
-    clock[0] += auth.LOGIN_WINDOW_S + 1
-    assert not auth.login_limited("1.2.3.4")  # old ones expired
+@needs_db
+def test_login_window_slides():
+    from app.db import connect
+
+    with connect() as conn:  # 10 tries, all 11 minutes old
+        conn.execute("INSERT INTO login_attempt (key, at) SELECT 'ip:1.2.3.4', now() -"
+                     " interval '11 minutes' FROM generate_series(1, %s)", (auth.LOGIN_LIMIT,))
+    assert not any(auth.limited(("ip:1.2.3.4", auth.LOGIN_LIMIT)) for _ in range(auth.LOGIN_LIMIT))
+    assert auth.limited(("ip:1.2.3.4", auth.LOGIN_LIMIT))  # 11th inside 10 min
+    with connect() as conn:
+        assert conn.execute("SELECT count(*) FROM login_attempt").fetchone()[0] == 10  # pruned
 
 
 def test_500_never_returns_exception_text(monkeypatch):
@@ -107,5 +115,8 @@ def test_me_checks_a_kept_token_without_using_the_login_limit(headers):  # B-012
     for _ in range(auth.LOGIN_LIMIT + 5):
         r = client.get("/api/v1/me", headers=headers)
         assert r.status_code == 200 and r.json()["user"]["name"].startswith("test-")
-    assert sum(len(t) for t in auth.login_times.values()) == 1  # only the fixture's login
+    from app.db import connect
+
+    with connect() as conn:  # only the fixture's login was counted
+        assert conn.execute("SELECT count(*) FROM login_attempt").fetchone()[0] == 1
     assert client.get("/api/v1/me", headers={"Authorization": "Bearer junk"}).status_code == 401

@@ -218,7 +218,8 @@ Targets other than routing (≥85%) and time (<60s) are PM proposals. Tune them 
 
 - **NGO partner matching**: route issues like garbage and ghat cleanup to registered NGOs (the user wants this later).
 - **Recycler / circular-economy matching**, including material-type detection.
-- More Delhi wards, then other cities with their own rules datasets.
+- **V2-A Work anywhere in India** (evidence ladder + web research agent; the 25 wards become the test set).
+- **V2-B Road auditor**: phone/dashcam video → AI finds the problems → who's responsible → ready complaint → repair check on the next drive.
 - More languages (Punjabi, Urdu, etc.).
 - Official department integrations, only through formal APIs and partnerships.
 - Phased detail lives in `docs/ROADMAP.md`.

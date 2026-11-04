@@ -93,7 +93,7 @@ ROUTES = {"ring road": 1208531, "outer ring": 1208532}
 def route_members():
     """PWD-name needle -> member way ids of its OSM route relation (fetched once, cached)."""
     data = overpass("[out:json][timeout:120];relation(id:1208531,1208532);out body;",
-                    ROOT / "data" / "raw" / "ring_road_relations.json")
+                    ROOT / "data" / "ring_road_relations.json")  # committed: load_rules needs it
     by_id = {e["id"]: {m["ref"] for m in e["members"] if m["type"] == "way"} for e in data["elements"]}
     return {needle: by_id.get(rel, set()) for needle, rel in ROUTES.items()}
 

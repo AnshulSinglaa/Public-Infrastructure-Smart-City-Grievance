@@ -62,6 +62,7 @@ Not tested: camera capture (blocked in the browser pane), real `tel:` dialing, n
 | B-052 | major | backend (data) + frontend | Contact rows have no `deep_link` (only MCD's helpline has one): every non-MCD dossier crashes the chat ("This app has encountered an error") | Verified |
 | B-053 | major | backend | A crash while resuming still leaves the report stuck: state goes back to needs_clarification, but the graph has no pending question, so every /answer is 409 (REVIEW-S5 C1) | Verified |
 | B-054 | minor | frontend | The answer-limit message (and other /answer errors) shows at the top of the thread, off-screen; the user sees an empty bubble | Fixed |
+| B-055 | major | frontend | "New report" after a thread whose pin was moved by a map tap: the composer loses its buttons, then "This app has encountered an error" | Open |
 
 ---
 
@@ -477,3 +478,9 @@ Steps: 375 × 812, a report with a long thread (5 typed answers), type a 6th ans
 Expected: the message ("You've typed many answers. Please tap one of the buttons instead.") next to the answer box or the last bubble, where the user is looking.
 Actual: the text is put in the `error` slot created at the top of `render_thread` (523 px above the visible area); the bottom of the chat shows only an empty assistant bubble (the spinner's), so on a phone nothing seems to happen. Same for `wrong_step`, `invalid_answer`, `ai_unavailable` from `send_answer`.
 Suspected area: `ui/chat.py` `render_thread` / `send_answer` (show the error in the bubble or above the chat input).
+
+### B-055 · major · frontend: "New report" from a finished thread crashes the next composer
+**Status:** Open (paused 3 Nov 2026 at the user's request; fix in place, not yet confirmed live). Root cause (found, reproduced in AppTest): `reset_location()` (called by every "New report") cleared `pin` but not `pin_prev`, the "Pin moved · Undo" offer from the last map tap. The new composer then ran `meters(prev, st.session_state.pin)` with no pin and raised `st.session_state has no attribute "pin"` just before the Camera / Upload / Add location / Prepare row. Fix: `reset_location()` also clears `pin_prev`. Test `test_new_report_after_every_thread_end`: dossier, out of coverage, rejected and emergency threads → New report → a second report reaches its dossier (passes). Left: restart the UI on :8501 (it still runs the old code), confirm the live steps below in the browser (the fake-API UI did not crash without a map tap, so check the live pin path too), then mark Fixed and have qa-engineer re-verify.
+Steps (live demo, UI :8501 → API :8010): report "Sadak pe bada gaddha hai" with a pin outside the covered wards (moved on the map) → "We don't cover this area yet" + helpline → New report → type text.
+Expected: the composer with Camera / Upload / Add location / Prepare complaint.
+Actual: the button row is missing; clicking outside the text box shows "This app has encountered an error". QA never chained a second report.

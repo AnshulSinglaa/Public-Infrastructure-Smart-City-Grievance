@@ -26,7 +26,7 @@ DATA = ROOT / "data"
 DB = os.environ.get("DATABASE_URL", "postgresql://postgres:dev@127.0.0.1:5433/civic")
 FILES = ["rules_draft.csv", "departments.csv", "osm_roads.geojson", "pwd_list.csv", "pwd_matches.csv"]
 CONFIRMED = {"auto", "auto_route", "yes"}
-RING_ROUTE = DATA / "raw" / "ring_road_relations.json"  # cached by match_pwd.py
+RING_ROUTE = DATA / "ring_road_relations.json"  # written by match_pwd.py; committed (OSM, ODbL)
 RING_ROAD_RELATION = 1208531  # Outer Ring Road (1208532) is not done: its PWD rows leave gaps
 
 

@@ -689,3 +689,24 @@ def test_answer_error_shows_at_the_bottom(app):  # B-054
     assert err.value == TEXT["rate_limited_answers"]
     # in the last chat bubble (where the user typed), not in the slot at the top
     assert app.chat_message[-1].error[0].value == TEXT["rate_limited_answers"]
+
+
+@pytest.mark.parametrize("first, new_button", [
+    ("gaddha hai", "chat_new_"),                     # dossier
+    ("gaddha hai #ooc", "chat_new_ooc"),             # out of coverage (India Gate pin)
+    ("gaddha hai #junk_selfie", "nav_new"),          # rejected: the sidebar's New report
+    ("taar gira hai #emergency", "chat_new_"),       # emergency, then the dossier
+])
+def test_new_report_after_every_thread_end(app, first, new_button):  # B-055
+    """report -> thread end -> New report -> a second report reaches a result. The first
+    pin was moved by a map tap (an Undo offer), which used to crash the next composer."""
+    gate = {**PIN, "lat": 28.6129, "lng": 77.2295} if "#ooc" in first else PIN
+    app.session_state["pin_prev"] = {**gate, "lat": gate["lat"] + 0.001}
+    submit(app, first.replace(" #ooc", ""), pin=gate)
+    btn = next(b for b in [*app.button, *app.sidebar.button] if b.key.startswith(new_button))
+    btn.click().run()
+    assert not app.exception
+    assert {"btn_camera", "btn_upload", "loc_chip", "prepare"} <= {b.key for b in app.button}
+    assert "thread" not in app.session_state and "pin_prev" not in app.session_state
+    submit(app, "doosra gaddha")  # the second report
+    assert not app.exception and TEXT["who_fixes"] in page_text(app)

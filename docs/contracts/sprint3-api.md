@@ -3,7 +3,7 @@
 Extends `sprint2-api.md`; everything there still holds. Base `API_URL` (default `http://127.0.0.1:8010`), prefix `/api/v1`.
 
 ## Login (dev mode)
-`AUTH_MODE=dev` (local only; the app refuses `dev` unless `APP_ENV=local`). Supabase email OTP replaces this in Sprint 8 without changing the endpoints.
+`AUTH_MODE=dev` (local only; the app refuses `dev` unless `APP_ENV=local`). The hosted app uses email-code login instead: see [deploy-api.md](deploy-api.md).
 
 ### POST /api/v1/auth/dev-login
 Body JSON: `{"name": "Priya", "email": "priya@example.com"}` (email is optional in dev mode)
@@ -70,7 +70,7 @@ Response `200`: `{"reports": [{"report_id","state","category","ward_no","departm
 | Same user, same category, within 50 m, within 24 h | 429 `rate_limited_same_spot` |
 | 3 junk/rejected photos in 10 min → 15 min cooldown | 429 `rate_limited_cooldown` (used from Sprint 4, when real junk detection exists) |
 
-| > 10 `POST /auth/dev-login` calls from one IP in 10 min (sliding window, per server process) | 429 `rate_limited_login` |
+| > 10 `POST /auth/dev-login` calls from one IP in 10 min (counted in Postgres, see deploy-api.md) | 429 `rate_limited_login` |
 
 The report limits are checked inside the report's transaction after
 `pg_advisory_xact_lock(hashtext(user_id))`, so one user's parallel posts run one at a time and

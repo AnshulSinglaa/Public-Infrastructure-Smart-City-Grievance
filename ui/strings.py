@@ -24,6 +24,23 @@ TEXT = {
     "continue": "Continue",
     "need_name": "Please enter your name.",
     "bad_email": "This email doesn't look right.",
+    # Email-code login (AUTH_MODE=supabase)
+    "otp_help": "We'll email you a 6-digit code. No password needed.",
+    "email_req_label": "Email",
+    "send_code": "Email me a code",
+    "need_email": "Please enter your email.",
+    "need_captcha": "Please wait for the security check above to finish.",
+    "code_sent": "We sent a code to {email}. It can take a minute to arrive.",
+    "code_label": "6-digit code",
+    "sign_in": "Sign in",
+    "other_email": "Use a different email",
+    "captcha_failed": "The security check failed. Please try again.",
+    "bad_code": "That code is wrong or expired. Check the email or ask for a new code.",
+    "login_failed": "Couldn't send the code right now. Please try again in a minute.",
+    # Demo (hosted)
+    "demo_banner": "Demo: works in 25 Delhi wards. Elsewhere you get the official helplines.",
+    "demo_spots": "Try a demo spot",
+    "demo_spots_ph": "Pick a spot inside the covered wards",
     # Composer (new report)
     "new_title": "What's the problem?",
     "new_help": "Add a photo and a short description. English, Hindi or Hinglish all work.",

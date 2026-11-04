@@ -1,4 +1,4 @@
-# secrets (keep only the template)
+# secrets (keep only the template); *.asc = backup keys (docs/DEPLOY.md)
 .env
 .env.*
 !.env.example
@@ -37,3 +37,4 @@ data/raw/
 
 # security audit register: a map of weaknesses; this repo is PUBLIC, never commit it
 .security-audit/
+*.asc

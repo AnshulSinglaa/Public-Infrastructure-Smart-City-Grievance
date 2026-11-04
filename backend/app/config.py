@@ -27,8 +27,12 @@ class Settings(BaseSettings):
     langfuse_secret_key: SecretStr = SecretStr("")
     langfuse_host: str = "https://cloud.langfuse.com"
 
-    app_env: str = "local"
-    auth_mode: str = "dev"  # dev = /auth/dev-login (local only); Supabase OTP from Sprint 8
+    app_env: str = "local"  # local | prod
+    auth_mode: str = "dev"  # dev = /auth/dev-login (local only) | supabase = email OTP
+    supabase_url: str = ""  # https://<project>.supabase.co
+    supabase_anon_key: SecretStr = SecretStr("")  # sends the OTP email (public-safe key)
+    turnstile_secret: SecretStr = SecretStr("")  # Cloudflare Turnstile; empty = off (local)
+    allowed_origins: str = ""  # comma list for CORS, e.g. https://<app>.streamlit.app
     dev_token_secret: SecretStr = SecretStr("")  # empty + local -> generated into .cache/
     dev_token_days: int = 7
     pii_key: SecretStr = SecretStr("")  # Fernet key for report text / user names
@@ -48,6 +52,41 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+# Values that only make sense on a laptop. In prod any of them stops the app (SEC-007).
+WEAK = {"", "dev", "change-me", "postgres", "password"}
+TURNSTILE_TEST_SECRETS = {"1x0000000000000000000000000000000AA",
+                          "2x0000000000000000000000000000000AA",
+                          "3x0000000000000000000000000000000AA"}
+
+
+def prod_problems(s: Settings = settings) -> list[str]:
+    """Names (never values) of settings that are missing or unsafe outside APP_ENV=local."""
+    if s.app_env == "local":
+        return []
+    secret = {"GROQ_API_KEY": s.groq_api_key, "GOOGLE_API_KEY": s.google_api_key,
+              "PII_KEY": s.pii_key, "SUPABASE_ANON_KEY": s.supabase_anon_key,
+              "TURNSTILE_SECRET": s.turnstile_secret, "QDRANT_API_KEY": s.qdrant_api_key}
+    bad = [k for k, v in secret.items() if v is None or v.get_secret_value() in WEAK]
+    if s.turnstile_secret.get_secret_value() in TURNSTILE_TEST_SECRETS:
+        bad.append("TURNSTILE_SECRET (Cloudflare test key)")
+    if "127.0.0.1" in s.database_url or ":dev@" in s.database_url:
+        bad.append("DATABASE_URL")
+    for name, url in (("SUPABASE_URL", s.supabase_url), ("QDRANT_URL", s.qdrant_url)):
+        if not url.startswith("https://"):
+            bad.append(name)
+    if s.auth_mode != "supabase":
+        bad.append("AUTH_MODE (must be supabase)")
+    if s.provider_mode != "live":
+        bad.append("PROVIDER_MODE (must be live)")
+    return bad
+
+
+def check_prod() -> None:
+    """Called at startup. Prod with a weak or missing secret refuses to start."""
+    if bad := prod_problems():
+        raise RuntimeError("Unsafe settings for APP_ENV=" + settings.app_env + ": "
+                           + ", ".join(bad))
 
 
 def local_secret(filename: str, make) -> str:

@@ -8,6 +8,7 @@ from account import (
     TEXT_SIZES,
     THREAD_KEY,
     TOKEN_KEY,
+    auth_mode,
     browser_save,
     photo_for_browser,
     render_login,
@@ -36,6 +37,9 @@ def api_health() -> bool:
     return health()
 
 
+# The hosted demo covers 25 wards; say so before anyone types a far-away address.
+st.markdown(f'<div class="notice">{t("demo_banner")}</div>', unsafe_allow_html=True)
+
 token = st.session_state.get("token")
 if not token:  # login comes before anything else (no sidebar yet)
     restore_login()  # a refresh: sign back in with the token the browser kept
@@ -43,7 +47,9 @@ if not token:  # login comes before anything else (no sidebar yet)
     st.stop()
 
 # Keep the login and the draft text in the browser, so a refresh doesn't lose them.
-browser_save(TOKEN_KEY, token)
+# Only the 7-day dev token: a Supabase token stays on the server (SEC-005).
+if auth_mode() == "dev":
+    browser_save(TOKEN_KEY, token)
 browser_save(DRAFT_KEY, st.session_state.get("report_text") or "")
 # The same large text on every rerun is cheap: Streamlit caches big messages by hash.
 browser_save(PHOTO_KEY, photo_for_browser(st.session_state.get("photo_draft")))

@@ -1,0 +1,14 @@
+# Keep secrets, local data and caches out of the Docker build (and so out of the image).
+.env
+.env.*
+.git
+.venv
+.cache
+.security-audit
+media
+data/raw
+**/__pycache__
+**/.pytest_cache
+.ruff_cache
+ui
+docs
