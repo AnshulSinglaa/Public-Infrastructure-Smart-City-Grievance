@@ -39,6 +39,12 @@ TEXT = {
     "login_failed": "Couldn't send the code right now. Please try again in a minute.",
     # Demo (hosted)
     "demo_banner": "Demo: works in 25 Delhi wards. Elsewhere you get the official helplines.",
+    "waking_title": "Waking up the server…",
+    "waking_body": "This demo runs on free hosting, which sleeps when nobody uses it. "
+                   "The first visit takes up to a minute. Please keep this page open.",
+    "waking_done": "Server is ready",
+    "waking_failed": "The server didn't wake up. Please try again in a minute.",
+    "try_again": "Try again",
     "demo_spots": "Try a demo spot",
     "demo_spots_ph": "Pick a spot inside the covered wards",
     # Composer (new report)

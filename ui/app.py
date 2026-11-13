@@ -1,3 +1,4 @@
+import time
 from pathlib import Path
 
 import streamlit as st
@@ -37,8 +38,32 @@ def api_health() -> bool:
     return health()
 
 
+WAKE_TRIES, WAKE_PAUSE_S = 9, 5  # up to ~2 min: Render's free plan needs ~1 min to boot
+
+
+def wake_api() -> None:
+    """Free hosting sleeps after 15 idle minutes, and the first visit wakes it. Wait here with
+    a friendly message instead of letting the first click fail."""
+    if st.session_state.get("api_awake"):
+        return
+    if not health():
+        with st.status(t("waking_title")) as box:
+            st.write(t("waking_body"))
+            for _ in range(WAKE_TRIES):
+                time.sleep(WAKE_PAUSE_S)
+                if health(timeout=10):
+                    break
+            else:  # never came up: say so, and let the user retry
+                box.update(label=t("waking_failed"), state="error")
+                st.button(t("try_again"), key="wake_retry")
+                st.stop()
+            box.update(label=t("waking_done"), state="complete")
+    st.session_state.api_awake = True
+
+
 # The hosted demo covers 25 wards; say so before anyone types a far-away address.
 st.markdown(f'<div class="notice">{t("demo_banner")}</div>', unsafe_allow_html=True)
+wake_api()
 
 token = st.session_state.get("token")
 if not token:  # login comes before anything else (no sidebar yet)

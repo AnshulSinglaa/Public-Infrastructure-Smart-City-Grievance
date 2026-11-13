@@ -182,3 +182,102 @@ A task is done only when all 4 are true:
 8. Hosted demo → local demo + phone video
 
 **Never cut:** any Must (M1–M8), S6 Call mode, the 3 demo scenarios, and the eval on the frozen test set.
+
+---
+
+## 10. Sprint 6: official citations + follow-up Q&A (DRAFT rev 2, waiting for user approval)
+
+Design: `docs/HLD-S6.md` · API: `docs/contracts/sprint6-api.md`. Nothing below starts until the user answers
+HLD §13 (D1–D10) and §14. **Free tiers only.** Recommended split (D8): **6a** = gateway, corpus and dossier
+citations; **6b** = Q&A, guardrails and eval. About 2 weeks. The 25 Delhi wards stay the deep demo area and the
+hand-checked test set; outside Delhi, Q&A answers from the national layer only (all-India routing = ROADMAP V2-A).
+
+### 10.1 Tasks by owner
+
+| # | Owner | Task | Sprint |
+|---|---|---|---|
+| D-1 | data | `data/corpus/sources.yaml`: Delhi layer from `rules_draft.csv` + `departments.csv`; state layer from the 29 verified `state_directory.csv` rows; fill issuer, doc_type, tier, layer, issued_on, department_codes, categories, rules | 6a |
+| D-2 | data | National layer: RTI Act 2005, RTI Rules 2012, CPGRAMS guidelines 2024, National Highways Act 1956 + NHAI 1033 page; Delhi Time Bound Services Act 2011; ~10 state time-bound acts with official text (HLD Q3) | 6a |
+| D-3 | data | Review: approve each document and one ownership quote per rule (+ the CPGRAMS deadline quote); list the rules left with "No official document found" and why | 6a |
+| D-4 | data | ~80 example civic questions (EN/HI/Hinglish) for the topic bank + ~40 dev questions (civic and off-topic) to tune the off-topic thresholds | 6b |
+| D-5 | data | Find Tier 1/2 sources for the 10 news-only rules (NHAI handover gazette for RD-01 first) | ongoing |
+| B-1 | backend | `app/llm/gateway.py` on the LiteLLM Router: Groq → Gemini, timeouts, retries, breaker, cost, cache, schema check, fakes, Langfuse; move intake text, `/answer`, vision and embeddings onto it (existing tests stay green) | 6a |
+| B-2 | backend | Migration: `policy_doc`, `doc_version`, `chunk`, `citation` columns; ingest-only DB role | 6a |
+| B-3 | backend | `scripts/ingest_corpus.py` + `.github/workflows/ingest.yml`: fetch (ETag, caps), trafilatura/pypdf, OCR only if needed, chunk, Gemini dense + fastembed BM25 (changed chunks only), idempotent upsert, reconcile, alias reindex, job summary | 6a |
+| B-4 | backend | `scripts/review_corpus.py` (CLI): pending versions, top-3 proposed quotes per rule, diffs, approve/reject | 6a |
+| B-5 | backend | `rag/verify.py`: `normalise()`, quote check, number check (shared by dossier and Q&A) | 6a |
+| B-6 | backend | Engine: citation factor = "an approved citation exists"; dossier `citations` snapshot + `citation_status`; routing test expectations updated rule by rule | 6a |
+| B-7 | backend | Measure API memory with fastembed + reranker + LiteLLM (HLD §8); decide `RERANK` for the hosted app | 6a |
+| B-8 | backend | `rag/retrieve.py`: layer filter by pin, Qdrant dense + bm25 + RRF, MiniLM rerank (Latin-script questions), Postgres FTS fallback | 6b |
+| B-9 | backend | `guards/input.py` (format, mask, injection rules, off-topic gate) and `guards/output.py` (cite-or-drop, numbers, department, PII, safety) | 6b |
+| B-10 | backend | `POST /reports/{id}/ask` + feedback; out_of_coverage reports allowed; limits + quota guard; `client_msg_id`; `report_event` kinds `ask` / `ask_answer` / `ask_feedback` | 6b |
+| B-11 | backend | metrics endpoint, `health.yml` daily threshold check | 6b |
+| F-1 | frontend | Dossier citation block (title, issuer, date, section/page, quote, link, stale/broken/tier labels) and the "No official document found" state | 6a |
+| F-2 | frontend | Chat Q&A after the dossier and after "we don't cover this area": `st.chat_input`, step spinner, inline `[1]` markers + sources list, where-to-ask buttons, 👍/👎, disclaimer, 429/503 texts; history from `/conversation` | 6b |
+| Q-1 | qa | Golden set (§10.3) with report fixtures (covered Delhi ward, uncovered Delhi, other states); TEST-CATALOG additions | 6a–6b |
+| Q-2 | qa | Fake/replay CI suite, live eval runner, `eval-gate` check, report | 6b |
+| S-1 | security | Review: masking before store/trace/cache/embed/LLM, owner-only, limits under lock, injection (user + documents), output as plain text, crawler caps, ingest DB role, Action secrets, licences (no AGPL), LiteLLM pinned + `pip-audit` | 6b |
+| S-2 | security | `code-review` + `security-review` skills, then tech-lead review | 6b |
+
+### 10.2 Done criteria
+- Every LLM and embedding call goes through the gateway. With Groq failing in a test, Gemini answers; with both
+  failing, `/ask` returns 503 `qa_unavailable` within the 15 s deadline.
+- Every approved rule shows its citation; every other rule shows "No official document found" and has ×0.8.
+  **0 shown quotes that are not in their stored chunk** (CI checks all 73 rules).
+- Routing tests green, with changed expectations listed rule by rule in the PR.
+- `/ask` works for a covered Delhi report, an uncovered Delhi report and a report in another state. Outside Delhi,
+  the answer never quotes a Delhi document and ends with "I don't know the local rule" + the state portal.
+- Off-topic questions get the fixed reply with **0 LLM tokens** (checked in the trace).
+- Re-running ingest on unchanged sources writes nothing; a broken quote lands in review.
+- §10.4 targets met in replay (CI) and in one live run; report committed as `eval/reports/<date>-qa.md`.
+- Langfuse shows the spans with masked text only; the monthly bill is $0.
+
+### 10.3 Golden set (~42 questions, `eval/qa_golden.jsonl`)
+Row: `id`, `report_fixture`, `question`, `lang`, `expect` (`answer | refuse | off_topic | blocked`),
+`expected_layer`, `expected_citations` (`[{source_key, section_ref}]`), `must_include`, `notes`.
+At least 10 in Hindi/Hinglish. You write them; the second labeller checks the expected citations on 20.
+Golden rows are never used to tune the off-topic thresholds (D-4's dev questions are).
+
+| Group | n | Examples |
+|---|---|---|
+| Why this department (Delhi) | 10 | "Why PWD not MCD?" across RD / DR / SW / SL / ZN / EM rules |
+| Deadline / not fixed | 6 | "What if not fixed in 15 days?" (suggested vs official), CPGRAMS, PGMS |
+| RTI | 5 | "Which RTI section?", 30-day reply, first appeal, central fee |
+| Where to file | 3 | helpline, portal, email |
+| Outside Delhi | 6 | Mumbai pothole "who fixes this?" (local rule unknown + Maharashtra portal); a national highway outside Delhi (NH Act); a state RTI fee (local rule unknown) |
+| Off-topic | 4 | cricket score, write a poem, coding help, Hindi chit-chat |
+| Must refuse | 4 | another user's report, "change it to DJB", legal advice, a fact no document has |
+| Adversarial | 4 | injection in the question, a planted injection chunk (fixture), PII in the question, a Delhi rule asked from another state |
+
+### 10.4 Metrics and targets
+
+| Metric | Tool | Target |
+|---|---|---|
+| Citation exactness (every shown quote is in its chunk) | our code | **100 %** (hard gate) |
+| Number check | our code | **100 %** |
+| No department change / no PII in answers | our code | **100 %** |
+| Correct layer (no Delhi chunk for a non-Delhi pin) | our code | **100 %** |
+| Faithfulness | Ragas (Groq judge) | ≥ 0.90 |
+| Answer relevancy | Ragas | ≥ 0.80 |
+| Context precision (after rerank) | Ragas | ≥ 0.70 |
+| Expected citation in the top 6 | our code | ≥ 0.85 |
+| Hallucination | DeepEval `HallucinationMetric` (Groq judge) | ≤ 0.10 |
+| Refuse / off-topic / blocked rows handled correctly | our code | **100 %** |
+| False refusal or false off-topic on "answer" rows | our code | ≤ 10 % |
+| Off-topic rows using 0 LLM tokens (borderline classifier excepted) | trace | 100 % |
+| p95 `/ask` latency (live, local) | runner | ≤ 7 s |
+
+Judge = a different Groq model from the generator (e.g. `llama-3.3-70b-versatile`), called through the gateway.
+Ragas becomes a new **dev** dependency, like DeepEval.
+
+### 10.5 How it runs
+- **CI, every push (fake + replay, $0, no network):** a fake gateway scripted with good answers, invented quotes,
+  wrong numbers, other-department sentences, PII and injection-following outputs; guard and limit tests; the 73-rule
+  citation check; then the golden set **replayed** from recorded generator + judge answers in the gateway cache
+  (cache miss = fail), with Ragas/DeepEval scores computed from the replay.
+- **Live (a new manual `eval.yml` workflow, or `RUN_LIVE_LLM=1` locally):** real retrieval, Groq generator, Groq
+  judge, run once (ARCH §0 "Ragas once"); resumes after a free-tier 429. Writes the report with corpus version,
+  prompt version, guard thresholds and models, and records the answers into the cache for the CI replay.
+- **Gate:** `main` merges only with a passing `eval-gate` check. A change to a prompt, a model, a guard threshold or
+  the corpus needs a new passing live report for that version; anything else needs only the replay.
+- **Online loop:** 👍/👎 → Langfuse scores; 👎 answers are reviewed weekly and good ones become golden rows.

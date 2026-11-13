@@ -1,9 +1,20 @@
 import uuid
+from urllib.parse import urlparse
 
 import pytest
-from api_helpers import client
 
-from app.auth import make_token
+from app.config import settings
+
+# Tests create users and reports, so they must never run against a cloud database (a .env
+# filled with deploy values once pointed them at Supabase). Local Docker DB only.
+_db_host = urlparse(settings.database_url).hostname
+if _db_host not in ("127.0.0.1", "localhost", "db", None):
+    pytest.exit(f"Refusing to run tests: DATABASE_URL points at {_db_host}, not the local DB. "
+                "Put the local value back in .env (see .env.example).", returncode=2)
+
+from api_helpers import client  # noqa: E402  (imports the app, after the safety check)
+
+from app.auth import make_token  # noqa: E402
 
 
 @pytest.fixture

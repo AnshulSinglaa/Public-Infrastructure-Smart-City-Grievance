@@ -61,10 +61,10 @@ def _call(method: str, path: str, token: str | None = None, pick: str | None = N
         raise ApiError("server_error") from None
 
 
-def health() -> bool:
+def health(timeout: float = 3) -> bool:
     try:
         with _client() as c:
-            return c.get("/healthz", params={"db": 1}, timeout=3).json()["ok"]
+            return c.get("/healthz", params={"db": 1}, timeout=timeout).json()["ok"]
     except (httpx.HTTPError, ValueError, KeyError):  # no server, bad JSON, wrong shape
         return False
 

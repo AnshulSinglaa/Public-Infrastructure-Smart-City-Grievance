@@ -40,6 +40,33 @@ def test_email_code_login(new_app, monkeypatch):
     assert new_app.session_state["user_name"] == "Priya"
 
 
+def test_waking_screen_waits_for_a_sleeping_server(new_app, monkeypatch):
+    """Render's free API sleeps; the first visit waits for it instead of failing."""
+    import time
+
+    import lib.api
+
+    answers = iter([False, False, True])  # asleep, still booting, awake
+    monkeypatch.setattr(lib.api, "health", lambda timeout=3: next(answers, True))
+    monkeypatch.setattr(time, "sleep", lambda s: None)
+    new_app.run()
+    assert new_app.session_state["api_awake"] is True
+    assert new_app.text_input(key="login_name")  # the login shows once it's awake
+
+
+def test_waking_screen_gives_up_with_a_retry(new_app, monkeypatch):
+    import time
+
+    import lib.api
+
+    monkeypatch.setattr(lib.api, "health", lambda timeout=3: False)
+    monkeypatch.setattr(time, "sleep", lambda s: None)
+    new_app.run()
+    assert "api_awake" not in new_app.session_state
+    assert new_app.button(key="wake_retry")
+    assert not new_app.text_input  # no login form while the server is down
+
+
 def test_demo_spot_sets_the_pin(new_app):
     new_app.session_state["token"] = TOKEN
     new_app.session_state["loc_open"] = True

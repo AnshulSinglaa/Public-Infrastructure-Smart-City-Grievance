@@ -2,6 +2,7 @@ import uuid
 
 import pytest
 from api_helpers import client
+from pydantic import SecretStr
 from test_health import db_is_up
 
 from app import auth
@@ -55,6 +56,7 @@ def test_refuses_to_start_unsafely(monkeypatch):
         auth.check_auth_mode()
     monkeypatch.setattr(settings, "auth_mode", "supabase")
     auth.check_auth_mode()  # fine
+    monkeypatch.setattr(settings, "pii_key", SecretStr(""))  # must not depend on .env
     fernet.cache_clear()
     try:
         with pytest.raises(RuntimeError, match="PII_KEY"):
