@@ -403,8 +403,13 @@ def test_layers_approval_and_rerank(corpus):
         delhi = retrieve.search(conn, "who repairs street lights", delhi=True, state_code=None)
         haryana = retrieve.search(conn, "who repairs street lights portal", delhi=False,
                                   state_code="HR")
+        # A local issue only sees local/state documents (B-065), so one candidate is left and
+        # nothing is reranked. A central scope lets the national fixtures in: 3 candidates.
+        ranked = retrieve.search(conn, "who repairs street lights", delhi=True,
+                                 state_code=None, scope="rti")
     assert texts(delhi)[0] == STREETLIGHT and PENDING not in texts(delhi)
-    assert delhi["reranked"] and not delhi["degraded"]
+    assert ranked["reranked"] and not ranked["degraded"] and not delhi["degraded"]
+    assert texts(ranked)[0] == STREETLIGHT and PENDING not in texts(ranked)
     assert STREETLIGHT not in texts(haryana) and HR_PORTAL in texts(haryana)  # no Delhi rules
     assert {c["layer"] for c in haryana["chunks"]} <= {"national", "state"}
 

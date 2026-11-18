@@ -103,6 +103,9 @@ def extract(conn, text: str, state_code: str | None, previous: dict | None) -> d
     scope = scope_of(text)
     follow_up = scope is None or scope == previous.get("scope")
     carry = previous if follow_up else {}
+    inherited = carry.get("scope")
+    if scope is None and inherited in SCOPES and issue_type(text):
+        inherited = None  # a new local issue after an RTI / highway question is not that matter
     town = town_in(conn, text, state_code) or (
         carry.get("town") if not state_code or state_code == (carry.get("town") or {}).get(
             "state_code") else None)
@@ -110,4 +113,4 @@ def extract(conn, text: str, state_code: str | None, previous: dict | None) -> d
             "town": town,
             "issue_type": issue_type(text) or carry.get("issue_type"),
             "own_problem": bool(OWN.search(text)) or bool(carry.get("own_problem")),
-            "scope": scope or carry.get("scope") or "local_body_matters"}
+            "scope": scope or inherited or "local_body_matters"}

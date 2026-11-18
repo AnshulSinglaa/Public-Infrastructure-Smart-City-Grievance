@@ -70,7 +70,7 @@ def answer(kind: str, default: dict) -> tuple[str, dict]:
     if isinstance(item, str) and item.startswith("429:"):
         raise Retryable("scripted 429", retry_after=float(item[4:]))
     if item == "invalid":
-        return "{not json", {}
+        return "{not json", {"input": 0, "output": 0}
     return json.dumps(default | item), {"input": 0, "output": 0}
 
 

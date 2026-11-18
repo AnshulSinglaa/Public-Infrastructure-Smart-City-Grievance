@@ -81,6 +81,7 @@ def fake_models(monkeypatch, tmp_path_factory):
     from app.providers import common, fakes
 
     monkeypatch.setattr(settings, "provider_mode", "fake")
+    monkeypatch.setattr(settings, "rerank", True)  # .env may say RERANK=off
     gateway.failures.clear()  # circuit breaker closed, throttle empty at the start of a test
     gateway.spent.clear()
     monkeypatch.setattr(settings, "llm_cache_dir", tmp_path_factory.mktemp("llm"))
