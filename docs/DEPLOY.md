@@ -42,9 +42,9 @@ never into git and never into a chat.
 
 | Where | Variables |
 |---|---|
-| **Render** (API) | `APP_ENV=prod`, `AUTH_MODE=supabase`, `PROVIDER_MODE=live` (set by `render.yaml`) · secrets: `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `TURNSTILE_SECRET`, `ALLOWED_ORIGINS`, `QDRANT_URL`, `QDRANT_API_KEY`, `GROQ_API_KEY`, `GOOGLE_API_KEY`, `PII_KEY` · optional: `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY` |
+| **Render** (API) | `APP_ENV=prod`, `AUTH_MODE=supabase`, `PROVIDER_MODE=live`, `RERANK=off`, `FALLBACK_MODEL`, `FALLBACK_TIMEOUT_S`, `INTENT_MODEL`, `QA_TIMEOUT_S` (values set by `render.yaml`; other Sprint 6 tunables are listed in `.env.example`) · secrets: `DATABASE_URL`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `TURNSTILE_SECRET`, `ALLOWED_ORIGINS`, `QDRANT_URL`, `QDRANT_API_KEY`, `GROQ_API_KEY`, `GOOGLE_API_KEY`, `PII_KEY` · optional: `LANGFUSE_PUBLIC_KEY`, `LANGFUSE_SECRET_KEY` |
 | **Streamlit Cloud** (UI, "Secrets" box) | `API_URL`, `AUTH_MODE`, `TURNSTILE_SITE_KEY` (none of these is a secret) |
-| **GitHub** (Actions secrets) | `API_URL` (warm-up), `DATABASE_URL` + `BACKUP_PUBLIC_KEY` (backup; public key only) |
+| **GitHub** (Actions secrets) | `API_URL` (warm-up), `DATABASE_URL` + `BACKUP_PUBLIC_KEY` (backup; public key only), `INGEST_DATABASE_URL` + `QDRANT_URL` + `QDRANT_API_KEY` + `GOOGLE_API_KEY` (Corpus ingest) |
 
 **Safety built in:** with `APP_ENV=prod` the API refuses to start if any secret above is
 missing or weak (e.g. `dev`, `change-me`, a `127.0.0.1` database, a Cloudflare test key). The
@@ -112,6 +112,14 @@ values once and paste them into dashboards. Never paste them into chat, issues o
 21. Add `API_URL`, `DATABASE_URL`, and `BACKUP_PUBLIC_KEY` = the whole text of `backup-public.asc` (from `-----BEGIN PGP PUBLIC KEY BLOCK-----` to the END line). Then delete `backup-public.asc` from the repo folder.
 22. **Actions → Keepalive → Run workflow**, then **Backup → Run workflow** → both green; the Backup run has a `db-backup-N` artifact.
 
+**I2. Sprint 6 chat: the document corpus** (once, then monthly by itself):
+
+22a. Add 4 more repo secrets: `INGEST_DATABASE_URL` (the same Supabase session-pooler URI as DATABASE_URL), `QDRANT_URL`, `QDRANT_API_KEY`, `GOOGLE_API_KEY` (embeddings use your Gemini quota: the first run embeds every chunk).
+22b. **Actions → Corpus ingest → Run workflow** (leave the inputs empty) → wait for green. It fills Postgres + Qdrant Cloud, but nothing is quotable yet.
+22c. Approve documents **on the cloud DB** from your laptop (same PowerShell window for all three lines):
+    `$env:DATABASE_URL = Read-Host "Supabase URI"; $env:QDRANT_URL = Read-Host "Qdrant URL"; $env:QDRANT_API_KEY = Read-Host "Qdrant key"`
+    then `uv run python scripts/review_corpus.py list` and `uv run python scripts/review_corpus.py approve <key>` for each good one (docs/CORPUS-REVIEW.md has the list). Close the window when done, so the values are gone.
+
 **J. Smoke test** (on your phone too):
 
 23. Open the Streamlit URL → see the demo banner → name + email → Turnstile tick → **Email me a code** → type the code → signed in.
@@ -120,7 +128,7 @@ values once and paste them into dashboards. Never paste them into chat, issues o
 ## 4. Day-to-day
 
 - **Deploy a change:** push to `main`. CI runs; Render redeploys only after CI is green (`autoDeployTrigger: checksPass`). Streamlit redeploys by itself.
-- **New migration or data change:** run step 13 again (safe to re-run).
+- **New migration:** nothing to do. The container runs `alembic upgrade head` before it starts (Render free has no pre-deploy step); a failing migration fails the health check and Render keeps the old version live. **Data change** (wards, rules, roads, states): run step 13 again (safe to re-run).
 - **Logs:** Render → service → **Logs** (API); Streamlit → app → **Manage app** (UI); Langfuse for AI calls. A failed scheduled workflow emails you.
 - **Before a demo:** open the Streamlit URL 5 minutes early (it sleeps after ~12 h without visitors) and hit `/healthz?db=1` once.
 
@@ -143,7 +151,8 @@ docker run --rm -v "${PWD}:/b" -e DATABASE_URL postgres:17-alpine pg_restore --n
 ## 6. Known limits of the free demo
 
 - **Cold start:** Render free sleeps after 15 min idle; the first visit then waits ~1 min. Keepalive pings 07:30–23:30 IST to avoid it.
-- **Photos** are stored on Render's disk, which is wiped on each deploy (Supabase Storage comes later).
+- **Photos** and `.cache/llm` (answer cache, intent-bank vectors) live on Render's disk, which is wiped on every deploy, restart and sleep. Old dossiers then show no photo, and the first question after a wake re-embeds the intent bank. *Follow-up (simplest free fix):* a private Supabase Storage bucket (1 GB free) with signed URLs for photos, and the intent-bank vectors shipped as a data file.
+- **Memory (512 MB):** measured idle working set with LiteLLM + BM25 loaded and `RERANK=off` is about 290 MB; with the MiniLM reranker it reaches about 480 MB before any request, so the reranker stays off on Render. The BM25 model is baked into the image, so a cold start downloads nothing.
 - **Sign-in lasts 1 hour**, and a page refresh asks for a new code (the token stays on the server, SEC-005).
 - **Coverage:** 25 Delhi wards. Elsewhere the app shows official helplines, so use the demo spots.
 - If the Streamlit app never loads, delete the `address` line under `[server]` in `ui/.streamlit/config.toml` (it is there to keep local runs private).

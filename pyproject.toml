@@ -10,28 +10,37 @@ dependencies = [
     "psycopg[binary]",
     "sqlalchemy",
     "httpx",
-    "streamlit",
     "alembic>=1.20.1",
     "python-multipart>=0.0.32",
     "qdrant-client>=1.20.0",
-    "streamlit-js-eval>=1.0.0",
-    "streamlit-folium>=0.27.4",
-    "folium>=0.20.0",
     "opencv-python-headless>=4.10,<5",
     "pillow>=13.0.0",
     "cryptography>=50.0.2",
     "defusedxml>=0.7.1",
     "langgraph>=1.2.16",
     "google-genai>=2.32.0",
-    "groq>=1.7.0",
     "langfuse>=5.0.4",
     "langgraph-checkpoint-postgres>=3.2.0",
     "pyjwt[crypto]>=2.10",
+    "fastembed>=0.9.1",
+    "pyyaml>=6.0.3",
+    "litellm==1.108.3",
 ]
 
+# Groups keep the API image small (O-01): it installs only [project] dependencies
+# (`uv sync --no-default-groups`). Locally, CI and the ingest Action install every group.
 [dependency-groups]
+ui = [
+    "streamlit",
+    "streamlit-js-eval>=1.0.0",
+    "streamlit-folium>=0.27.4",
+    "folium>=0.20.0",
+]
+ingest = [
+    "pypdf>=7.0.0",
+    "trafilatura>=2.3.1",
+]
 dev = [
-    "deepeval>=4.3.1",
     "pytest",
     "ruff",
 ]
@@ -42,9 +51,12 @@ dev = [
 exclude-newer = "7 days"
 # Exception: qdrant-client must match the Qdrant 1.20 server we run (released < 7 days ago).
 # pyasn1: 0.6.5 fixes 4 BER/DER CPU-exhaustion advisories (SEC-016) and is newer than 7 days.
+# litellm: 1.108.1 caps filelock < 4, which pins a filelock with 13 advisories (fixed in 4.2.1);
+# 1.108.3 (2026-11-07, hours inside the cooldown) is the first release that allows filelock 4.
 # Remove each exception once that release is older than the cooldown.
-exclude-newer-package = { qdrant-client = false, pyasn1 = false }
+exclude-newer-package = { qdrant-client = false, pyasn1 = false, litellm = false }
 package = false
+default-groups = "all"
 
 [tool.ruff]
 line-length = 100

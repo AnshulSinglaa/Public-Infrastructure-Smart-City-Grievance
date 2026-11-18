@@ -647,7 +647,7 @@ def test_no_live_buttons_after_the_dossier(app):  # B-039
                                   "options": fake_api.QUESTIONS["#road_q"][2], "at": "x"})
     app.run()
     assert not [b for b in app.button if b.key.startswith("reply_")]
-    assert not app.chat_input
+    assert [c.key for c in app.chat_input] == ["ask_text"]  # questions only, no answer box
 
 
 def test_reopened_outside_delhi_thread_says_outside_delhi(app):  # B-045

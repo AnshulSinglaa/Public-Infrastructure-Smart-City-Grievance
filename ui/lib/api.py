@@ -1,10 +1,13 @@
 """The only place the UI talks to the backend.
 
-Contracts: docs/contracts/sprint2-api.md and sprint3-api.md. Every call except health and
+Contracts: docs/contracts/sprint2-api.md … sprint6-api.md. Every call except health and
 login takes the user's token and sends it as `Authorization: Bearer <token>`.
 """
 
+import json
 import os
+from collections.abc import Iterator
+from itertools import chain
 
 import httpx
 
@@ -18,11 +21,20 @@ TIMEOUT_S = 90
 
 
 class ApiError(Exception):
-    """Carries a message_key so the page can show friendly text from strings.py."""
+    """Carries a message_key so the page can show friendly text from strings.py, and the
+    seconds to wait when the server says so (`retry_after`, a busy/throttled 429)."""
 
-    def __init__(self, message_key: str):
+    def __init__(self, message_key: str, retry_after: float | None = None):
         super().__init__(message_key)
         self.message_key = message_key
+        self.retry_after = retry_after
+
+
+def _seconds(value) -> float | None:
+    try:
+        return max(0.0, float(value)) if value is not None else None
+    except (TypeError, ValueError):
+        return None
 
 
 def _client(token: str | None = None) -> httpx.Client:
@@ -37,12 +49,15 @@ def _client(token: str | None = None) -> httpx.Client:
 
 def _check(resp: httpx.Response) -> dict:
     if resp.is_error:
+        wait = _seconds(resp.headers.get("Retry-After"))
         try:
-            key = resp.json()["error"]["message_key"]
+            err = resp.json()["error"]
+            key = err["message_key"]
+            wait = _seconds(err.get("retry_after")) if "retry_after" in err else wait
         except (ValueError, KeyError, TypeError):  # not our error shape (e.g. a plain 500)
             key = "server_error"
         # A key the UI has no text for gets the generic message, never the raw key.
-        raise ApiError(key if key in TEXT else "server_error")
+        raise ApiError(key if key in TEXT else "server_error", wait)
     return resp.json()
 
 
@@ -151,3 +166,75 @@ def conversation(token: str, report_id: str) -> list[dict]:
 def categories(token: str) -> list[dict]:
     """Every category the backend knows (data/categories.csv): [{"code", "name_en"}, ...]."""
     return _call("GET", "/categories", token, pick="categories")
+
+
+# ---------- Sprint 6: questions (sprint6-api.md §4, §4A) ----------
+
+def _stream(path: str, token: str, body: dict) -> Iterator[tuple[str, dict]]:
+    """POST with `Accept: text/event-stream` and yield (event, data) as each event arrives:
+    "step" {"key"}, "sentence" {"text", "cites", "sources"}, "done" {the full answer}.
+    An "error" event (both AIs failed mid-way) and errors before the stream starts (401,
+    404, 409, 422, 429, 503) raise ApiError. A server that answers plain JSON instead
+    yields just ("done", body)."""
+    try:
+        with _client(token) as c, c.stream("POST", f"/api/v1{path}", json=body,
+                                           headers={"Accept": "text/event-stream"}) as resp:
+            if resp.is_error:
+                resp.read()
+                _check(resp)
+            if not resp.headers.get("content-type", "").startswith("text/event-stream"):
+                resp.read()
+                yield "done", resp.json()
+                return
+            event, data = "message", []
+            for line in chain(resp.iter_lines(), [""]):  # "" ends the last event too
+                if line.startswith("event:"):
+                    event = line[6:].strip()
+                elif line.startswith("data:"):
+                    data.append(line[5:].strip())
+                elif not line and data:  # a blank line ends one event
+                    payload = json.loads("\n".join(data))
+                    if event == "error":
+                        key = payload.get("message_key", "qa_unavailable")
+                        raise ApiError(key if key in TEXT else "server_error",
+                                       _seconds(payload.get("retry_after")))
+                    yield event, payload
+                    event, data = "message", []
+    except httpx.HTTPError:
+        raise ApiError("api_unreachable") from None
+    except (ValueError, KeyError, TypeError, AttributeError):
+        raise ApiError("server_error") from None
+
+
+def chat_stream(token: str, body: dict) -> Iterator[tuple[str, dict]]:
+    """Home-page assistant. body = {"message", "client_msg_id", "lat"?, "lng"?,
+    "state_code"?, "force_intent"?}."""
+    return _stream("/chat", token, body)
+
+
+def ask_stream(token: str, report_id: str, body: dict) -> Iterator[tuple[str, dict]]:
+    """A question about one report. body = {"question", "client_msg_id", "force_intent"?}."""
+    return _stream(f"/reports/{report_id}/ask", token, body)
+
+
+def chat_history(token: str) -> list[dict]:
+    """The home chat's last 50 messages, oldest first (kinds chat / chat_answer)."""
+    return _call("GET", "/chat", token, pick="messages")
+
+
+def _feedback(path: str, token: str, vote: str) -> None:
+    try:
+        with _client(token) as c:
+            resp = c.post(f"/api/v1{path}", json={"vote": vote})
+    except httpx.HTTPError:
+        raise ApiError("api_unreachable") from None
+    if resp.is_error:  # 204 has no body, so not _call
+        _check(resp)
+
+
+def chat_feedback(token: str, message_id: int, vote: str) -> None:
+    _feedback(f"/chat/{message_id}/feedback", token, vote)
+
+
+def ask_feedback(token: str, report_id: str, message_id: int, vote: str) -> None:
+    _feedback(f"/reports/{report_id}/ask/{message_id}/feedback", token, vote)

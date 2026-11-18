@@ -4,7 +4,6 @@ import logging
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-import httpx
 import pytest
 from api_helpers import COVERED, client, jpeg
 from fastapi.testclient import TestClient
@@ -15,7 +14,7 @@ from app.config import settings
 from app.db import connect
 from app.main import app
 from app.privacy import photo
-from app.providers import common, fakes, groq
+from app.providers import common, fakes
 from app.providers.common import ProviderDown, Retryable, with_backoff
 from app.providers.schemas import TextAssessment
 from app.routing.engine import route
@@ -113,17 +112,23 @@ def test_with_backoff_two_tries_then_down_and_no_retry_on_400():
 
 
 def test_groq_400_is_not_retryable(monkeypatch):
-    import groq as groq_sdk
+    # Sprint 6b: text calls go through the LLM gateway (LiteLLM). A 400 is our own bug:
+    # ProviderDown at once, and Gemini is not tried.
+    import litellm
 
-    class Completions:
-        def create(self, **kwargs):
-            resp = httpx.Response(400, request=httpx.Request("POST", "https://api.groq.com"))
-            raise groq_sdk.BadRequestError("bad", response=resp, body=None)
+    from app.llm import gateway
 
-    fake_client = type("C", (), {"chat": type("Chat", (), {"completions": Completions()})()})()
-    monkeypatch.setattr(groq, "client", lambda: fake_client)
+    tried = []
+
+    def bad_request(**kwargs):
+        tried.append(kwargs["model"])
+        raise litellm.BadRequestError("bad", model=kwargs["model"], llm_provider="groq")
+
+    monkeypatch.setattr(settings, "provider_mode", "live")
+    monkeypatch.setattr(litellm, "completion", bad_request)
     with pytest.raises(ProviderDown):
-        groq.call_groq("system", "text")
+        gateway.chat("assess_text", "system", "text", 5)
+    assert tried == ["groq/" + settings.text_model]
 
 
 @needs_db

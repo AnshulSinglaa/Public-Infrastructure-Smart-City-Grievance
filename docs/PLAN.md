@@ -185,7 +185,7 @@ A task is done only when all 4 are true:
 
 ---
 
-## 10. Sprint 6: official citations + follow-up Q&A (DRAFT rev 2, waiting for user approval)
+## 10. Sprint 6: official citations + follow-up Q&A (rev 3, 2026-11-14: 6b chat widened to a civic assistant, waiting for user approval of HLD D11)
 
 Design: `docs/HLD-S6.md` · API: `docs/contracts/sprint6-api.md`. Nothing below starts until the user answers
 HLD §13 (D1–D10) and §14. **Free tiers only.** Recommended split (D8): **6a** = gateway, corpus and dossier
@@ -199,7 +199,7 @@ hand-checked test set; outside Delhi, Q&A answers from the national layer only (
 | D-1 | data | `data/corpus/sources.yaml`: Delhi layer from `rules_draft.csv` + `departments.csv`; state layer from the 29 verified `state_directory.csv` rows; fill issuer, doc_type, tier, layer, issued_on, department_codes, categories, rules | 6a |
 | D-2 | data | National layer: RTI Act 2005, RTI Rules 2012, CPGRAMS guidelines 2024, National Highways Act 1956 + NHAI 1033 page; Delhi Time Bound Services Act 2011; ~10 state time-bound acts with official text (HLD Q3) | 6a |
 | D-3 | data | Review: approve each document and one ownership quote per rule (+ the CPGRAMS deadline quote); list the rules left with "No official document found" and why | 6a |
-| D-4 | data | ~80 example civic questions (EN/HI/Hinglish) for the topic bank + ~40 dev questions (civic and off-topic) to tune the off-topic thresholds | 6b |
+| D-4 | data | Intent example banks (~20–40 each, EN/HI/Hinglish) for greeting / off_domain / new_problem / my_complaint / general_civic + ~60 dev questions to tune the thresholds; `data/city_state.csv` (~150 cities → state code) | 6b |
 | D-5 | data | Find Tier 1/2 sources for the 10 news-only rules (NHAI handover gazette for RD-01 first) | ongoing |
 | B-1 | backend | `app/llm/gateway.py` on the LiteLLM Router: Groq → Gemini, timeouts, retries, breaker, cost, cache, schema check, fakes, Langfuse; move intake text, `/answer`, vision and embeddings onto it (existing tests stay green) | 6a |
 | B-2 | backend | Migration: `policy_doc`, `doc_version`, `chunk`, `citation` columns; ingest-only DB role | 6a |
@@ -212,8 +212,11 @@ hand-checked test set; outside Delhi, Q&A answers from the national layer only (
 | B-9 | backend | `guards/input.py` (format, mask, injection rules, off-topic gate) and `guards/output.py` (cite-or-drop, numbers, department, PII, safety) | 6b |
 | B-10 | backend | `POST /reports/{id}/ask` + feedback; out_of_coverage reports allowed; limits + quota guard; `client_msg_id`; `report_event` kinds `ask` / `ask_answer` / `ask_feedback` | 6b |
 | B-11 | backend | metrics endpoint, `health.yml` daily threshold check | 6b |
+| B-12 | backend | Intent gate (rules + example-bank similarity + small classifier for borderline) shared by `/ask` and `/chat`; `ask_anyway` | 6b |
+| B-13 | backend | `POST /chat`, `GET /chat`, chat feedback; `chat_event` table (migration); location from the question → `state_code` → GPS → `needs_location`; shared 40/day budget (fixed replies ¼); SSE streaming for `/ask` and `/chat` | 6b |
 | F-1 | frontend | Dossier citation block (title, issuer, date, section/page, quote, link, stale/broken/tier labels) and the "No official document found" state | 6a |
 | F-2 | frontend | Chat Q&A after the dossier and after "we don't cover this area": `st.chat_input`, step spinner, inline `[1]` markers + sources list, where-to-ask buttons, 👍/👎, disclaimer, 429/503 texts; history from `/conversation` | 6b |
+| F-3 | frontend | Home-page chat box (`GET /chat` history, streamed steps + sentences, state buttons, "Start a report" opens the composer, "Which complaint?" opens the thread, "Ask anyway") | 6b |
 | Q-1 | qa | Golden set (§10.3) with report fixtures (covered Delhi ward, uncovered Delhi, other states); TEST-CATALOG additions | 6a–6b |
 | Q-2 | qa | Fake/replay CI suite, live eval runner, `eval-gate` check, report | 6b |
 | S-1 | security | Review: masking before store/trace/cache/embed/LLM, owner-only, limits under lock, injection (user + documents), output as plain text, crawler caps, ingest DB role, Action secrets, licences (no AGPL), LiteLLM pinned + `pip-audit` | 6b |
@@ -228,12 +231,16 @@ hand-checked test set; outside Delhi, Q&A answers from the national layer only (
 - `/ask` works for a covered Delhi report, an uncovered Delhi report and a report in another state. Outside Delhi,
   the answer never quotes a Delhi document and ends with "I don't know the local rule" + the state portal.
 - Off-topic questions get the fixed reply with **0 LLM tokens** (checked in the trace).
+- Home chat: greetings and off-domain get fixed replies (0 tokens); "mere ghar ke paas kachra hai" offers
+  "Start a report"; "who fixes streetlights in Delhi" and "Jaipur garbage complaint kahan" get grounded answers
+  (Jaipur: national + Rajasthan portal, "I don't know the local rule"); a question with no place asks for the state.
 - Re-running ingest on unchanged sources writes nothing; a broken quote lands in review.
 - §10.4 targets met in replay (CI) and in one live run; report committed as `eval/reports/<date>-qa.md`.
 - Langfuse shows the spans with masked text only; the monthly bill is $0.
 
-### 10.3 Golden set (~42 questions, `eval/qa_golden.jsonl`)
-Row: `id`, `report_fixture`, `question`, `lang`, `expect` (`answer | refuse | off_topic | blocked`),
+### 10.3 Golden set (~72 questions, `eval/qa_golden.jsonl`)
+Row: `id`, `endpoint` (`ask | chat`), `report_fixture` (ask only), `question`, `lang`, `expected_intent`,
+`expect` (`answer | refuse | off_topic | blocked | fixed_reply | action | needs_location`),
 `expected_layer`, `expected_citations` (`[{source_key, section_ref}]`), `must_include`, `notes`.
 At least 10 in Hindi/Hinglish. You write them; the second labeller checks the expected citations on 20.
 Golden rows are never used to tune the off-topic thresholds (D-4's dev questions are).
@@ -248,6 +255,9 @@ Golden rows are never used to tune the off-topic thresholds (D-4's dev questions
 | Off-topic | 4 | cricket score, write a poem, coding help, Hindi chit-chat |
 | Must refuse | 4 | another user's report, "change it to DJB", legal advice, a fact no document has |
 | Adversarial | 4 | injection in the question, a planted injection chunk (fixture), PII in the question, a Delhi rule asked from another state |
+| **Home chat: general civic** (rev 3) | 15 | "who fixes streetlights in Delhi", "how to file an RTI", "Jaipur garbage complaint kahan", NH pothole in UP, "CPGRAMS kya hai", 2 with no place (→ `needs_location`), 2 `new_problem` ("mere ghar ke paas kachra hai" → Start a report), 2 `my_complaint` (→ Which complaint?) |
+| **Home chat: off-domain** (rev 3) | 10 | weather, cricket, homework, code, recipes, jokes, politics opinion, "write a poem", Hindi chit-chat, a borderline one ("electricity bill kam kaise karein") |
+| **Home chat: greetings** (rev 3) | 5 | "hi", "namaste", "thanks", "what can you do?", "aap kaun ho" |
 
 ### 10.4 Metrics and targets
 
@@ -265,6 +275,8 @@ Golden rows are never used to tune the off-topic thresholds (D-4's dev questions
 | Refuse / off-topic / blocked rows handled correctly | our code | **100 %** |
 | False refusal or false off-topic on "answer" rows | our code | ≤ 10 % |
 | Off-topic rows using 0 LLM tokens (borderline classifier excepted) | trace | 100 % |
+| **Intent accuracy** (all rows with `expected_intent`) | our code | ≥ 0.90 overall; off_domain and greeting ≥ 0.95; a civic question labelled off_domain ≤ 5 % |
+| Greeting / off_domain / new_problem replies with 0 big-model tokens | trace | 100 % |
 | p95 `/ask` latency (live, local) | runner | ≤ 7 s |
 
 Judge = a different Groq model from the generator (e.g. `llama-3.3-70b-versatile`), called through the gateway.

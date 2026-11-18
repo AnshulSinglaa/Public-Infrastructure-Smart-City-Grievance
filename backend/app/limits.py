@@ -50,10 +50,56 @@ def answer_limit_hit(conn, user_id: uuid.UUID, report_id) -> bool:
     per_report, per_user = conn.execute(
         "SELECT count(*) FILTER (WHERE e.report_id = %s), count(*) FROM report_event e"
         " JOIN report r ON r.id = e.report_id"
-        " WHERE r.user_id = %s AND e.kind = 'model_call' AND e.at > now() - interval '1 day'",
+        " WHERE r.user_id = %s AND e.kind = 'model_call' AND e.at > now() - interval '1 day'"
+        " AND NOT e.payload ? 'weight'",  # Q&A calls have their own budget (question_limit)
         (report_id, user_id),
     ).fetchone()
     return per_report >= settings.rate_answers_report or per_user >= settings.rate_answers_day
+
+
+# A Q&A model_call row has payload {"weight": w, "tokens": n}: weight 1 for a question, 0.25
+# for a fixed 0-token reply, 0 when nothing was answered (an outage, busy, or a closed stream
+# must not lock anyone out); tokens = what the models used for it.
+WEIGHT = "coalesce((e.payload->>'weight')::real, 1)"
+TOKENS = "coalesce((e.payload->>'tokens')::int, 0)"
+DAY = "e.kind = 'model_call' AND e.at > now() - interval '1 day'"
+
+
+def question_limit(conn, user_id: uuid.UUID, report_id=None) -> str | None:
+    """Q&A budget (contract §4, §4A), checked before any model or embedding call: 10 per
+    report, 40 per user per 24 h shared by /ask and /chat (10 for an account younger than a
+    day, REVIEW B-13), and the site-wide free-quota guard on requests AND tokens (B-056).
+    The CALLER holds the per-user advisory lock and writes its model_call row in the same
+    transaction, so parallel questions can't both slip under the limit (SEC-015 pattern).
+    Returns the 429 message_key, or None."""
+    per_report, ask_user = conn.execute(
+        f"SELECT coalesce(sum({WEIGHT}) FILTER (WHERE e.report_id = %s), 0),"
+        f" coalesce(sum({WEIGHT}), 0) FROM report_event e JOIN report r ON r.id = e.report_id"
+        f" WHERE r.user_id = %s AND {DAY} AND e.payload ? 'weight'",
+        (report_id, user_id)).fetchone()
+    chat_user = conn.execute(f"SELECT coalesce(sum({WEIGHT}), 0) FROM chat_event e"
+                             f" WHERE e.user_id = %s AND {DAY}", (user_id,)).fetchone()[0]
+    # ponytail: the site-wide sums scan a day of rows; fine at free-tier volumes (~1k/day).
+    requests, tokens = conn.execute(
+        f"SELECT sum(w), sum(t) FROM ("
+        f" SELECT {WEIGHT} AS w, {TOKENS} AS t FROM report_event e"
+        f"  WHERE {DAY} AND e.payload ? 'weight'"
+        f" UNION ALL SELECT {WEIGHT}, {TOKENS} FROM chat_event e WHERE {DAY}) calls"
+    ).fetchone()
+    guard = settings.qa_quota_guard
+    if ((requests or 0) >= settings.qa_site_day * guard
+            or (tokens or 0) >= settings.qa_site_tokens_day * guard):
+        return "qa_busy"
+    new_user = conn.execute("SELECT created_at > now() - interval '1 day' FROM app_user"
+                            " WHERE id = %s", (user_id,)).fetchone()
+    day_limit = settings.rate_questions_day
+    if new_user and new_user[0]:
+        day_limit = min(day_limit, settings.rate_questions_new_user)
+    if ask_user + chat_user >= day_limit:
+        return "rate_limited_questions"
+    if report_id is not None and per_report >= settings.rate_questions_report:
+        return "rate_limited_questions"
+    return None
 
 
 def check(conn, user_id: uuid.UUID) -> str | None:

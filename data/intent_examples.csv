@@ -1,0 +1,51 @@
+label,text
+greeting,hi
+greeting,hello there
+greeting,namaste
+greeting,thank you so much
+greeting,shukriya
+greeting,what can you do
+greeting,aap kaun ho
+greeting,good morning
+greeting,नमस्ते
+greeting,धन्यवाद
+off_domain,write me a poem about the moon
+off_domain,what is the cricket score today
+off_domain,help me fix my python code
+off_domain,give me a recipe for paneer butter masala
+off_domain,tell me a joke
+off_domain,which stock should I buy
+off_domain,what will the weather be tomorrow
+off_domain,who will win the election
+off_domain,solve my maths homework
+off_domain,mujhe ek kavita likh do
+off_domain,koi accha movie batao
+off_domain,electricity bill kam kaise karein
+new_problem,mere ghar ke paas kachra hai
+new_problem,there is a big pothole outside my house
+new_problem,streetlight in our gali is not working since a week
+new_problem,naali band hai aur paani bhar gaya
+new_problem,a tree has fallen on the road near the market
+new_problem,hamari colony mein paani nahi aa raha
+new_problem,manhole is open on the main road
+new_problem,मेरे घर के सामने सड़क टूटी है
+my_complaint,why did my complaint go to PWD
+my_complaint,what happened to my report
+my_complaint,meri shikayat ka kya hua
+my_complaint,why PWD not MCD for my report
+my_complaint,when will my complaint be fixed
+my_complaint,my complaint is not resolved yet
+my_complaint,मेरी शिकायत का क्या हुआ
+general_civic,who fixes streetlights in Delhi
+general_civic,how do I file an RTI application
+general_civic,Jaipur garbage complaint kahan karein
+general_civic,what is CPGRAMS
+general_civic,how many days does a department have to reply to an RTI
+general_civic,who maintains national highways
+general_civic,where can I complain about a pothole in Mumbai
+general_civic,RTI kaise file karein
+general_civic,what is the fee for an RTI
+general_civic,how to appeal if my grievance is not resolved
+general_civic,sewer overflow complaint kahan karein
+general_civic,which department handles water supply in Delhi
+general_civic,सड़क की शिकायत कहाँ करें

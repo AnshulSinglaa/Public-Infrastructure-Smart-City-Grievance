@@ -1,0 +1,2195 @@
+# Official document sources for the citation corpus (HLD-S6 §3.1, contract §2.2).
+# Official sources only: tier 1 = the issuing body's own text, tier 2 = government news / Parliament
+# answers. Private news is never listed (the 10 news-only rules show "No official document found").
+# key: stable id (never rename) · layer: national | state | delhi · state_code: state_directory.csv code
+# level: central | state | local = who the issuing body is (FIX-PLAN-S6 B)
+# covers: issue types / matters it applies to ("all" = any) · not_for: matters it must NOT be offered for
+# superseded_note: the body named no longer exists in that form (shown with the answer, B-071)
+# manual: true = the site blocks automated download; save the file from a browser as
+#         data/corpus/manual/<key>.pdf (git-ignored) and the ingest uses it with this url (B-061)
+# issued_on: null = "date not stated" · rules: rule_ids in rules_draft.csv this source backs
+
+- key: rti-act-2005
+  url: https://www.indiacode.nic.in/handle/123456789/2065
+  title: The Right to Information Act, 2005
+  issuer: Government of India (Ministry of Law and Justice)
+  doc_type: act
+  tier: 1
+  layer: national
+  state_code: null
+  level: central
+  covers:
+  - rti
+  not_for: []
+  issued_on: '2005-06-15'
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: true
+
+- key: rti-rules-2012
+  url: https://ncte.gov.in/website/pdf/RTI/RTI_Rules_2012_31_07_2012.pdf
+  title: The Right to Information Rules, 2012
+  issuer: Department of Personnel and Training
+  doc_type: rules
+  tier: 1
+  layer: national
+  state_code: null
+  level: central
+  covers:
+  - rti
+  not_for: []
+  issued_on: '2012-07-31'
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: cpgrams-guidelines-2024
+  url: https://pgportal.gov.in/Home/Preview/Q29tcHJlaGVuc2l2ZUd1aWRlbGluZXNGb3JIYW5kbGluZ1RoZVB1YmxpY0dyaWV2YW5jZXMucGRm
+  title: Comprehensive guidelines for handling public grievances (OM dated 23.08.2024)
+  issuer: Department of Administrative Reforms and Public Grievances
+  doc_type: notification
+  tier: 1
+  layer: national
+  state_code: null
+  level: central
+  covers:
+  - central_ministry_matters
+  not_for:
+  - state_matters
+  - local_body_matters
+  issued_on: '2024-08-23'
+  lang: en
+  department_codes:
+  - CPGRAMS
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: cpgrams-portal
+  url: https://pgportal.gov.in/
+  title: CPGRAMS public grievance portal
+  issuer: Department of Administrative Reforms and Public Grievances
+  doc_type: official_page
+  tier: 1
+  layer: national
+  state_code: null
+  level: central
+  covers:
+  - central_ministry_matters
+  not_for:
+  - state_matters
+  - local_body_matters
+  issued_on: null
+  lang: en
+  department_codes:
+  - CPGRAMS
+  categories:
+  - OTHER
+  rules:
+  - GN-02
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: air-cpgrams-guidelines
+  url: https://www.newsonair.gov.in/centre-issues-comprehensive-guidelines-for-public-grievance-redressal
+  title: Centre issues comprehensive guidelines for public grievance redressal
+  issuer: All India Radio News (Prasar Bharati)
+  doc_type: govt_news
+  tier: 2
+  layer: national
+  state_code: null
+  level: central
+  covers:
+  - central_ministry_matters
+  not_for:
+  - state_matters
+  - local_body_matters
+  issued_on: null
+  lang: en
+  department_codes:
+  - CPGRAMS
+  categories:
+  - OTHER
+  rules:
+  - GN-02
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: nh-act-1956
+  url: https://www.indiacode.nic.in/bitstream/123456789/1651/1/A195648.pdf
+  title: The National Highways Act, 1956
+  issuer: Government of India
+  doc_type: act
+  tier: 1
+  layer: national
+  state_code: null
+  level: central
+  covers:
+  - national_highways
+  not_for:
+  - state_roads
+  - local_roads
+  issued_on: '1956-09-11'
+  lang: en
+  department_codes:
+  - NHAI
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: true
+
+- key: air-nhai-1033
+  url: https://newsonair.gov.in/nhai-to-upgrade-1033-national-highway-helpline-with-advanced-technology/
+  title: NHAI to upgrade 1033 National Highway helpline
+  issuer: All India Radio News (Prasar Bharati)
+  doc_type: govt_news
+  tier: 2
+  layer: national
+  state_code: null
+  level: central
+  covers:
+  - national_highways
+  not_for:
+  - state_roads
+  - local_roads
+  issued_on: '2026-09-14'
+  lang: en
+  department_codes:
+  - NHAI
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: odisha-rtps-2012
+  url: https://www.indiacode.nic.in/bitstream/123456789/5878/1/the_odisha_right_to_public_services_act_2012.pdf
+  title: The Odisha Right to Public Services Act, 2012
+  issuer: Government of Odisha
+  doc_type: act
+  tier: 1
+  layer: state
+  state_code: OD
+  level: state
+  covers:
+  - state_services
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: true
+
+- key: kerala-rts-2012
+  url: https://www.indiacode.nic.in/bitstream/123456789/20289/1/act_18_of_2012-_eng_%28copy%29.pdf
+  title: The Kerala State Right to Service Act, 2012
+  issuer: Government of Kerala
+  doc_type: act
+  tier: 1
+  layer: state
+  state_code: KL
+  level: state
+  covers:
+  - state_services
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: true
+
+- key: wb-rtps-2013
+  url: https://www.indiacode.nic.in/bitstream/123456789/14559/1/2013-17.pdf
+  title: The West Bengal Right to Public Services Act, 2013
+  issuer: Government of West Bengal
+  doc_type: act
+  tier: 1
+  layer: state
+  state_code: WB
+  level: state
+  covers:
+  - state_services
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: true
+
+- key: punjab-rts-2011
+  url: https://www.indiacode.nic.in/bitstream/123456789/15098/1/punjab-act_2011_ut_chd.pdf
+  title: The Punjab Right to Service Act, 2011
+  issuer: Government of Punjab
+  doc_type: act
+  tier: 1
+  layer: state
+  state_code: PB
+  level: state
+  covers:
+  - state_services
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: true
+
+- key: haryana-rts-2014
+  url: https://indiacode.nic.in/bitstream/123456789/19942/1/rtso.pdf
+  title: The Haryana Right to Service Act, 2014
+  issuer: Government of Haryana
+  doc_type: act
+  tier: 1
+  layer: state
+  state_code: HR
+  level: state
+  covers:
+  - state_services
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: true
+
+- key: jharkhand-rsdg-2011
+  url: https://www.indiacode.nic.in/bitstream/123456789/5003/1/jharkhand_rajya_sewa_dene_ki_guarantee_act%2c_2011.pdf
+  title: Jharkhand Rajya Sewa Dene Ki Guarantee Act, 2011
+  issuer: Government of Jharkhand
+  doc_type: act
+  tier: 1
+  layer: state
+  state_code: JH
+  level: state
+  covers:
+  - state_services
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: true
+
+- key: hp-psg-2011
+  url: https://eudyan.hp.gov.in/cms/media/31udn3ad/psg-2011.pdf
+  title: The Himachal Pradesh Public Services Guarantee Act, 2011
+  issuer: Government of Himachal Pradesh
+  doc_type: act
+  tier: 1
+  layer: state
+  state_code: HP
+  level: state
+  covers:
+  - state_services
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: assam-rtps-2012
+  url: https://www.indiacode.nic.in/bitstream/123456789/5609/1/the_assam_right_to_public_services_act%2c_2012._recognized.pdf
+  title: The Assam Right to Public Services Act, 2012
+  issuer: Government of Assam
+  doc_type: act
+  tier: 1
+  layer: state
+  state_code: AS
+  level: state
+  covers:
+  - state_services
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: true
+
+- key: rajasthan-gdps-2011
+  url: https://www.indiacode.nic.in/bitstream/123456789/18487/3/act_typing_mangal.pdf
+  title: The Rajasthan Guaranteed Delivery of Public Services Act, 2011
+  issuer: Government of Rajasthan
+  doc_type: act
+  tier: 1
+  layer: state
+  state_code: RJ
+  level: state
+  covers:
+  - state_services
+  not_for: []
+  issued_on: null
+  lang: hi
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: true
+
+- key: up-janhit-guarantee-2011
+  url: https://www.indiacode.nic.in/handle/123456789/16498?locale=en
+  title: Uttar Pradesh Janhit Guarantee Adhiniyam, 2011
+  issuer: Government of Uttar Pradesh
+  doc_type: act
+  tier: 1
+  layer: state
+  state_code: UP
+  level: state
+  covers:
+  - state_services
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: true
+
+- key: maharashtra-rts-2015
+  url: https://divcomkonkan.gov.in/en/rts/
+  title: Maharashtra Right to Public Service Act, 2015
+  issuer: Konkan Division, Government of Maharashtra
+  doc_type: act
+  tier: 1
+  layer: state
+  state_code: MH
+  level: state
+  covers:
+  - state_services
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-an
+  url: https://db.and.nic.in/lghelpdesk/
+  title: LG Helpdesk (Citizen Grievance Filing & Redressal)
+  issuer: Government of Andaman and Nicobar
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: AN
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-ap
+  url: https://pgrs.ap.gov.in/
+  title: PGRS - Public Grievance Redressal System
+  issuer: Government of Andhra Pradesh
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: AP
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-ar
+  url: https://cmejansunwai.arunachal.gov.in/
+  title: CM e-Jansunwai Public Grievance Redressal System
+  issuer: Government of Arunachal Pradesh
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: AR
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-as
+  url: https://sewasetu.assam.gov.in/grm-v2
+  title: Sewa Setu grievance registration
+  issuer: Government of Assam
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: AS
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-br
+  url: https://lokshikayat.bihar.gov.in/
+  title: Bihar Lok Shikayat Nivaran (BPGRS)
+  issuer: Government of Bihar
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: BR
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-cg
+  url: https://jandarshan.cg.nic.in/
+  title: Jandarshan
+  issuer: Government of Chhattisgarh
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: CG
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-ch
+  url: https://loksamadhan.chd.gov.in/mainhome.aspx
+  title: LokSamadhan
+  issuer: Government of Chandigarh
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: CH
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-dh
+  url: https://ddd.gov.in/grievances-complaints/
+  title: Grievances/Complaints
+  issuer: Government of Dadra and Nagar Haveli and Daman and Diu
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: DH
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-ga
+  url: https://dpg.goa.gov.in/
+  title: Directorate of Public Grievances
+  issuer: Government of Goa
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: GA
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-gj
+  url: https://swagat.gujarat.gov.in/
+  title: SWAGAT grievance portal
+  issuer: Government of Gujarat
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: GJ
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-hp
+  url: https://cmsankalp.hp.gov.in/
+  title: CM Sewa Sankalp
+  issuer: Government of Himachal Pradesh
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: HP
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-hr
+  url: https://cmharyanacell.nic.in/cm_window_index
+  title: CM Window (CM Grievance Cell)
+  issuer: Government of Haryana
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: HR
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-jh
+  url: https://parishodhan.jharkhand.gov.in/
+  title: Parishodhan
+  issuer: Government of Jharkhand
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: JH
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-jk
+  url: https://samadhan.jk.gov.in/
+  title: JK Samadhan
+  issuer: Government of Jammu and Kashmir
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: JK
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-ka
+  url: https://ipgrs.karnataka.gov.in/
+  title: IPGRS (Praja Seve)
+  issuer: Government of Karnataka
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: KA
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-kl
+  url: https://cmo.kerala.gov.in/
+  title: CM's Public Grievance Redressal Cell
+  issuer: Government of Kerala
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: KL
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-la
+  url: https://grievance.ladakh.gov.in/
+  title: Ladakh Grievance Portal
+  issuer: Government of Ladakh
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: LA
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-mh
+  url: https://grievances.maharashtra.gov.in/en
+  title: Aaple Sarkar grievance portal
+  issuer: Government of Maharashtra
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: MH
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-mp
+  url: https://cmhelpline.mp.gov.in/
+  title: CM Helpline
+  issuer: Government of Madhya Pradesh
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: MP
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-mz
+  url: https://mipuiaw.mizoram.gov.in/
+  title: Mipui Aw
+  issuer: Government of Mizoram
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: MZ
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-od
+  url: https://janasunani.odisha.gov.in/
+  title: Jana Sunani Public Grievance Redressal Portal
+  issuer: Government of Odisha
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: OD
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-pb
+  url: https://connect.punjab.gov.in/
+  title: Connect Punjab (PGRS)
+  issuer: Government of Punjab
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: PB
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-py
+  url: https://lgredressal.py.gov.in/pgrs/
+  title: LG's Petition Monitoring System
+  issuer: Government of Puducherry
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: PY
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-rj
+  url: https://sampark.rajasthan.gov.in/
+  title: Rajasthan Sampark
+  issuer: Government of Rajasthan
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: RJ
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-tr
+  url: https://grievance.tripura.gov.in/
+  title: CPGRAMS Tripura
+  issuer: Government of Tripura
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: TR
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-ts
+  url: https://prajavani.cgg.gov.in/
+  title: Prajavani
+  issuer: Government of Telangana
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: TS
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-uk
+  url: https://cmhelpline.uk.gov.in/
+  title: CM Helpline 1905
+  issuer: Government of Uttarakhand
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: UK
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: portal-up
+  url: https://jansunwai.up.nic.in/
+  title: IGRS Jansunwai-Samadhan
+  issuer: Government of Uttar Pradesh
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: UP
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: igl-home
+  url: https://www.iglonline.net/
+  title: 'Indraprastha Gas Ltd: emergency and customer care'
+  issuer: Indraprastha Gas Ltd
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: state
+  covers:
+  - GAS_LEAK
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - IGL
+  categories:
+  - GAS_LEAK
+  rules:
+  - EM-01
+  - OT-03
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: air-delhi-112
+  url: https://www.newsonair.gov.in/cm-rekha-gupta-says-important-initiative-is-being-undertaken-to-make-emergency-services-in-faster-simpler-technology-driven/
+  title: Delhi emergency services made faster and simpler (112)
+  issuer: All India Radio News (Prasar Bharati)
+  doc_type: govt_news
+  tier: 2
+  layer: delhi
+  state_code: DL
+  level: state
+  covers:
+  - LIVE_WIRE
+  - ROAD_CAVE_IN
+  - TRANSFORMER
+  - TREE_FALLEN
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - DP
+  categories:
+  - LIVE_WIRE
+  - ROAD_CAVE_IN
+  - TRANSFORMER
+  - TREE_FALLEN
+  rules:
+  - EM-02
+  - EM-04
+  - EM-06
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: djb-grievance
+  url: https://delhijalboard.delhi.gov.in/jalboard/grievance-redressal-mechanism
+  title: Grievance Redressal Mechanism
+  issuer: Delhi Jal Board
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: state
+  covers:
+  - DRAIN_BLOCKED
+  - MANHOLE_OPEN
+  - ROAD_CAVE_IN
+  - SEWER_OVERFLOW
+  - WATERLOGGING
+  - WATER_CONTAMINATED
+  - WATER_LEAK
+  - WATER_NO_SUPPLY
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - DJB
+  - DP
+  categories:
+  - DRAIN_BLOCKED
+  - MANHOLE_OPEN
+  - ROAD_CAVE_IN
+  - SEWER_OVERFLOW
+  - WATERLOGGING
+  - WATER_CONTAMINATED
+  - WATER_LEAK
+  - WATER_NO_SUPPLY
+  rules:
+  - DR-04
+  - EM-03
+  - RD-07
+  - SW-01
+  - SW-02
+  - SW-04
+  - WT-01
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: dfs-node-1103
+  url: https://dfs.delhi.gov.in/hi/node/1103
+  title: 'Delhi Fire Service: contact and emergency'
+  issuer: Delhi Fire Service
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: state
+  covers:
+  - DANGEROUS_BUILDING
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - DFS
+  categories:
+  - DANGEROUS_BUILDING
+  rules:
+  - EM-05
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: dgde-delhi-cantt
+  url: https://dgde.gov.in/?p=9117
+  title: Delhi Cantonment Board
+  issuer: Directorate General Defence Estates
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: local
+  covers:
+  - CD_DEBRIS
+  - DANGEROUS_BUILDING
+  - DEAD_ANIMAL
+  - DHALAO_OVERFLOW
+  - DRAIN_BLOCKED
+  - ENCROACHMENT_FOOTPATH
+  - FOOTPATH_BROKEN
+  - GARBAGE_BURNING
+  - GARBAGE_DUMP
+  - ILLEGAL_CONSTRUCTION
+  - MANHOLE_OPEN
+  - MOSQUITO_BREEDING
+  - PARK_MAINTENANCE
+  - POTHOLE
+  - PUBLIC_TOILET_DIRTY
+  - ROAD_CAVE_IN
+  - SEWER_OVERFLOW
+  - STRAY_CATTLE
+  - STREETLIGHT_OUT
+  - TREE_FALLEN
+  - WATERLOGGING
+  - WATER_CONTAMINATED
+  - WATER_LEAK
+  - WATER_NO_SUPPLY
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - DCB
+  categories:
+  - CD_DEBRIS
+  - DANGEROUS_BUILDING
+  - DEAD_ANIMAL
+  - DHALAO_OVERFLOW
+  - DRAIN_BLOCKED
+  - ENCROACHMENT_FOOTPATH
+  - FOOTPATH_BROKEN
+  - GARBAGE_BURNING
+  - GARBAGE_DUMP
+  - ILLEGAL_CONSTRUCTION
+  - MANHOLE_OPEN
+  - MOSQUITO_BREEDING
+  - PARK_MAINTENANCE
+  - POTHOLE
+  - PUBLIC_TOILET_DIRTY
+  - ROAD_CAVE_IN
+  - SEWER_OVERFLOW
+  - STRAY_CATTLE
+  - STREETLIGHT_OUT
+  - TREE_FALLEN
+  - WATERLOGGING
+  - WATER_CONTAMINATED
+  - WATER_LEAK
+  - WATER_NO_SUPPLY
+  rules:
+  - AR-01
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: ndmc-grievance
+  url: https://ndmc.gov.in/departments/commercial_grievance.aspx
+  title: NDMC public grievance
+  issuer: New Delhi Municipal Council
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: local
+  covers:
+  - CD_DEBRIS
+  - DANGEROUS_BUILDING
+  - DEAD_ANIMAL
+  - DHALAO_OVERFLOW
+  - DRAIN_BLOCKED
+  - ENCROACHMENT_FOOTPATH
+  - FOOTPATH_BROKEN
+  - GARBAGE_BURNING
+  - GARBAGE_DUMP
+  - ILLEGAL_CONSTRUCTION
+  - MANHOLE_OPEN
+  - MOSQUITO_BREEDING
+  - PARK_MAINTENANCE
+  - POTHOLE
+  - PUBLIC_TOILET_DIRTY
+  - ROAD_CAVE_IN
+  - SEWER_OVERFLOW
+  - STRAY_CATTLE
+  - TREE_FALLEN
+  - WATERLOGGING
+  - WATER_CONTAMINATED
+  - WATER_LEAK
+  - WATER_NO_SUPPLY
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - NDMC
+  categories:
+  - CD_DEBRIS
+  - DANGEROUS_BUILDING
+  - DEAD_ANIMAL
+  - DHALAO_OVERFLOW
+  - DRAIN_BLOCKED
+  - ENCROACHMENT_FOOTPATH
+  - FOOTPATH_BROKEN
+  - GARBAGE_BURNING
+  - GARBAGE_DUMP
+  - ILLEGAL_CONSTRUCTION
+  - MANHOLE_OPEN
+  - MOSQUITO_BREEDING
+  - PARK_MAINTENANCE
+  - POTHOLE
+  - PUBLIC_TOILET_DIRTY
+  - ROAD_CAVE_IN
+  - SEWER_OVERFLOW
+  - STRAY_CATTLE
+  - TREE_FALLEN
+  - WATERLOGGING
+  - WATER_CONTAMINATED
+  - WATER_LEAK
+  - WATER_NO_SUPPLY
+  rules:
+  - AR-03
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: ndmc-cgrf
+  url: https://online.ndmc.gov.in/ecgrf/contents/grievance-redressal-procedure/three-tier-grievance-redressal-structure
+  title: 'NDMC electricity: three-tier grievance redressal structure'
+  issuer: New Delhi Municipal Council (CGRF)
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: local
+  covers:
+  - LIVE_WIRE
+  - POWER_OUTAGE
+  - STREETLIGHT_OUT
+  - TRANSFORMER
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - NDMC_ELEC
+  categories:
+  - LIVE_WIRE
+  - POWER_OUTAGE
+  - STREETLIGHT_OUT
+  - TRANSFORMER
+  rules:
+  - AR-04
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: dmrc-contact
+  url: https://delhimetrorail.com/contact-us
+  title: DMRC contact us
+  issuer: Delhi Metro Rail Corporation
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: state
+  covers:
+  - ENCROACHMENT_FOOTPATH
+  - FOOTPATH_BROKEN
+  - GARBAGE_DUMP
+  - ILLEGAL_PARKING
+  - METRO_PREMISES
+  - PUBLIC_TOILET_DIRTY
+  - STREETLIGHT_OUT
+  - WATERLOGGING
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - DMRC
+  categories:
+  - ENCROACHMENT_FOOTPATH
+  - FOOTPATH_BROKEN
+  - GARBAGE_DUMP
+  - ILLEGAL_PARKING
+  - METRO_PREMISES
+  - PUBLIC_TOILET_DIRTY
+  - STREETLIGHT_OUT
+  - WATERLOGGING
+  rules:
+  - TP-02
+  - ZN-01
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: ir-letter-2024-07-19
+  url: https://cr.indianrailways.gov.in/cris//uploads/files/1721386283647-19_letter_240719_160717.pdf
+  title: Railway Board letter dated 19.07.2024
+  issuer: Indian Railways
+  doc_type: notification
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: central
+  covers:
+  - CD_DEBRIS
+  - DEAD_ANIMAL
+  - DRAIN_BLOCKED
+  - ENCROACHMENT_FOOTPATH
+  - GARBAGE_DUMP
+  - ILLEGAL_CONSTRUCTION
+  - WATERLOGGING
+  not_for: []
+  issued_on: '2024-07-19'
+  lang: en
+  department_codes:
+  - NR
+  categories:
+  - CD_DEBRIS
+  - DEAD_ANIMAL
+  - DRAIN_BLOCKED
+  - ENCROACHMENT_FOOTPATH
+  - GARBAGE_DUMP
+  - ILLEGAL_CONSTRUCTION
+  - WATERLOGGING
+  rules:
+  - ZN-02
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: ls-q-24167-asi
+  url: https://eparlib.sansad.in/bitstream/123456789/523679/1/24167.pdf
+  title: Lok Sabha question 24167 (ASI monuments)
+  issuer: Lok Sabha
+  doc_type: parliament_answer
+  tier: 2
+  layer: delhi
+  state_code: DL
+  level: central
+  covers:
+  - ENCROACHMENT_FOOTPATH
+  - GARBAGE_DUMP
+  - ILLEGAL_CONSTRUCTION
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - ASI
+  categories:
+  - ENCROACHMENT_FOOTPATH
+  - GARBAGE_DUMP
+  - ILLEGAL_CONSTRUCTION
+  rules:
+  - ZN-03
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: ifc-flood-order-2025
+  url: https://ifc.delhi.gov.in/sites/default/files/ifc/universal/fco_2025.pdf
+  title: Flood Control Order 2025
+  issuer: Irrigation & Flood Control Department, GNCTD
+  doc_type: notification
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: state
+  covers:
+  - DRAIN_BLOCKED
+  - WATERLOGGING
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - IFC
+  categories:
+  - DRAIN_BLOCKED
+  - WATERLOGGING
+  rules:
+  - DR-01
+  - ZN-07
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: ngt-dda-oa152-2023
+  url: https://www.greentribunal.gov.in/sites/default/files/news_updates/Compliance%20Report%20by%20DDA%20in%20OA%20No.%20152%20of%202023%20(RAJARAM%20C.%20IYER%20VS%20GOVT.%20OF%20N.C.T.%20OF%20DELHI).pdf
+  title: Compliance report by DDA in OA No. 152 of 2023
+  issuer: Delhi Development Authority (before the NGT)
+  doc_type: court_filing
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: central
+  covers:
+  - ENCROACHMENT_FOOTPATH
+  - GARBAGE_DUMP
+  - ILLEGAL_CONSTRUCTION
+  - PARK_MAINTENANCE
+  - TREE_FALLEN
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - DDA
+  categories:
+  - ENCROACHMENT_FOOTPATH
+  - GARBAGE_DUMP
+  - ILLEGAL_CONSTRUCTION
+  - PARK_MAINTENANCE
+  - TREE_FALLEN
+  rules:
+  - ZN-08
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: dot-14461-night-shelter
+  url: https://www.dot.gov.in/accessservices/allocation-short-code-14461-night-shelter-control-room
+  title: Allocation of short code 14461 for night shelter control room
+  issuer: Department of Telecommunications
+  doc_type: notification
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: central
+  covers:
+  - PUBLIC_TOILET_DIRTY
+  - SEWER_OVERFLOW
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - DUSIB
+  categories:
+  - PUBLIC_TOILET_DIRTY
+  - SEWER_OVERFLOW
+  rules:
+  - ZN-10
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: cpwd-sewa
+  url: https://cpwdsewa.gov.in/Public_Portal/main.aspx
+  title: CPWD Sewa public portal
+  issuer: Central Public Works Department
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: central
+  covers:
+  - PARK_MAINTENANCE
+  - STREETLIGHT_OUT
+  - TREE_FALLEN
+  - WATER_LEAK
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - CPWD
+  categories:
+  - PARK_MAINTENANCE
+  - STREETLIGHT_OUT
+  - TREE_FALLEN
+  - WATER_LEAK
+  rules:
+  - ZN-11
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: pwd-roads-inventory
+  url: https://www.pwddelhi.gov.in/maintenance-inventory/roads-with-pwd
+  title: Roads with PWD (maintenance inventory)
+  issuer: Public Works Department, GNCTD
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: state
+  covers:
+  - DRAIN_BLOCKED
+  - ENCROACHMENT_FOOTPATH
+  - FOOTPATH_BROKEN
+  - POTHOLE
+  - ROAD_CAVE_IN
+  - STREETLIGHT_OUT
+  - WATERLOGGING
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - PWD
+  categories:
+  - DRAIN_BLOCKED
+  - ENCROACHMENT_FOOTPATH
+  - FOOTPATH_BROKEN
+  - POTHOLE
+  - ROAD_CAVE_IN
+  - STREETLIGHT_OUT
+  - WATERLOGGING
+  rules:
+  - RD-02
+  - RD-03
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: ngt-pwd-oa559-2022
+  url: https://www.greentribunal.gov.in/sites/default/files/news_updates/REPLY%20BY%20R-8%20PWD%20GNCTD%20IN%20OA%20NO.%20559%20of%202022%20SANJEEV%20JAIN%20VS%20MUNICIPAL%20CORPORATION%20OF%20DELHI%20%26%20ORS.pdf
+  title: Reply by PWD GNCTD in OA No. 559 of 2022
+  issuer: Public Works Department, GNCTD (before the NGT)
+  doc_type: court_filing
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: state
+  covers:
+  - ENCROACHMENT_FOOTPATH
+  - FOOTPATH_BROKEN
+  - POTHOLE
+  - ROAD_CAVE_IN
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - MCD
+  - PWD
+  categories:
+  - ENCROACHMENT_FOOTPATH
+  - FOOTPATH_BROKEN
+  - POTHOLE
+  - ROAD_CAVE_IN
+  rules:
+  - RD-04
+  - RD-05
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: ngt-sdmc-oa06-2012
+  url: https://www.greentribunal.gov.in/sites/default/files/news_updates/Affidavit%20by%20SDMC%20in%20OA%20No.%2006%20of%202012.pdf
+  title: Affidavit by SDMC in OA No. 06 of 2012
+  issuer: South Delhi Municipal Corporation (before the NGT)
+  doc_type: court_filing
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: local
+  covers:
+  - DRAIN_BLOCKED
+  - MANHOLE_OPEN
+  - WATERLOGGING
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - PWD
+  categories:
+  - DRAIN_BLOCKED
+  - MANHOLE_OPEN
+  - WATERLOGGING
+  rules:
+  - DR-02
+  - SW-03
+  recrawl_days: 30
+  superseded_note: 'Filed by the South Delhi Municipal Corporation (SDMC). SDMC no longer exists: it was merged into the unified Municipal Corporation of Delhi (MCD) in May 2022 (Delhi Municipal Corporation
+    (Amendment) Act, 2022). Read SDMC as MCD today.'
+  manual: false
+
+- key: ngt-mcd-ea05-2024
+  url: https://www.greentribunal.gov.in/sites/default/files/news_updates/Report%20by%20MCD%20in%20EA%20No.%2005%20of%202024%20IN%20OA%20No.%2006%20of%202012%20(Nizamuddin%20West%20Association%20vs%20UOI%20%26ors.%20).pdf
+  title: Report by MCD in EA No. 05 of 2024 in OA No. 06 of 2012
+  issuer: Municipal Corporation of Delhi (before the NGT)
+  doc_type: court_filing
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: local
+  covers:
+  - DRAIN_BLOCKED
+  - WATERLOGGING
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - MCD
+  categories:
+  - DRAIN_BLOCKED
+  - WATERLOGGING
+  rules:
+  - DR-03
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: pwd-grievance
+  url: https://www.pwddelhi.gov.in/grievance-redress
+  title: PWD grievance redress
+  issuer: Public Works Department, GNCTD
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: state
+  covers:
+  - STREETLIGHT_OUT
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - PWD
+  categories:
+  - STREETLIGHT_OUT
+  rules:
+  - SL-01
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: brpl-streetlight
+  url: https://www.bsesdelhi.com/web/brpl/street-light-complaint
+  title: BRPL street light complaint
+  issuer: BSES Rajdhani Power Ltd
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: state
+  covers:
+  - STREETLIGHT_OUT
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - BRPL
+  categories:
+  - STREETLIGHT_OUT
+  rules:
+  - SL-02
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: bypl-contact
+  url: https://www.bsesdelhi.com/web/bypl/contact-us
+  title: BYPL contact us
+  issuer: BSES Yamuna Power Ltd
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: state
+  covers:
+  - LIVE_WIRE
+  - POWER_OUTAGE
+  - STREETLIGHT_OUT
+  - TRANSFORMER
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - BYPL
+  categories:
+  - LIVE_WIRE
+  - POWER_OUTAGE
+  - STREETLIGHT_OUT
+  - TRANSFORMER
+  rules:
+  - EL-02
+  - SL-03
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: derc-street-lighting
+  url: https://www.derc.gov.in/sites/default/files/StreetLighting.pdf
+  title: Street lighting
+  issuer: Delhi Electricity Regulatory Commission
+  doc_type: notification
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: state
+  covers:
+  - STREETLIGHT_OUT
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - MCD
+  - TPDDL
+  categories:
+  - STREETLIGHT_OUT
+  rules:
+  - SL-04
+  - SL-05
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: brpl-contact
+  url: https://www.bsesdelhi.com/web/brpl/contact-us
+  title: BRPL contact us
+  issuer: BSES Rajdhani Power Ltd
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: state
+  covers:
+  - LIVE_WIRE
+  - POWER_OUTAGE
+  - TRANSFORMER
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - BRPL
+  categories:
+  - LIVE_WIRE
+  - POWER_OUTAGE
+  - TRANSFORMER
+  rules:
+  - EL-01
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: tpddl-charter-2022
+  url: https://tatapower-ddl.com/Editor_UploadedDocuments/Content/Consumer_Charter_Nov_9%2C_2022.pdf
+  title: Consumer Charter (9 Nov 2022)
+  issuer: Tata Power Delhi Distribution Ltd
+  doc_type: charter
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: state
+  covers:
+  - LIVE_WIRE
+  - POWER_OUTAGE
+  - TRANSFORMER
+  not_for: []
+  issued_on: '2022-11-09'
+  lang: en
+  department_codes:
+  - TPDDL
+  categories:
+  - LIVE_WIRE
+  - POWER_OUTAGE
+  - TRANSFORMER
+  rules:
+  - EL-03
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: mcd-portal
+  url: https://mcdonline.nic.in/portal
+  title: MCD online portal
+  issuer: Municipal Corporation of Delhi
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: local
+  covers:
+  - DANGEROUS_BUILDING
+  - DEAD_ANIMAL
+  - ILLEGAL_CONSTRUCTION
+  - PARK_MAINTENANCE
+  - PUBLIC_TOILET_DIRTY
+  - TREE_FALLEN
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - MCD
+  - MCD_HORT
+  - MCD_VET
+  categories:
+  - DANGEROUS_BUILDING
+  - DEAD_ANIMAL
+  - ILLEGAL_CONSTRUCTION
+  - PARK_MAINTENANCE
+  - PUBLIC_TOILET_DIRTY
+  - TREE_FALLEN
+  rules:
+  - AN-02
+  - BL-01
+  - BL-02
+  - OT-01
+  - PK-01
+  - TR-03
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: forest-home
+  url: https://forest.delhi.gov.in/
+  title: Department of Forests & Wildlife
+  issuer: Department of Forests & Wildlife, GNCTD
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: state
+  covers:
+  - TREE_FALLEN
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - FOREST
+  categories:
+  - TREE_FALLEN
+  rules:
+  - TR-04
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: ls-q-8639-traffic
+  url: https://eparlib.nic.in/bitstream/123456789/710498/1/8639.pdf
+  title: Lok Sabha question 8639 (Delhi traffic)
+  issuer: Lok Sabha
+  doc_type: parliament_answer
+  tier: 2
+  layer: delhi
+  state_code: DL
+  level: central
+  covers:
+  - SIGNAL_BROKEN
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - DTP
+  categories:
+  - SIGNAL_BROKEN
+  rules:
+  - TF-01
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: dtp-node-1081
+  url: https://traffic.delhipolice.gov.in/en/node/1081
+  title: 'Delhi Traffic Police: complaints'
+  issuer: Delhi Traffic Police
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: central
+  covers:
+  - ILLEGAL_PARKING
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - DTP
+  categories:
+  - ILLEGAL_PARKING
+  rules:
+  - TF-02
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: rs-q-3923-dtc
+  url: https://rsdebate.nic.in/bitstream/123456789/634560/2/PQ_232_14082014_U3923_p185_p186.pdf
+  title: Rajya Sabha unstarred question 3923 (14.08.2014)
+  issuer: Rajya Sabha
+  doc_type: parliament_answer
+  tier: 2
+  layer: delhi
+  state_code: DL
+  level: central
+  covers:
+  - BUS_SHELTER_DAMAGED
+  not_for: []
+  issued_on: '2014-08-14'
+  lang: en
+  department_codes:
+  - DTC
+  categories:
+  - BUS_SHELTER_DAMAGED
+  rules:
+  - TP-01
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: dot-112-erss
+  url: https://dot.gov.in/sites/default/files/doc00182220190207132432.pdf?download=1
+  title: DoT notification on emergency number 112
+  issuer: Department of Telecommunications
+  doc_type: notification
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: central
+  covers:
+  - NOISE
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - DP
+  categories:
+  - NOISE
+  rules:
+  - PL-01
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: pgms-delhi
+  url: https://pgms.delhi.gov.in/
+  title: Public Grievance Monitoring System
+  issuer: Government of NCT of Delhi
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: state
+  covers:
+  - OTHER
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - PGMS
+  categories:
+  - OTHER
+  rules:
+  - GN-01
+  - GN-03
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: dda-contact
+  url: https://dda.gov.in/contact-us
+  title: DDA contact us
+  issuer: Delhi Development Authority
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: central
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - DDA
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: dpcc-home
+  url: https://dpcc.delhi.gov.in/
+  title: Delhi Pollution Control Committee
+  issuer: Delhi Pollution Control Committee
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - DPCC
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: dusib-home
+  url: https://dusib.delhi.gov.in/
+  title: Delhi Urban Shelter Improvement Board
+  issuer: Delhi Urban Shelter Improvement Board
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - DUSIB
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: dtc-feedback
+  url: https://dtc.delhi.gov.in/dtc/feedback
+  title: DTC feedback
+  issuer: Delhi Transport Corporation
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - DTC
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: ifc-home
+  url: https://ifc.delhi.gov.in/
+  title: Irrigation & Flood Control Department
+  issuer: Irrigation & Flood Control Department (GNCTD)
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - IFC
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: dtp-raise-complaint
+  url: https://traffic.delhipolice.gov.in/en/raise-complaint
+  title: 'Delhi Traffic Police: raise a complaint'
+  issuer: Delhi Traffic Police
+  doc_type: official_page
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: central
+  covers:
+  - all
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes:
+  - DTP
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: delhi-time-bound-services-act-2011
+  url: https://www.indiacode.nic.in/handle/123456789/13645
+  title: The Delhi (Right of Citizen to Time Bound Delivery of Services) Act, 2011
+  issuer: Government of NCT of Delhi
+  doc_type: act
+  tier: 1
+  layer: delhi
+  state_code: DL
+  level: state
+  covers:
+  - all
+  not_for: []
+  issued_on: '2011-04-07'
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: true
+
+- key: hr-ulb-department
+  url: https://ulbharyana.gov.in/
+  title: Urban Local Bodies Department, Haryana
+  issuer: Urban Local Bodies Department, Government of Haryana
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: HR
+  level: state
+  covers:
+  - local_body_matters
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false
+
+- key: hr-municipal-act-1973
+  url: https://indiacode.nic.in/bitstream/123456789/18295/1/1973haryana24.pdf
+  title: The Haryana Municipal Act, 1973
+  issuer: Government of Haryana
+  doc_type: act
+  tier: 1
+  layer: state
+  state_code: HR
+  level: state
+  covers:
+  - local_body_matters
+  not_for: []
+  issued_on: '1973-07-02'
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: true
+
+- key: rj-lsg-department
+  url: https://lsg.rajasthan.gov.in/
+  title: Local Self Government Department, Rajasthan
+  issuer: Local Self Government Department, Government of Rajasthan
+  doc_type: official_page
+  tier: 1
+  layer: state
+  state_code: RJ
+  level: state
+  covers:
+  - local_body_matters
+  not_for: []
+  issued_on: null
+  lang: en
+  department_codes: []
+  categories: []
+  rules: []
+  recrawl_days: 30
+  superseded_note: null
+  manual: false

@@ -74,9 +74,10 @@ def with_backoff(call, started: float | None = None):
 
 
 def run(name: str, schema, call, *, model: str, prompt_version: str, system: str,
-        input_bytes: bytes, report_id: str | None, trace_input) -> dict:
-    """Cache -> model call (with backoff) -> validate -> one retry on invalid -> 'unsure'.
-    call() returns (raw_json_text, {"input": tokens, "output": tokens}).
+        input_bytes: bytes, report_id: str | None, trace_input, default=None) -> dict:
+    """Cache -> model call (with backoff) -> validate -> one retry on invalid -> default
+    ('unsure' unless the caller gives one). call() returns (raw_json_text, usage) where
+    usage = {"input": tokens, "output": tokens} plus optional "provider" and "cost" (USD).
     Raises ProviderDown when the provider is unreachable."""
     # The full system prompt is in the key (TL#3): editing it without bumping the version
     # can never reuse an answer to the old prompt.
@@ -90,6 +91,8 @@ def run(name: str, schema, call, *, model: str, prompt_version: str, system: str
         with tracing.generation(name, model, prompt_version, report_id, trace_input) as span:
             try:
                 raw, usage = with_backoff(call, started)
+                usage = dict(usage)
+                meta = {k: usage.pop(k) for k in ("provider", "cost") if k in usage}
                 result = schema.model_validate_json(raw).model_dump()
             except (ValidationError, ValueError) as e:
                 log_failure(name, model, f"invalid output ({type(e).__name__})", started, trace_input)
@@ -102,11 +105,12 @@ def run(name: str, schema, call, *, model: str, prompt_version: str, system: str
                     span.update(level="ERROR", status_message="provider down")
                 raise
             if span:
-                span.update(output=result, usage_details=usage)
+                span.update(output=result, usage_details=usage, metadata=meta,
+                            cost_details={"total": meta["cost"]} if meta.get("cost") else None)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(result), encoding="utf-8")  # only valid answers are cached
         return result
-    return unsure(schema)
+    return default if default is not None else unsure(schema)
 
 
 def log_failure(name: str, model: str, error: str, started: float, trace_input) -> None:

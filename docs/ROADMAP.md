@@ -74,6 +74,21 @@ has to report them.
 - Have a believable user ready: city vehicles, delivery fleets or RWAs.
 - File a few real complaints and show what happened.
 
+## Fake / AI-made photo checks (after Sprint 6, ~1–2 days)
+
+No detector is fully reliable, so these combine cheap signals into a **photo trust label**
+(🟢 taken in app, now, here · 🟡 uploaded, details missing · 🔴 AI-labelled or reused). It's never
+a hard reject: a low score asks for a live retake. Humans still inspect on the ground.
+
+1. **C2PA content credentials:** the free `c2pa` library reads "AI-generated" labels many tools embed.
+2. **Photo details before EXIF is stripped:** camera model, capture time, and EXIF GPS vs the pin.
+3. **In-app camera vs gallery:** shown honestly on the complaint.
+4. **Reused photo:** a perceptual hash vs past reports.
+5. **Photo fits the place:** the vision model vs the map (road type), and day vs night.
+6. **Account trust:** tighter limits for new accounts; more trust after real reports.
+
+Video auditor (V2): a continuous GPS track + frame consistency makes fakes much harder.
+
 ## Other ideas (lower priority)
 
 - **Tender cross-check:** match public road-repair tenders to what the camera still sees ("₹X sanctioned, Y potholes remain").

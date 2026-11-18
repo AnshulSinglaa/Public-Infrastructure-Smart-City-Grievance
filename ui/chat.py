@@ -12,6 +12,7 @@ from html import escape
 
 import streamlit as st
 
+from assistant import render_answer, render_ask
 from lib.api import ApiError, answer, conversation, get_dossier
 from report import (
     NOTICE_PILLS,
@@ -212,16 +213,30 @@ def render_thread(token: str, rid: str) -> None:
     shown = [m for m in messages if m.get("kind") != "emergency"]
     # Once there is a dossier, nothing is waiting for an answer: no live buttons (B-039).
     done = any(m.get("kind") == "dossier" for m in shown)
+    # Questions about the report (Sprint 6): once it has a dossier or ended out of coverage.
+    can_ask = done or any(m.get("kind") == "out_of_coverage" for m in shown)
+    question, titled = "", False
     for i, m in enumerate(shown):
         last = i == len(shown) - 1 and not (done and m.get("kind") == "question")
+        if m.get("kind") == "ask" and not titled:  # one title above the first question
+            html(f'<p class="side-label ask-title">{t("ask_title")}</p>')
+            titled = True
         with st.chat_message(m["role"], avatar=AVATARS.get(m["role"])):
             if m["role"] == "user":
+                question = m.get("text", "")
                 user_bubble(m, first=i == 0)
                 continue
             try:
-                assistant_bubble(token, rid, m, last, i)
+                if m.get("kind") == "ask_answer":
+                    render_answer(token, rid, m, question, last)
+                else:
+                    assistant_bubble(token, rid, m, last, i)
             except ApiError as e:  # e.g. the dossier didn't load: say so in its bubble
                 show_error(e, st.empty())
+    if can_ask:
+        if not titled:
+            html(f'<p class="side-label ask-title">{t("ask_title")}</p>')
+        render_ask(token, rid)
     if shown and shown[-1].get("kind") == "question" and not done:  # free text, any language
         typed = st.chat_input(t("type_answer"), key="answer_text", max_chars=300)
         if typed and typed.strip():

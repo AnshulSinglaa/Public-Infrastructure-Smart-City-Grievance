@@ -36,6 +36,9 @@ RUN = re.compile(rf"{TOKEN.pattern}(?:[\s,.-]+{TOKEN.pattern}){{8,}}", re.IGNORE
 # Known gap: a number mixing digits and words ("98765 chaar teen...") with fewer than
 # 9 words is not joined, so it stays unmasked.
 PHONE = re.compile(r"(?<!\d)(?:(?:\+|00)?91[\s.-]{0,2}|0)?[6-9](?:[\s.-]{0,2}\d){9}(?!\d)")
+# Aadhaar-like: 12 digits, as one run or 4-4-4 with spaces, dots or dashes (B-059). Checked on
+# the ASCII-digit copy, so Devanagari digits are caught too. Only the last 4 digits stay.
+AADHAAR = re.compile(r"(?<!\d)\d{4}[\s.-]?\d{4}[\s.-]?\d{4}(?!\d)")
 EMAIL = re.compile(r"([\w.%+-])[\w.%+-]*@(\w)[\w.-]*\.([A-Za-z]{2,})")
 # House / flat numbers: "H.No. 45B", "house no 12/3", "flat 402", "#12-B", "makaan no. 5",
 # "ghar no 7", "मकान नं. 45", "मकान नंबर ४५", "म.नं. 12", "फ्लैट 402", "मकान 45". The keyword
@@ -60,6 +63,10 @@ def mask_word_run(m: re.Match) -> str:
     return PHONE.sub(mask_phone, digits) if PHONE.search(digits) else m.group()
 
 
+def mask_aadhaar(m: re.Match) -> str:
+    return "XXXX XXXX " + re.sub(r"\D", "", m.group())[-4:]
+
+
 def mask_phone(m: re.Match) -> str:
     digits = re.sub(r"\D", "", m.group())[-10:]
     return digits[:2] + "XXXXXX" + digits[-2:]
@@ -67,16 +74,18 @@ def mask_phone(m: re.Match) -> str:
 
 def mask_pii(text: str) -> str:
     """'call nau aath saat chhe paanch chaar teen do ek shunya' -> 'call 98XXXXXX10';
-    'priya.k@gmail.com' -> 'p***@g***.com', 'H.No. 45B' -> 'H.No. XX'. Everything else stays
+    'priya.k@gmail.com' -> 'p***@g***.com', 'H.No. 45B' -> 'H.No. XX',
+    '2345 6789 0123' (Aadhaar-like) -> 'XXXX XXXX 0123'. Everything else stays
     exactly as the user wrote it, Devanagari digits included. Emails go first: they can hold
     digits."""
     text = EMAIL.sub(r"\1***@\2***.\3", text)
     text = RUN.sub(mask_word_run, text)
-    # Look for phones in a copy with ASCII digits. One digit becomes one digit, so the copy
-    # has the same length and its match positions point at the same spots in the original.
-    ascii_copy = text.translate(DEVANAGARI_DIGITS)
-    for m in reversed(list(PHONE.finditer(ascii_copy))):  # from the end, so spans don't shift
-        text = text[:m.start()] + mask_phone(m) + text[m.end():]
+    # Look for Aadhaar numbers, then phones, in a copy with ASCII digits. One digit becomes one
+    # digit, so the copy has the same length and its match positions point at the same spots.
+    for pattern, mask in ((AADHAAR, mask_aadhaar), (PHONE, mask_phone)):
+        ascii_copy = text.translate(DEVANAGARI_DIGITS)
+        for m in reversed(list(pattern.finditer(ascii_copy))):  # from the end: spans don't shift
+            text = text[:m.start()] + mask(m) + text[m.end():]
     return HOUSE.sub(r"\1XX", text)
 
 

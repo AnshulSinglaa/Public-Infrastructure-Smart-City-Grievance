@@ -89,15 +89,33 @@ def record_dossier(conn, report_id: str, dossier_id: str, department_code: str) 
            text=f"Your complaint for {name} is ready.")
 
 
-def conversation(conn, report_id: str) -> list[dict]:
-    rows = conn.execute("SELECT role, kind, payload, at FROM report_event"
-                        " WHERE report_id = %s AND kind <> 'model_call'"  # limit counter only
-                        " ORDER BY id", (report_id,)).fetchall()
+ANSWER_KEYS = ("status", "layer", "sentences", "sources", "local_rule_unknown", "intent",
+               "responsible_body",
+               "actions", "state_code", "state_name", "message_key")
+HIDDEN = ("model_call", "ask_feedback", "chat_feedback")  # counters and votes, not messages
+
+
+def messages(rows) -> list[dict]:
+    """Transcript rows (id, role, kind, payload, at), oldest first -> chat messages. Q&A
+    answers (ask_answer / chat_answer) carry their message_id, the last vote and the
+    where-to-ask buttons as `options`."""
+    votes = {p["message_id"]: p["vote"] for _, _, kind, p, _ in rows if kind in HIDDEN[1:]}
     out = []
-    for role, kind, payload, at in rows:
+    for event_id, role, kind, payload, at in rows:
+        if kind in HIDDEN:
+            continue
         msg = {"role": role, "kind": kind, "text": payload.get("text", ""), "at": at.isoformat()}
         for key in ("options", "dossier_id", "retry", "outside_delhi", "reason"):
             if key in payload:
                 msg[key] = payload[key]
+        if kind in ("ask_answer", "chat_answer"):
+            msg |= {k: payload[k] for k in ANSWER_KEYS if k in payload}
+            msg |= {"message_id": event_id, "vote": votes.get(event_id),
+                    "options": payload.get("where_to_ask", [])}
         out.append(msg)
     return out
+
+
+def conversation(conn, report_id: str) -> list[dict]:
+    return messages(conn.execute("SELECT id, role, kind, payload, at FROM report_event"
+                                 " WHERE report_id = %s ORDER BY id", (report_id,)).fetchall())

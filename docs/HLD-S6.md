@@ -5,6 +5,7 @@
 | **Author** | Tech Lead · 2026-11-10 (rev 2: the user's fixed requirements applied) |
 | **Status** | **APPROVED by the user 2026-11-11** (with the decisions in the next row). Build order: deploy the existing app first, then benchmarks, then 6a, then 6b. |
 | **User decisions 2026-11-11** | **No Llama Guard / Prompt Guard** (too complex; cite-or-drop + our rules cover it) · **no Sentry** (alerts = GitHub Actions failure emails + Langfuse) · **streaming** of steps + each verified sentence · Gemini free tier OK as backup (masked text only) · outside Delhi: national/state docs + a tool-calling step inside the LangGraph graph |
+| **User decisions 2026-11-14** | **6b chat widened to a civic assistant** (§6A): an intent gate runs before the big model (greeting · off_domain · new_problem · my_complaint · general_civic); new **`POST /chat`** on the home page for general questions anywhere in India; the complaint thread keeps its own chat (`/ask`). **Not yet approved: review this rev** |
 | **Fixed by the user** | LiteLLM gateway (Groq → Gemini) · input + output guardrails with an off-topic gate before any LLM call · dense + BM25 + RRF + a small reranker · answers only from documents + the user's own report · **$0: free tiers only** · ingestion as a GitHub Action · corpus in 2 layers (national + Delhi) for users anywhere in India |
 | **API contract** | `docs/contracts/sprint6-api.md` |
 | **Plan + eval** | `docs/PLAN.md` §10 |
@@ -60,8 +61,15 @@ all of India stays future work (ROADMAP V2-A).
                                        └─► "No official document found", conf × 0.8
                                                                       │
  ── B. Q&A: POST /reports/{id}/ask ────────────────────────────────────┼──────────────────
- question ─► INPUT GUARDS (§5.1) ─► off-topic? ──yes──► fixed reply (0 LLM tokens)
-                                       │ no
+ (same pipeline for the home-page POST /chat, §6A: there the facts are the user's last turns,
+  not a report, and the location comes from the question)
+ question ─► INPUT GUARDS (§5.1) ─► INTENT GATE (rules + embedding, small model if borderline)
+            ├─ greeting / small talk ─► fixed reply (0 tokens)
+            ├─ off_domain ───────────► "I don't know — that's outside civic complaints" (0 tokens)
+            ├─ new_problem ──────────► "Start a report?" button → photo + location flow
+            ├─ my_complaint (/chat) ─► "Which complaint?" buttons → that report's /ask
+            └─ my_complaint (/ask) or general_civic
+                                       │
                                        ▼
             layer = national + (delhi | the report's state) ─► RETRIEVE (§4):
             Qdrant dense 20 + bm25 20 ─► RRF ─► rerank ─► top 6 [C1..C6]
@@ -269,12 +277,25 @@ from `rules_draft.csv`, `departments.csv` and `state_directory.csv`; you fill is
  └──────────────┘  └────────────┘  └──────────────────┘  │   (Groq 8B, JSON yes/no)     │  └──────────────┘
                                                           └──────────────────────────────┘
 ```
+- **Rev 3: step 4 is the INTENT GATE** (same machinery, five labels instead of on/off-topic):
+
+| Intent | Rules (examples) | Then | LLM tokens |
+|---|---|---|---|
+| `greeting` | "hi", "namaste", "thanks", "what can you do" (short, matches a greeting list) | fixed reply `chat_greeting` (what I can do + "Start a report") | 0 |
+| `off_domain` | deny patterns, or low similarity to the civic bank | fixed reply `qa_off_topic`: "I don't know — that's outside civic complaints." | 0 |
+| `new_problem` | a problem word + a place word, no question word ("mere ghar ke paas kachra hai") | `start_report` action → the photo + location flow | 0 |
+| `my_complaint` | "my complaint", "meri shikayat", a ref number, "why PWD" | on `/chat`: "Which complaint?" buttons → that report's chat; on `/ask`: answer it | 0 / answer |
+| `general_civic` | civic words + a question ("who fixes streetlights in Delhi", "RTI kaise", "Jaipur garbage complaint kahan") | retrieval + grounded answer (§6A) | answer |
+
+  Each label has its own example bank (~20–40 examples, EN/HI/Hinglish); the best cosine picks the label when it
+  clears HI and beats the runner-up by a margin; otherwise the small classifier (Groq 8B, JSON label) decides.
+  Rules win over similarity when they fire.
 - **Topic bank:** the centroid of approved chunk vectors **plus** ~80 example civic questions (EN/HI/Hinglish:
   potholes, RTI, deadlines, "kaun theek karega"), embedded once by the ingest job. Score = the best cosine.
   **HI / LO thresholds are tuned on the dev questions**, never on the golden test rows.
 - **Keyword rules:** allow words (complaint, RTI, road, nala, सड़क, shikayat, department names…) push towards
   on-topic; deny patterns (write code, poem, cricket score, stock tips…) → off-topic directly.
-- **Off-topic reply (fixed, 0 LLM tokens):** "I don't know — this is outside civic complaints."
+- **Off-topic reply (fixed, 0 LLM tokens):** "I don't know — that's outside civic complaints."
 - Questions about the user's own report ("why PWD?") are always on-topic (they match the topic bank strongly).
 - If embedding is unavailable: keyword rules decide clear cases, the small classifier decides the rest.
 
@@ -327,6 +348,50 @@ model's text is rendered as plain text (no HTML, no markdown links). There is no
   makes a double click or a Streamlit rerun return the stored answer. **Site-wide free-tier guard:** stop new
   questions at ~80 % of the smallest daily free quota (§9) → 429 `qa_busy`. Off-topic and blocked replies count
   toward the per-user limit too (stops spam probing).
+
+---
+
+## 6A. Civic assistant chat: `POST /chat` (rev 3, 2026-11-14)
+
+```
+ HOME PAGE chat box (logged in)                   COMPLAINT THREAD chat (unchanged path)
+          │                                                │
+          ▼                                                ▼
+     POST /chat ─────────┐                        POST /reports/{id}/ask
+                         ▼                                 │
+      limits (shared budget with /ask) ─► format ─► mask ─► injection rules
+                         ▼                                 │
+                  INTENT GATE (§5.1) ◄─────────────────────┘
+   greeting ──► fixed reply (0)        off_domain ──► "outside civic complaints" (0)
+   new_problem ──► [Start a report] → photo + location flow
+   my_complaint ──► /chat: [Which complaint?] buttons │ /ask: report facts + docs
+   general_civic ──► WHERE? state from the question ("Jaipur" → RJ) · else the home-page GPS
+                       │                               · else ask: [Delhi] [Other state ▾] [All India]
+                       ▼
+            layers: national + (delhi | state X) ─► retrieve ─► gateway ─► output checks
+                       ▼                                   (same as /ask, no report facts)
+            stream steps + verified sentences ─► chat_event (masked) ─► Langfuse · 👍/👎
+```
+
+- **Location:** (1) a state or city named in the question, matched against `state_directory.csv` names plus a
+  small `data/city_state.csv` (~150 big cities → state code, typed once); (2) else the optional `lat/lng` the
+  home page sends (state lookup that already exists); (3) else the answer is a `needs_location` reply with state
+  buttons (0 tokens), and the next turn carries the choice. Outside Delhi the same rule holds: national + that
+  state's documents, then "I don't know the local rule for X" + the state portal.
+- **Sources:** only `[C1..C6]` chunks. There are no report facts on `/chat`, so nothing about anyone's report is
+  ever in the prompt. Grounding, cite-or-drop, numbers, PII and the "I don't know from the official documents"
+  fallback are exactly as in §5.2 (the department check is skipped: there is no department to protect).
+- **Storage (simplest):** a new table **`chat_event`** (`id, user_id, role, kind, payload jsonb, at`), the same shape
+  as `report_event` but per user (report_event needs a report id, and its limits join on `report`). Masked text only.
+  Deleted with the account (`DELETE /me`).
+- **Memory:** the last **4** turns of this user's home chat (masked question + verified answer text, plus the chosen
+  state). The home chat never sees report threads, and a report thread never sees the home chat.
+- **Limits:** one shared question budget: **40 per user per 24 h across `/chat` and `/ask`** (plus 10 per report
+  for `/ask`), counted from `model_call` rows in both tables under the same per-user lock. Fixed 0-token replies
+  count at a lower weight: 1 in 4 (stops spam probing without punishing "hi"/"thanks").
+- **Streaming:** the same server-sent events as `/ask` (steps, then verified sentences, then `done` with the intent).
+- **UI:** a chat box on the home page; a `start_report` action opens the existing photo + location composer; a
+  `my_complaint` reply lists the user's recent reports as buttons that open that thread.
 
 ---
 
@@ -399,6 +464,12 @@ the reranker off (`RERANK=off`) on the hosted app and note it in the eval report
 Groq's free quota** for the big model, so in practice the free tier serves a few hundred questions per day.
 That is enough for the demo; real scale would need a paid tier (not in this design).
 
+**Rev 3 (`/chat`):** greetings, off-domain, new-problem and "which complaint" replies cost **0 tokens** and 0 money.
+Only `general_civic` (and `/ask`) questions use the same calls as above (1 embedding + 1 Groq call), and borderline
+intents add one small 8B call (~300 tokens). `/chat` and `/ask` share one per-user budget and the one site-wide
+80 % free-quota guard, so the free-tier ceiling (a few hundred answered questions per day) is shared, not doubled.
+Still **$0**.
+
 ---
 
 ## 10. Failure modes: what the user sees
@@ -419,6 +490,10 @@ That is enough for the demo; real scale would need a paid tier (not in this desi
 | Langfuse down / quota out | Nothing (tracing is a no-op) | — |
 | Postgres (Supabase) down | Whole app unavailable (as today) | healthz, keepalive |
 | Report outside Delhi | National answer + "I don't know the local rule for X" + state portal | — (by design) |
+| Intent gate picks the wrong label | e.g. a civic question gets "outside civic complaints", or a question gets "Start a report?"; the user rephrases (every fixed reply has an "Ask anyway" button that skips to `general_civic` once) | 👎, golden intent accuracy |
+| Small intent classifier down | Rules + similarity decide; borderline → treated as `general_civic` (it is still grounded, so the worst case is "I don't know…") | trace |
+| No location in a general question | One "Which state?" question with buttons (0 tokens) | — |
+| `/chat` storage write fails | The answer is still shown; that turn is missing from history | server log |
 
 ---
 
@@ -469,6 +544,7 @@ That is enough for the demo; real scale would need a paid tier (not in this desi
 | D8 | Sprint length | Split: 6a (gateway, corpus, dossier citations) + 6b (Q&A, guardrails, eval), ~2 weeks |
 | D9 | Options O1–O7 | As recommended |
 | D10 | Who approves citations | You; the second labeller spot-checks 20 |
+| D11 (2026-11-14) | Civic assistant chat (§6A): `chat_event` table, last 4 turns, one shared 40/day budget, 0-token replies weighted 1 in 4, location from the question → GPS → ask | **Approved 2026-11-14** (user left the choice to us) |
 
 ## 14. What we need from you
 

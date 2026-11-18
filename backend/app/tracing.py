@@ -41,3 +41,15 @@ def generation(name: str, model: str, prompt_version: str, report_id: str | None
 def flush() -> None:
     if client():
         client().flush()
+
+
+def score(trace_seed: str, vote: str, reason: str | None) -> None:
+    """A 👍/👎 on an answer becomes a Langfuse score on that answer's trace (1 = up)."""
+    lf = client()
+    if lf is None:
+        return
+    try:
+        lf.create_score(name="user_feedback", value=1 if vote == "up" else 0,
+                        trace_id=lf.create_trace_id(seed=trace_seed), comment=reason)
+    except Exception as e:  # noqa: BLE001 - tracing must never break the API
+        log.warning("Langfuse score failed (%s)", type(e).__name__)

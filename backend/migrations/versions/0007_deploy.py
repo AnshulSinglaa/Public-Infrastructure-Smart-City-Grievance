@@ -35,8 +35,6 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    op.execute(f"""DO $$ DECLARE t text; BEGIN
-        FOR t IN {TABLES} LOOP
-            EXECUTE format('ALTER TABLE %I DISABLE ROW LEVEL SECURITY', t);
-        END LOOP; END $$""")
+    # RLS stays on everywhere (O-03): some tables had it before 0007, and "on" is the safe
+    # side for the Supabase REST API. Only the new table goes.
     op.execute("DROP TABLE login_attempt")

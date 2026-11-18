@@ -1,4 +1,8 @@
+import os
+import subprocess
+import sys
 import uuid
+from pathlib import Path
 from urllib.parse import urlparse
 
 import pytest
@@ -7,14 +11,40 @@ from app.config import settings
 
 # Tests create users and reports, so they must never run against a cloud database (a .env
 # filled with deploy values once pointed them at Supabase). Local Docker DB only.
-_db_host = urlparse(settings.database_url).hostname
-if _db_host not in ("127.0.0.1", "localhost", "db", None):
-    pytest.exit(f"Refusing to run tests: DATABASE_URL points at {_db_host}, not the local DB. "
-                "Put the local value back in .env (see .env.example).", returncode=2)
+_db = urlparse(settings.database_url)
+if _db.hostname not in ("127.0.0.1", "localhost", "db", None):
+    pytest.exit(f"Refusing to run tests: DATABASE_URL points at {_db.hostname}, not the local "
+                "DB. Put the local value back in .env (see .env.example).", returncode=2)
 
-from api_helpers import client  # noqa: E402  (imports the app, after the safety check)
+# ...and never against the dev/QA database either (REVIEW R-07): always <name>_test on the
+# same local server (civic -> civic_test). The first run creates and loads it with
+# scripts/load_all.py (~2 min); later runs only apply new migrations. Must happen here, before
+# any test module is imported (their skipif checks query the DB at import time).
+_TEST_DB = _db.path.lstrip("/").removesuffix("_test") + "_test"
+settings.database_url = _db._replace(path="/" + _TEST_DB).geturl()
+os.environ["DATABASE_URL"] = settings.database_url  # for scripts/alembic run below
 
-from app.auth import make_token  # noqa: E402
+
+def _prepare_test_db() -> None:
+    import psycopg
+
+    root = Path(__file__).resolve().parents[2]
+    server = _db._replace(path="/postgres").geturl()
+    try:
+        with psycopg.connect(server, connect_timeout=1) as conn:
+            exists = conn.execute("SELECT 1 FROM pg_database WHERE datname = %s",
+                                  (_TEST_DB,)).fetchone()
+    except psycopg.Error:
+        return  # no local Postgres: the DB tests skip themselves
+    cmd = ["scripts/load_all.py"] if not exists else ["-m", "alembic", "upgrade", "head"]
+    subprocess.run([sys.executable, *cmd], cwd=root, check=True, stdout=subprocess.DEVNULL)
+
+
+_prepare_test_db()
+
+from api_helpers import client
+
+from app.auth import make_token
 
 
 @pytest.fixture
@@ -47,9 +77,12 @@ def fresh_login_limit():
 def fake_models(monkeypatch, tmp_path_factory):
     """Tests never call real models: scripted fakes, a fresh LLM cache, no retry waits."""
     from app.config import settings
+    from app.llm import gateway
     from app.providers import common, fakes
 
     monkeypatch.setattr(settings, "provider_mode", "fake")
+    gateway.failures.clear()  # circuit breaker closed, throttle empty at the start of a test
+    gateway.spent.clear()
     monkeypatch.setattr(settings, "llm_cache_dir", tmp_path_factory.mktemp("llm"))
     monkeypatch.setattr(common, "BACKOFF_S", 0)
     fakes.script()

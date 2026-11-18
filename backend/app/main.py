@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app import vectors
+from app.api.chat import router as chat_router
 from app.api.geocode import router as geocode_router
 from app.api.reports import router as reports_router
 from app.auth import check_auth_mode
@@ -71,6 +72,7 @@ app.add_middleware(CORSMiddleware, allow_methods=["GET", "POST"],
 app.include_router(auth_router)
 app.include_router(reports_router)
 app.include_router(geocode_router)
+app.include_router(chat_router)
 
 
 @app.exception_handler(RequestValidationError)

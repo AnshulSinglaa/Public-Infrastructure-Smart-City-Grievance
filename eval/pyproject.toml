@@ -1,0 +1,19 @@
+# The eval's own environment (judges only): keeps ragas / deepeval / langchain and their
+# openai pin out of the app's lock. `uv run --project eval python eval/run_eval.py ...`.
+# Recording runs (fake / live) import the app, so they use the root project instead.
+[project]
+name = "civic-grievance-eval"
+version = "0.1.0"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "ragas>=0.4.3",
+    "langchain-community>=0.3,<0.4",  # ragas 0.4.3 imports chat_models.vertexai, gone in 0.4
+    "deepeval>=4.3.1",
+    "litellm==1.108.3",  # DeepEval's judge model; same pin as the app
+    "pytest",
+]
+
+[tool.uv]
+exclude-newer = "7 days"  # same supply-chain cooldown as the app (SEC-009)
+exclude-newer-package = { litellm = false }
+package = false

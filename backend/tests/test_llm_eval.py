@@ -14,14 +14,18 @@ if os.environ.get("RUN_LIVE_LLM") != "1":
     pytest.skip("live LLM eval: set RUN_LIVE_LLM=1", allow_module_level=True)
 
 os.environ.setdefault("DEEPEVAL_TELEMETRY_OPT_OUT", "YES")
+# DeepEval lives in the separate eval/ project (it must not change the app's packages), so
+# run this with it: RUN_LIVE_LLM=1 uv run --project eval pytest backend/tests/test_llm_eval.py
+pytest.importorskip("deepeval")
 from deepeval import assert_test
 from deepeval.metrics import BaseMetric
 from deepeval.test_case import LLMTestCase
 
 from app.config import settings
 from app.intake.catalog import categories, departments
+from app.llm.gateway import chain, litellm_call
 from app.providers.common import load_prompt
-from app.providers.groq import call_groq
+from app.providers.groq import user_block
 
 
 class CodeMetric(BaseMetric):
@@ -81,7 +85,8 @@ def live_mode(monkeypatch):
 @pytest.mark.parametrize("text, expected", CASES)
 def test_text_model(text, expected):
     _, system = load_prompt("assess_text")
-    raw, _ = call_groq(system, text)
+    _, model, key = chain("assess_text")[0]  # Groq itself, not the fallback
+    raw, _ = litellm_call(model, key, system, user_block(text), settings.llm_timeout_s)
     case = LLMTestCase(input=text, actual_output=raw, expected_output=expected)
     metrics = [CodeMetric("no_department", no_department),
                CodeMetric("valid_category", valid_category)]

@@ -17,6 +17,7 @@ from account import (
     render_sidebar,
     restore_login,
 )
+from assistant import render_home_chat
 from chat import render_thread
 from lib.api import health
 from report import render_dossier, render_form
@@ -88,5 +89,6 @@ elif view == "dossier" and "current" in st.session_state:
     render_dossier(st.session_state.current)
 elif st.session_state.get("thread"):  # a sent report: its chat
     render_thread(token, st.session_state.thread)
-else:
+else:  # home: the report composer, then the civic assistant chat under it (HLD-S6 §6A)
     render_form(token)
+    render_home_chat(token)

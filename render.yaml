@@ -18,6 +18,19 @@ services:
         value: supabase
       - key: PROVIDER_MODE
         value: live
+      # 512 MB on the free plan: the MiniLM reranker would take the API to ~480 MB+ (measured,
+      # docs/DEPLOY.md), so it stays off; BM25 + dense + RRF still rank the chunks.
+      - key: RERANK
+        value: "off"
+      # Sprint 6 tunables, set to the code defaults so they can be changed in the dashboard.
+      - key: FALLBACK_MODEL
+        value: gemini-2.5-flash-lite
+      - key: INTENT_MODEL
+        value: openai/gpt-oss-20b
+      - key: QA_TIMEOUT_S
+        value: "8"
+      - key: FALLBACK_TIMEOUT_S
+        value: "20"
       - key: DATABASE_URL
         sync: false
       - key: SUPABASE_URL

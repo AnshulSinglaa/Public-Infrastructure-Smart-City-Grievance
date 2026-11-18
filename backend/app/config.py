@@ -23,6 +23,30 @@ class Settings(BaseSettings):
     provider_mode: str = "live"  # live = real models; fake = scripted answers (tests)
     llm_timeout_s: int = 20  # per request; see the time budget in providers/common.py
     llm_cache_dir: Path = ROOT / ".cache" / "llm"
+    # LLM gateway (app/llm/gateway.py): Groq first, this Gemini model when Groq fails.
+    # Groq free tier (headers, 2026-11-15): gpt-oss-120b, gpt-oss-20b and qwen3.8-27b all
+    # allow 8,000 tokens/min and 1,000 requests/day, so the limits don't favour a smaller
+    # model: Q&A keeps gpt-oss-120b (reasoning effort low), and the prompt is cut to <= 1.5k.
+    fallback_model: str = "gemini-2.5-flash-lite"  # stable GA text model, no thinking by default
+    fallback_timeout_s: int = 20  # Gemini answers in 5-8 s, and its 503s are often slow
+    intent_model: str = "openai/gpt-oss-20b"  # small Groq model for borderline intents (B-057)
+    groq_tpm: int = 8000  # tokens per minute per Groq model (free tier): our own throttle
+    gemini_rpm: int = 10  # requests per minute for the Gemini fallback (free tier, with margin)
+    embed_model: str = "gemini-embedding-001"
+    embed_dims: int = 768
+    qa_timeout_s: int = 8  # Groq per request for Q&A answers (intake uses llm_timeout_s)
+    # Sprint 6b Q&A + home chat
+    chunks_collection: str = "rule_chunks"  # Qdrant alias (dense + bm25 named vectors)
+    rerank: bool = True  # RERANK=off skips the MiniLM cross-encoder (memory, HLD §8)
+    rate_questions_report: int = 10
+    rate_questions_day: int = 40  # shared by /chat and /ask; fixed replies count 1/4
+    qa_site_day: int = 1000  # smallest daily free quota we depend on (Groq big model RPD)
+    qa_site_tokens_day: int = 200_000  # Groq's daily token limit for the Q&A model (docs)
+    qa_quota_guard: float = 0.8  # stop new questions at 80 % of either -> 429 qa_busy
+    rate_questions_new_user: int = 10  # accounts younger than 24 h (REVIEW B-13)
+    intent_hi: float = 0.80  # cosine to the example bank: >= HI and a margin -> that label
+    intent_lo: float = 0.40  # every label below LO -> off_domain
+    intent_margin: float = 0.05
     langfuse_public_key: str = ""  # empty = tracing off
     langfuse_secret_key: SecretStr = SecretStr("")
     langfuse_host: str = "https://cloud.langfuse.com"

@@ -1,5 +1,10 @@
 """Vector store: Qdrant. Postgres keeps the rows; Qdrant keeps only vector + filter fields.
 
+rule_chunks (Sprint 6) is an alias -> rule_chunks_v2 with NAMED vectors: `dense` (768-d
+gemini-embedding-001, cosine) and sparse `bm25` (fastembed Qdrant/bm25, IDF). The ingest job
+creates it (app/rag/ingest.py ensure_collection) and Q&A searches it (app/rag/retrieve.py);
+the API never creates it. The helpers below serve the unnamed-vector `photos` collection.
+
 Point id = the Postgres row id, so a search hit joins straight back to its row:
 `chunk.id` (an int) for rule_chunks, `str(media.id)` (a UUID string) for photos.
 Qdrant accepts exactly these two id kinds.
@@ -20,12 +25,11 @@ from qdrant_client.models import (
 
 from app.config import settings
 
-CHUNKS = "rule_chunks"  # bge-m3 text embeddings
+CHUNKS = "rule_chunks"  # alias owned by app/rag/ingest.py (named dense + bm25 vectors)
 PHOTOS = "photos"       # CLIP ViT-B/32 image embeddings
 
-# collection -> (vector size, payload fields we filter on)
+# collections the API creates at startup -> (vector size, payload fields we filter on)
 COLLECTIONS = {
-    CHUNKS: (1024, {"lang": PayloadSchemaType.KEYWORD, "doc_id": PayloadSchemaType.INTEGER}),
     PHOTOS: (512, {"category": PayloadSchemaType.KEYWORD, "ward_no": PayloadSchemaType.INTEGER}),
 }
 
@@ -71,10 +75,6 @@ def search(collection: str, vector: list[float], k: int = 5, filters: dict | Non
 def upsert_chunk(chunk_id: int, vector: list[float], payload: dict) -> None:
     """payload: doc_id, section_ref, page, lang (the text stays in Postgres)."""
     upsert(CHUNKS, chunk_id, vector, payload)
-
-
-def search_chunks(vector: list[float], k: int = 5, filters: dict | None = None) -> list:
-    return search(CHUNKS, vector, k, filters)
 
 
 def upsert_photo(media_id, vector: list[float], payload: dict) -> None:
