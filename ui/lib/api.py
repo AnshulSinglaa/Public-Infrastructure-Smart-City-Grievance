@@ -90,14 +90,17 @@ def dev_login(name: str, email: str) -> dict:
     return _call("POST", "/auth/dev-login", json=body)
 
 
-def send_code(email: str, captcha: str) -> dict:
-    """AUTH_MODE=supabase step 1: email a sign-in code. `captcha` = the Turnstile token."""
-    return _call("POST", "/auth/otp", json={"email": email, "captcha": captcha})
+def sign_up(name: str, email: str, password: str, captcha: str) -> dict:
+    """AUTH_MODE=supabase: create an account. `captcha` = the Turnstile token.
+    Returns {"token", "user": {"id", "name"}} (same as dev_login)."""
+    return _call("POST", "/auth/signup", json={"name": name, "email": email,
+                                               "password": password, "captcha": captcha})
 
 
-def verify_code(email: str, code: str, name: str) -> dict:
-    """Step 2: the emailed code -> {"token", "user": {"id", "name"}} (same as dev_login)."""
-    return _call("POST", "/auth/verify", json={"email": email, "code": code, "name": name})
+def sign_in(email: str, password: str, captcha: str) -> dict:
+    """AUTH_MODE=supabase: sign in with email + password. Same answer shape as sign_up."""
+    return _call("POST", "/auth/login",
+                 json={"email": email, "password": password, "captcha": captcha})
 
 
 def me(token: str) -> dict:

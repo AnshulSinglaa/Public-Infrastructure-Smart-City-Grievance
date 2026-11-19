@@ -9,14 +9,14 @@ never into git and never into a chat.
   Citizen's browser
         │ HTTPS
         ▼
- ┌────────────────────────────┐  email code  ┌──────────────────────────┐
+ ┌────────────────────────────┐   password   ┌──────────────────────────┐
  │ Streamlit Community Cloud  │◄────────────►│ Cloudflare Turnstile     │
  │ ui/app.py  (the UI)        │  (widget)    │ "are you human?" check   │
  └────────────────────────────┘              └──────────────────────────┘
         │ HTTPS, server to server, Bearer <Supabase token>        ▲ secret check
         ▼                                                         │
  ┌────────────────────────────┐───────────────────────────────────┘
- │ Render (free, Docker)      │── send code / verify code ──► Supabase Auth (email OTP)
+ │ Render (free, Docker)      │── sign up / sign in ───────► Supabase Auth (email+password)
  │ FastAPI  infra/api/        │── JWT public keys (JWKS) ───► Supabase Auth
  │ Dockerfile, /healthz       │── photo + text ─────────────► Gemini, Groq
  └────────────────────────────┘
@@ -31,7 +31,7 @@ never into git and never into a chat.
 
 | Service | Why this one |
 |---|---|
-| **Supabase** (Postgres + PostGIS + Auth) | Free Postgres with PostGIS, plus email-code login, in one account |
+| **Supabase** (Postgres + PostGIS + Auth) | Free Postgres with PostGIS, plus email + password login (no email sending), in one account |
 | **Qdrant Cloud** | Free 1 GB vector cluster; same Qdrant as local Docker |
 | **Render** (Docker web service) | Free, runs our Dockerfile, HTTPS and health checks built in |
 | **Streamlit Community Cloud** | Free, made for Streamlit apps, deploys from GitHub |
@@ -73,9 +73,9 @@ values once and paste them into dashboards. Never paste them into chat, issues o
 7. **Connect** (top bar) → **Session pooler** → copy the URI, put your password in it, add `?sslmode=require` at the end → save as **DATABASE_URL**.
 8. **Project Settings → API Keys** → copy the **Project URL** (`https://<ref>.supabase.co`) → **SUPABASE_URL**, and the **anon / publishable** key → **SUPABASE_ANON_KEY**. (Never use the `service_role` / secret key anywhere.)
 9. **Project Settings → JWT Keys** → the current key should be **ECC (P-256)** (default for new projects). If it says "Legacy HS256", click to migrate/rotate to the new signing keys.
-10. **Authentication → Emails → Templates**: in both **Magic Link** and **Confirm signup**, replace the link with the code: `Your sign-in code is {{ .Token }}`. Save.
+10. **Authentication → Providers → Email**: keep **Enable Email provider** ON and switch **Confirm email** OFF (this is what makes sign-up work without any email being sent). Save. If it stays ON, sign-up answers "Sign-up isn't available right now" and the Render log says to switch it off.
 11. **Authentication → URL Configuration** → Site URL = your Streamlit URL (step 18).
-12. *Optional, so people other than you get codes:* Supabase's built-in mailer only sends a few emails an hour, to your own team's addresses. **Authentication → Emails → SMTP Settings** → add a free SMTP sender (for example Brevo, which allows a single verified sender address).
+12. *Not needed any more:* with email + password login no email is sent, so there is no SMTP sender to set up (no Brevo). Optionally raise the minimum password length under **Authentication → Providers → Email**.
 
 **D. Load the database** (from your laptop, one command):
 
@@ -122,7 +122,7 @@ values once and paste them into dashboards. Never paste them into chat, issues o
 
 **J. Smoke test** (on your phone too):
 
-23. Open the Streamlit URL → see the demo banner → name + email → Turnstile tick → **Email me a code** → type the code → signed in.
+23. Open the Streamlit URL → see the demo banner → **Create account** → name, email, a password of 8+ characters → Turnstile tick → **Create account** → signed in. Then Sign out and sign back in with the same email and password.
 24. **Location → Try a demo spot → "Pothole on Ring Road, Lajpat Nagar"** → write "big pothole" → send → the dossier says **PWD**. Try the other spots (MCD, NHAI, TPDDL).
 
 ## 4. Day-to-day
@@ -153,6 +153,6 @@ docker run --rm -v "${PWD}:/b" -e DATABASE_URL postgres:17-alpine pg_restore --n
 - **Cold start:** Render free sleeps after 15 min idle; the first visit then waits ~1 min. Keepalive pings 07:30–23:30 IST to avoid it.
 - **Photos** and `.cache/llm` (answer cache, intent-bank vectors) live on Render's disk, which is wiped on every deploy, restart and sleep. Old dossiers then show no photo, and the first question after a wake re-embeds the intent bank. *Follow-up (simplest free fix):* a private Supabase Storage bucket (1 GB free) with signed URLs for photos, and the intent-bank vectors shipped as a data file.
 - **Memory (512 MB):** measured idle working set with LiteLLM + BM25 loaded and `RERANK=off` is about 290 MB; with the MiniLM reranker it reaches about 480 MB before any request, so the reranker stays off on Render. The BM25 model is baked into the image, so a cold start downloads nothing.
-- **Sign-in lasts 1 hour**, and a page refresh asks for a new code (the token stays on the server, SEC-005).
+- **Sign-in lasts 1 hour**, and a page refresh asks to sign in again (the token stays on the server, SEC-005). There is no "forgot password" yet: that needs an email sender, so a recruiter who forgets one makes a new account with another email.
 - **Coverage:** 25 Delhi wards. Elsewhere the app shows official helplines, so use the demo spots.
 - If the Streamlit app never loads, delete the `address` line under `[server]` in `ui/.streamlit/config.toml` (it is there to keep local runs private).

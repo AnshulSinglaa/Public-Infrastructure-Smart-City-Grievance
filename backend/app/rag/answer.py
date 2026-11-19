@@ -52,7 +52,7 @@ GENERAL_RULE = {  # the uncited "who is responsible" line, written by code (FIX-
     "hi": "आम तौर पर आपका स्थानीय निकाय, {body}, यह काम देखता है (सामान्य नियम, आधिकारिक "
           "दस्तावेज़ से नहीं)।",
 }
-ANY_BODY = "your municipal body (municipal corporation, council or committee)"
+ANY_BODY = "the municipal body in a town, or the gram panchayat in a village"
 
 
 def channel(label: str, value: str, link: str | None) -> dict:
@@ -108,7 +108,9 @@ def case_block(ctx: dict, lang: str) -> str:
     """What we know, for the model: place + local body, issue, scope, reply language."""
     slots, lines = ctx.get("slots") or {}, []
     town = slots.get("town")
-    where = f"{town['name']} ({town['label']}, {town['district']} district)" if town else None
+    where = (f"{town['name']} ({town['label']}"
+             + (f", {town['district']} district" if town.get("district") else "") + ")"
+             if town else None)
     place = ", ".join(x for x in (where, ctx.get("state_name")) if x)
     if place:
         lines.append(f"place: {place}")

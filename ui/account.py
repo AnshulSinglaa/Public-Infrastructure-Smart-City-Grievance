@@ -1,4 +1,4 @@
-"""Login card (dev name login, or email code + Turnstile), the sidebar and "My reports"."""
+"""Login card (dev name login, or email + password + Turnstile), the sidebar and "My reports"."""
 
 import base64
 import json
@@ -11,7 +11,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 from streamlit_js_eval import streamlit_js_eval
 
-from lib.api import ApiError, dev_login, me, my_reports, send_code, verify_code
+from lib.api import ApiError, dev_login, me, my_reports, sign_in, sign_up
 from report import (
     cat_name,
     go,
@@ -124,63 +124,70 @@ def sign_out() -> None:
 def signed_in(result: dict) -> None:
     st.session_state.token = result["token"]
     st.session_state.user_name = result["user"]["name"]
-    for key in ("login_msg", "signed_out", "otp_email", "otp_name"):
+    for key in ("login_msg", "signed_out", "auth_error"):
         st.session_state.pop(key, None)
     st.rerun()
 
 
 def render_login() -> None:
     if auth_mode() == "supabase":
-        render_otp_login()
+        render_password_login()
     else:
         render_dev_login()
 
 
-def render_otp_login() -> None:
-    """Email code login. Step 1: name + email + Turnstile -> code emailed. Step 2: the code.
-    The token then lives only in st.session_state (on the Streamlit server), never in the
-    browser (SEC-005): a refresh asks for a new code."""
-    sent_to = st.session_state.get("otp_email")
+def render_password_login() -> None:
+    """Email + password login, one card with two modes (Sign in / Create account) and the
+    Turnstile check. The token then lives only in st.session_state (on the Streamlit server),
+    never in the browser (SEC-005): a refresh asks to sign in again."""
+    tab_in, tab_new = t("tab_signin"), t("tab_create")
     with st.container(border=True, key="card_login"):
         st.markdown(f"### {t('login_title')}")
-        st.caption(t("otp_help"))
+        st.caption(t("password_help"))
         st.caption(t("ai_notice"))  # SEC-014
         if st.session_state.get("login_msg"):
             st.info(t(st.session_state.login_msg))
-        if not sent_to:
-            name = st.text_input(t("name_label"), max_chars=80, key="login_name")
-            email = st.text_input(t("email_req_label"), max_chars=120, key="login_email")
-            # A token works once, so every try gets a fresh widget (new key).
-            captcha = turnstile(sitekey=os.getenv("TURNSTILE_SITE_KEY") or TEST_SITE_KEY,
-                                default=None,
-                                key=f"turnstile_{st.session_state.get('ts_round', 0)}")
-            clicked = st.button(t("send_code"), type="primary", width="stretch", key="login_go")
-        else:
-            st.caption(t("code_sent").format(email=sent_to))
-            code = st.text_input(t("code_label"), max_chars=10, key="login_code")
-            clicked = st.button(t("sign_in"), type="primary", width="stretch", key="code_go")
-            st.button(t("other_email"), type="tertiary", key="other_email",
-                      on_click=lambda: st.session_state.pop("otp_email", None))
+        creating = st.radio("mode", [tab_in, tab_new], horizontal=True, key="auth_tab",
+                            label_visibility="collapsed") == tab_new
+        name = st.text_input(t("name_label"), max_chars=80, key="login_name") if creating else ""
+        email = st.text_input(t("email_req_label"), max_chars=120, key="login_email")
+        password = st.text_input(t("password_label"), type="password", max_chars=72,
+                                 key="login_password",
+                                 autocomplete="new-password" if creating else "current-password")
+        if creating:
+            st.caption(t("password_rule"))
+        # A token works once, so every try gets a fresh widget (new key).
+        captcha = turnstile(sitekey=os.getenv("TURNSTILE_SITE_KEY") or TEST_SITE_KEY,
+                            default=None,
+                            key=f"turnstile_{st.session_state.get('ts_round', 0)}")
+        clicked = st.button(t("create_account" if creating else "sign_in"), type="primary",
+                            width="stretch", key="login_go")
         error = st.empty()
+        if st.session_state.get("auth_error"):
+            error.error(t(st.session_state.auth_error))  # a failed try, shown until the next one
     if not clicked:
         return
+    st.session_state.pop("auth_error", None)
+    name, email = name.strip(), email.strip()
+    problem = ("need_name" if creating and not name else "need_email" if not email
+               else "bad_email" if "@" not in email or "." not in email.split("@")[-1]
+               else "need_password" if not password
+               else "short_password" if creating and len(password) < 8
+               else "need_captcha" if not captcha else None)
+    if problem:
+        error.error(t(problem))
+        return
+    st.session_state.ts_round = st.session_state.get("ts_round", 0) + 1
     try:
-        if sent_to:
-            signed_in(verify_code(sent_to, code.strip(), st.session_state.otp_name))
-            return
-        name, email = name.strip(), email.strip()
-        problem = ("need_name" if not name else "need_email" if not email
-                   else "bad_email" if "@" not in email or "." not in email.split("@")[-1]
-                   else "need_captcha" if not captcha else None)
-        if problem:
-            error.error(t(problem))
-            return
-        st.session_state.ts_round = st.session_state.get("ts_round", 0) + 1
-        send_code(email, captcha)
-        st.session_state.update(otp_email=email, otp_name=name)
-        st.rerun()
+        result = (sign_up(name, email, password, captcha) if creating
+                  else sign_in(email, password, captcha))
     except ApiError as e:
-        error.error(t(e.message_key))
+        # The Turnstile token is used up and ts_round already points at a fresh widget. Rerun
+        # now, so the fresh widget solves while the error stays visible; otherwise the next
+        # click lands on an unsolved widget and says "wait for the security check".
+        st.session_state.auth_error = e.message_key
+        st.rerun()
+    signed_in(result)
 
 
 def render_dev_login() -> None:

@@ -29,7 +29,7 @@ The app **never files complaints on the citizen's behalf**: it routes and prepar
 | Done ✅ | Next 🔜 |
 |---|---|
 | **Real routing (SQL, PostGIS)**: 73 department rules (59 checked by scenario tests, 14 flagged with reasons), PWD road list, the divided-road rule (other carriageway on the PWD list), power company (discom) and I&FC drain lookups | **Deploy mini-sprint**: put the app online (HTTPS, email login, backups) |
-| **Chat intake**: the agent's questions (main road or lane? which drain? which power company? which department?) appear as chat messages; answer with a button or free text in any language. The AI only maps text to the offered options; it **never picks the department** | Run the Q&A eval live (92-row golden set, harness built) and commit the first recording; fix email sign-in on the live demo (Brevo SMTP) |
+| **Chat intake**: the agent's questions (main road or lane? which drain? which power company? which department?) appear as chat messages; answer with a button or free text in any language. The AI only maps text to the offered options; it **never picks the department** | Run the Q&A eval live (92-row golden set, harness built) and commit the first recording; set Supabase "Confirm email" to OFF so email + password sign-up works on the live demo (no SMTP needed) |
 | **Real multimodal AI**: Gemini (`gemini-3.5-flash-lite`) reads the photo, Groq (`gpt-oss-120b`) reads Hindi/English/Hinglish text, in a **LangGraph agent** | After Sprint 6: research agent (government sites only) for places outside coverage |
 | Emergency path (live wire, gas leak, open manhole, …) shows "call 112 / helpline first"; junk photos get a friendly retake | Sprint 7–8: duplicates, monsoon hotspot alerts, full evaluation, Locust |
 | Prompt injection can't change the department or severity (tested with DeepEval against the real model) | Later: tracker + appeals, votes, final demo |
@@ -47,7 +47,7 @@ Ask "who handles waterlogging in my town, and how do I report it?" and get a sho
 - **Hybrid retrieval:** Qdrant dense (Gemini embeddings) + BM25, fused with RRF, over an official-documents corpus built by an ingest job (`sources.yaml`; https and government hosts only, re-checked on every redirect). Postgres re-checks layer, approval and validity, so a wrong vector payload can't leak a rule.
 - **Cite-or-drop:** the model returns a structured plan (responsible body, where to complain, steps). Every sentence must quote a stored passage or it is dropped, and numbers must appear in the quote.
 - **Applicability:** each source has a `level` (central / state / local) and `covers` / `not_for`, so a central portal such as CPGRAMS is never offered for a local drain.
-- **Local body for any town:** the official Local Government Directory (`local_body` table) turns "Badhra" into "Municipal Committee Badhra", shown as a general rule and never as a cited fact.
+- **Local body for any town:** the official Local Government Directory (`local_body` table, 5,050 urban bodies) turns a town name such as "Gurugram" into its municipal body, shown as a general rule and never as a cited fact. Villages are not in the urban list (see Limitations).
 - **Conversation memory:** place, issue and "it's my own problem" are kept per thread, so a follow-up keeps its context. A problem plus a question also offers **Start a report**.
 - **Language rule:** the reply follows the question's language and script (English, Hinglish in Latin letters, Hindi in Devanagari), checked in code with one retry.
 - **Free-tier survival:** Groq first, Gemini fallback, a per-model circuit breaker, a per-minute token throttle, Retry-After handling and a "busy, try again in N s" reply.
@@ -225,4 +225,5 @@ docs/                     PRD, requirements, UX, architecture, plan, bugs, test 
 
 - One pilot city (Delhi) and a limited set of coverage wards. Locations outside coverage get general helplines, not a guess.
 - The citizen files the complaint themselves; the app has no authority over departments.
+- Q&A "local body" lookup covers **urban** bodies only (LGD: 5,050). A village or gram panchayat (for example Badhra, Haryana, which is not in that list) gets the general "your local body" answer, not a named one.
 - Free-tier hosting and models: cold starts and rate limits are possible in the online demo.

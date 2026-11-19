@@ -23,6 +23,13 @@ from app.db import connect
 from app.rag.local_body import norm_name, state_code
 
 DEFAULT = Path(__file__).resolve().parent.parent / "data" / "lgd" / "urban_local_bodies.csv"
+# The urban export has a numeric "Localbody Type Code" and no type name. These labels are read off
+# the data (4 = every big-city corporation, 7 = the small-town Nagar Panchayats, 21 = NDMC, 24/25
+# = Karnataka's city / town councils); 5 and 6 are generic. They only word the "your local body"
+# line, and are not official LGD names.
+TYPE_NAMES = {"4": "Municipal Corporation", "5": "Municipality", "6": "Municipal Council",
+              "7": "Nagar Panchayat", "21": "Municipal Council", "24": "City Municipal Council",
+              "25": "Town Municipal Council"}
 
 
 def pick(header: list[str], *need: str, avoid: tuple[str, ...] = ()) -> int | None:
@@ -46,9 +53,12 @@ def read_rows(text: str) -> list[dict]:
                                                                   avoid=("local)", "type")),
            "name_local": pick(h, "local body name", "local)"),
            "type": pick(h, "type", "name") or pick(h, "type", avoid=("code",)),
+           "type_code": pick(h, "type", "code"),
            "district": pick(h, "district name") or pick(h, "district", avoid=("code",)),
            "state": pick(h, "state name") or pick(h, "state", avoid=("code",))}
-    missing = [k for k in ("code", "name", "type", "state") if col[k] is None]
+    missing = [k for k in ("code", "name", "state") if col[k] is None]
+    if col["type"] is None and col["type_code"] is None:
+        missing.append("type")
     if missing:
         raise SystemExit(f"LGD columns not found: {missing}. Header: {h}")
     out = []
@@ -59,7 +69,8 @@ def read_rows(text: str) -> list[dict]:
         if not get("code").isdigit() or not get("name"):
             continue  # footer / blank lines
         out.append({"lgd_code": int(get("code")), "name": get("name"),
-                    "name_local": get("name_local") or None, "body_type": get("type"),
+                    "name_local": get("name_local") or None,
+                    "body_type": get("type") or TYPE_NAMES.get(get("type_code"), "Local body"),
                     "district": get("district") or None, "state_name": get("state"),
                     "state_code": state_code(get("state")), "name_norm": norm_name(get("name"))})
     return out

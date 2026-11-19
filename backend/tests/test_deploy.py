@@ -1,4 +1,4 @@
-"""Deploy mini-sprint: Supabase login, Turnstile, prod settings, security headers.
+"""Deploy mini-sprint: Supabase login (email + password), Turnstile, prod settings, headers.
 
 No network: Supabase and Cloudflare are replaced by small fakes. Turnstile uses only
 Cloudflare's documented test keys (always-pass / always-fail).
@@ -25,12 +25,21 @@ KEY = ec.generate_private_key(ec.SECP256R1())  # stands in for Supabase's signin
 PASS_SECRET = "1x0000000000000000000000000000000AA"  # Cloudflare test secret: always passes
 FAIL_SECRET = "2x0000000000000000000000000000000AA"  # Cloudflare test secret: always fails
 TEST_TOKEN = "XXXX.DUMMY.TOKEN.XXXX"  # what the test site key's widget hands out
+PASSWORD = "correct-horse"
 
 
 def supabase_jwt(sub=None, key=KEY, alg="ES256", **claims) -> str:
     body = {"sub": str(sub or uuid.uuid4()), "aud": "authenticated",
             "iss": f"{PROJECT}/auth/v1", "exp": int(time.time()) + 3600, **claims}
     return jwt.encode(body, key, algorithm=alg)
+
+
+def signup_body(email="priya@example.com", password=PASSWORD, name="Priya") -> dict:
+    return {"email": email, "password": password, "name": name, "captcha": TEST_TOKEN}
+
+
+def login_body(email="priya@example.com", password=PASSWORD) -> dict:
+    return {"email": email, "password": password, "captcha": TEST_TOKEN}
 
 
 @pytest.fixture
@@ -47,11 +56,19 @@ def supabase_mode(monkeypatch):
         calls.append((url, json or data))
         if url == auth.TURNSTILE_URL:  # Cloudflare's test secrets behave like this
             return httpx.Response(200, json={"success": data["secret"] == PASS_SECRET})
-        if url.endswith("/otp"):
-            return httpx.Response(200, json={})
-        if url.endswith("/verify") and json["token"] == "123456":
+        if url.endswith("/signup"):  # "Confirm email" is off: a session comes back at once
+            if json["email"] == "taken@example.com":
+                return httpx.Response(422, json={"error_code": "user_already_exists",
+                                                 "msg": "User already registered"})
+            if json["password"] == "password":
+                return httpx.Response(422, json={"error_code": "weak_password"})
+            if json["email"] == "confirm@example.com":  # "Confirm email" is still on
+                return httpx.Response(200, json={"id": str(uuid.uuid4())})
             return httpx.Response(200, json={"access_token": supabase_jwt(SUB)})
-        return httpx.Response(403, json={"msg": "Token has expired or is invalid"})
+        if url.endswith("/token?grant_type=password") and json["password"] == PASSWORD:
+            return httpx.Response(200, json={"access_token": supabase_jwt(SUB)})
+        return httpx.Response(400, json={"error_code": "invalid_credentials",
+                                         "msg": "Invalid login credentials"})
 
     monkeypatch.setattr(auth.httpx, "post", fake_post)
     return calls
@@ -81,7 +98,22 @@ def test_supabase_mode_accepts_only_supabase_tokens(supabase_mode):
     assert client.post("/api/v1/auth/dev-login", json={"name": "x"}).status_code == 404
 
 
-def test_otp_routes_are_off_in_dev_mode():
+def test_supabase_token_tolerates_clock_skew_and_a_trailing_slash(supabase_mode, monkeypatch):
+    sub = uuid.uuid4()
+    # Supabase's clock a few seconds ahead of ours: its brand-new token must still pass.
+    assert auth.read_supabase_token(supabase_jwt(sub, iat=int(time.time()) + 5)) == sub
+    # SUPABASE_URL pasted with a trailing slash must not change the issuer we expect.
+    monkeypatch.setattr(settings, "supabase_url", PROJECT + "/")
+    assert auth.supabase_auth_url() == f"{PROJECT}/auth/v1"
+    assert auth.read_supabase_token(supabase_jwt(sub)) == sub
+
+
+def test_password_routes_are_off_in_dev_mode():
+    assert client.post("/api/v1/auth/signup", json=signup_body()).status_code == 404
+    assert client.post("/api/v1/auth/login", json=login_body()).status_code == 404
+
+
+def test_the_email_code_routes_are_gone(supabase_mode):
     assert client.post("/api/v1/auth/otp", json={"email": "a@b.co"}).status_code == 404
     assert client.post("/api/v1/auth/verify", json={"email": "a@b.co", "code": "123456",
                                                     "name": "x"}).status_code == 404
@@ -91,37 +123,78 @@ def test_turnstile_test_keys(supabase_mode, monkeypatch):
     assert auth.turnstile_ok(TEST_TOKEN)
     monkeypatch.setattr(settings, "turnstile_secret", SecretStr(FAIL_SECRET))
     assert not auth.turnstile_ok(TEST_TOKEN)
-    r = client.post("/api/v1/auth/otp", json={"email": "a@b.co", "captcha": TEST_TOKEN})
-    assert r.status_code == 400 and r.json()["error"]["message_key"] == "captcha_failed"
+    for path, body in (("signup", signup_body()), ("login", login_body())):
+        r = client.post(f"/api/v1/auth/{path}", json=body)
+        assert r.status_code == 400 and r.json()["error"]["message_key"] == "captcha_failed"
+
+
+def test_password_rules_are_checked_before_anything_else(supabase_mode):
+    short = client.post("/api/v1/auth/signup", json=signup_body(password="short"))
+    assert short.status_code == 422  # min 8: Supabase is never asked
+    assert not any(url.endswith("/signup") for url, _ in supabase_mode)
 
 
 @needs_db
-def test_otp_login_end_to_end(supabase_mode):
-    r = client.post("/api/v1/auth/otp", json={"email": "Priya@Example.com", "captcha": TEST_TOKEN})
-    assert r.status_code == 200 and r.json() == {"sent": True}
-    bad = client.post("/api/v1/auth/verify",
-                      json={"email": "priya@example.com", "code": "000000", "name": "Priya"})
-    assert bad.status_code == 400 and bad.json()["error"]["message_key"] == "bad_code"
-    good = client.post("/api/v1/auth/verify",
-                       json={"email": "priya@example.com", "code": "123456", "name": "Priya"})
+def test_password_sign_up_and_sign_in_end_to_end(supabase_mode):
+    up = client.post("/api/v1/auth/signup", json=signup_body(email="Priya@Example.com"))
+    assert up.status_code == 200 and up.json()["user"] == {"id": str(SUB), "name": "Priya"}
+    taken = client.post("/api/v1/auth/signup", json=signup_body(email="taken@example.com"))
+    assert taken.status_code == 409 and taken.json()["error"]["message_key"] == "email_taken"
+    weak = client.post("/api/v1/auth/signup", json=signup_body(password="password"))
+    assert weak.status_code == 400 and weak.json()["error"]["message_key"] == "weak_password"
+    bad = client.post("/api/v1/auth/login", json=login_body(password="wrong-password"))
+    assert bad.status_code == 400 and bad.json()["error"]["message_key"] == "bad_credentials"
+    good = client.post("/api/v1/auth/login", json=login_body())
+    # the name comes back from what was stored at sign-up
     assert good.status_code == 200 and good.json()["user"] == {"id": str(SUB), "name": "Priya"}
     headers = {"Authorization": f"Bearer {good.json()['token']}"}
     assert client.get("/api/v1/me", headers=headers).json()["user"]["name"] == "Priya"
 
 
 @needs_db
-def test_otp_rate_limit_per_email(supabase_mode):
-    body = {"email": "spam@example.com", "captcha": TEST_TOKEN}
-    codes = [client.post("/api/v1/auth/otp", json=body).status_code
-             for _ in range(auth.OTP_LIMIT + 1)]
-    assert codes == [200] * auth.OTP_LIMIT + [429]
-    other = client.post("/api/v1/auth/otp", json={**body, "email": "me@example.com"})
-    assert other.status_code == 200  # someone else can still sign in
+def test_sign_up_without_a_session_means_confirm_email_is_still_on(supabase_mode):
+    r = client.post("/api/v1/auth/signup", json=signup_body(email="confirm@example.com"))
+    assert r.status_code == 503 and r.json()["error"]["message_key"] == "signup_unavailable"
+
+
+@needs_db
+def test_sign_up_rate_limit_per_email(supabase_mode):
+    body = signup_body(email="spam@example.com")
+    codes = [client.post("/api/v1/auth/signup", json=body).status_code
+             for _ in range(auth.SIGNUP_LIMIT + 1)]
+    assert codes == [200] * auth.SIGNUP_LIMIT + [429]
+    other = client.post("/api/v1/auth/signup", json=signup_body(email="me@example.com"))
+    assert other.status_code == 200  # someone else can still sign up
     from app.db import connect
 
     with connect() as conn:  # the blocked 6th try never touched the site-wide counter
         assert conn.execute("SELECT count(*) FROM login_attempt WHERE key = 'all'"
-                            ).fetchone()[0] == auth.OTP_LIMIT + 1
+                            ).fetchone()[0] == auth.SIGNUP_LIMIT + 1
+
+
+@needs_db
+def test_sign_in_tries_are_limited_per_email_and_leave_others_alone(supabase_mode):
+    body = login_body(email="guesser@example.com", password="wrong-password")
+    codes = [client.post("/api/v1/auth/login", json=body).status_code
+             for _ in range(auth.SIGNIN_LIMIT + 1)]
+    assert codes == [400] * auth.SIGNIN_LIMIT + [429]
+    assert client.post("/api/v1/auth/login", json=login_body()).status_code in (200, 400)
+
+
+@needs_db
+def test_supabase_outage_is_a_502_not_a_500(supabase_mode, monkeypatch):
+    fixture_post = auth.httpx.post  # the fixture's fake: Turnstile still answers
+
+    def fake(url, data=None, json=None, **kwargs):
+        if url == auth.TURNSTILE_URL:
+            return fixture_post(url, data=data, json=json, **kwargs)
+        raise httpx.ConnectTimeout("Supabase is asleep")
+
+    monkeypatch.setattr(auth.httpx, "post", fake)
+    for path, body in (("signup", signup_body(email="down@example.com")),
+                       ("login", login_body(email="down@example.com"))):
+        r = client.post(f"/api/v1/auth/{path}", json=body)
+        assert r.status_code == 502 and r.json()["error"]["message_key"] == "login_failed"
 
 
 def test_prod_refuses_weak_or_missing_settings():  # SEC-007

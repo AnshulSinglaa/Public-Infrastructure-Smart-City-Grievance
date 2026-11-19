@@ -659,15 +659,17 @@ def handler(request: httpx.Request) -> httpx.Response:
     if method == "POST" and path == "/api/v1/auth/dev-login":
         name = json.loads(request.read())["name"]
         return httpx.Response(200, json={"token": TOKEN, "user": {"id": "u1", "name": name}})
-    if method == "POST" and path == "/api/v1/auth/otp":
-        return httpx.Response(200, json={"sent": True})
-    if method == "POST" and path == "/api/v1/auth/verify":
+    if method == "POST" and path == "/api/v1/auth/signup":  # email + password (supabase mode)
         body = json.loads(request.read())
-        if body["code"] != "123456":
-            return httpx.Response(400, json={"error": {"code": "bad_code",
-                                                       "message_key": "bad_code"}})
+        if body["email"] == "taken@example.com":
+            return error(409, "email_taken", "email_taken")
         return httpx.Response(200, json={"token": TOKEN, "user": {"id": "u1",
                                                                   "name": body["name"]}})
+    if method == "POST" and path == "/api/v1/auth/login":  # the password is "correct-horse"
+        body = json.loads(request.read())
+        if body["password"] != "correct-horse":
+            return error(400, "bad_credentials", "bad_credentials")
+        return httpx.Response(200, json={"token": TOKEN, "user": {"id": "u1", "name": "Priya"}})
     if request.headers.get("Authorization") != f"Bearer {TOKEN}":
         return error(401, "unauthorized", "login_required")
     if method == "POST" and path == "/api/v1/reports":

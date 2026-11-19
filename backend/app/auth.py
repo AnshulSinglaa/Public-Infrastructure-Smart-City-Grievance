@@ -2,9 +2,11 @@
 
 - dev (APP_ENV=local only): POST /auth/dev-login with a name. Token =
   "<user_id>.<expiry unix time>.<HMAC-SHA256 of the first two parts>", signed by us.
-- supabase (deploy): POST /auth/otp emails a 6-digit code (after a Turnstile check),
-  POST /auth/verify swaps the code for a Supabase access token (a JWT, 1 h). The API checks
-  each JWT against Supabase's public keys (JWKS), so it needs no JWT secret at all.
+- supabase (deploy): email + password. POST /auth/signup creates the account and POST
+  /auth/login signs in (both after a Turnstile check); Supabase answers with an access token
+  (a JWT, 1 h). No email is sent, so no SMTP is needed: the Supabase project must have
+  "Confirm email" switched OFF (Authentication -> Providers -> Email). The API checks each JWT
+  against Supabase's public keys (JWKS), so it needs no JWT secret at all.
 
 Both return the same {"token", "user"} shape, and every other route just reads
 `Authorization: Bearer <token>` through current_user().
@@ -12,6 +14,7 @@ Both return the same {"token", "user"} shape, and every other route just reads
 
 import hashlib
 import hmac
+import logging
 import secrets
 import time
 import uuid
@@ -29,6 +32,7 @@ from app.db import connect
 from app.limits import login_limited
 from app.privacy.text import decrypt, encrypt
 
+log = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1")
 
 
@@ -75,10 +79,17 @@ def read_token(token: str) -> uuid.UUID | None:
 
 # ---------- Supabase tokens (deploy) ----------
 
+def supabase_auth_url() -> str:
+    """The project's Auth base URL. A trailing slash pasted into SUPABASE_URL must not change
+    the issuer we check (every login would then fail) or double the slash in the JWKS and
+    REST URLs."""
+    return f"{settings.supabase_url.strip().rstrip('/')}/auth/v1"
+
+
 @cache
 def jwks() -> jwt.PyJWKClient:
     """Supabase's public signing keys, fetched once and cached (new keys are re-fetched)."""
-    return jwt.PyJWKClient(f"{settings.supabase_url}/auth/v1/.well-known/jwks.json")
+    return jwt.PyJWKClient(f"{supabase_auth_url()}/.well-known/jwks.json")
 
 
 def read_supabase_token(token: str) -> uuid.UUID | None:
@@ -87,9 +98,13 @@ def read_supabase_token(token: str) -> uuid.UUID | None:
     HS256 and get itself checked with a public key (the "alg confusion" attack)."""
     try:
         key = jwks().get_signing_key_from_jwt(token).key
+        # SEC-018: exp is required and stays strict. `iat` is not checked: Supabase stamps it
+        # with its own clock, and when ours is a second behind PyJWT calls a brand-new token
+        # "not yet valid", so a correct login failed.
         claims = jwt.decode(token, key, algorithms=["ES256", "RS256"], audience="authenticated",
-                            issuer=f"{settings.supabase_url}/auth/v1",
-                            options={"require": ["exp", "sub", "aud", "iss"]})  # SEC-018
+                            issuer=supabase_auth_url(),
+                            options={"require": ["exp", "sub", "aud", "iss"],
+                                     "verify_iat": False})
         return uuid.UUID(claims["sub"])
     except (jwt.PyJWTError, KeyError, ValueError, TypeError):
         return None
@@ -108,7 +123,9 @@ def current_user(authorization: Annotated[str | None, Header()] = None) -> uuid.
 # ---------- login helpers ----------
 
 LOGIN_LIMIT = 10  # dev-login: 10 per IP per 10 minutes
-OTP_LIMIT, VERIFY_LIMIT, ALL_LIMIT = 5, 10, 100  # codes sent / tried per email; whole site
+# Per email: sign-ups and sign-in tries; and the site-wide cap on new sign-ups. (No per-IP
+# limit: every caller is the Streamlit server, so all users share one IP.)
+SIGNUP_LIMIT, SIGNIN_LIMIT, ALL_LIMIT = 5, 10, 100
 RATE_LIMITED = {"error": {"code": "rate_limited", "message_key": "rate_limited_login"}}
 TURNSTILE_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
 
@@ -141,7 +158,7 @@ def turnstile_ok(token: str) -> bool:
 def supabase(path: str, body: dict) -> httpx.Response:
     """One call to Supabase Auth's REST API. The `apikey` header takes either the legacy anon
     key or the newer publishable key (sb_publishable_...)."""
-    return httpx.post(f"{settings.supabase_url}/auth/v1/{path}", json=body, timeout=15,
+    return httpx.post(f"{supabase_auth_url()}/{path}", json=body, timeout=15,
                       headers={"apikey": settings.supabase_anon_key.get_secret_value()})
 
 
@@ -159,6 +176,32 @@ def save_user(user_id: uuid.UUID, name: str) -> None:
         )
 
 
+def stored_name(user_id: uuid.UUID) -> str | None:
+    """The name this user signed up with, or None if there is no row (e.g. a DB reset)."""
+    with connect() as conn:
+        row = conn.execute("SELECT name FROM app_user WHERE id = %s", (user_id,)).fetchone()
+    return decrypt(row[0]) if row and row[0] is not None else None
+
+
+def body_of(r: httpx.Response) -> dict:
+    """Supabase's JSON answer as a dict ({} if it is anything else)."""
+    data = r.json()
+    return data if isinstance(data, dict) else {}
+
+
+def token_user(data: dict) -> tuple[str | None, uuid.UUID | None]:
+    """(access token, its user id) from a Supabase answer; user id is None unless the token
+    passes our own checks."""
+    token = data.get("access_token")
+    if not isinstance(token, str):
+        return None, None
+    user_id = read_supabase_token(token)
+    if not user_id:  # Supabase signed someone in but we refuse its token: a setup problem
+        log.warning("Supabase issued a token that failed our checks (SUPABASE_URL, signing "
+                    "keys or server clock?)")
+    return token, user_id
+
+
 # ---------- endpoints ----------
 
 EMAIL = r"^[^@\s]+@[^@\s]+$"
@@ -169,15 +212,17 @@ class DevLogin(BaseModel):
     email: str | None = Field(None, max_length=254, pattern=EMAIL)
 
 
-class OtpRequest(BaseModel):
+class SignUp(BaseModel):
     email: str = Field(max_length=254, pattern=EMAIL)
+    password: str = Field(min_length=8, max_length=72)  # 72: bcrypt's limit
+    name: str = Field(min_length=1, max_length=80)
     captcha: str = Field("", max_length=2048)  # the Turnstile widget's one-time token
 
 
-class OtpVerify(BaseModel):
+class SignIn(BaseModel):
     email: str = Field(max_length=254, pattern=EMAIL)
-    code: str = Field(pattern=r"^\d{6,10}$")
-    name: str = Field(min_length=1, max_length=80)
+    password: str = Field(min_length=1, max_length=72)
+    captcha: str = Field("", max_length=2048)
 
 
 @router.post("/auth/dev-login")
@@ -194,42 +239,74 @@ def dev_login(body: DevLogin, request: Request):
     return {"token": make_token(user_id), "user": {"id": str(user_id), "name": name}}
 
 
-@router.post("/auth/otp")
-def send_code(body: OtpRequest):
-    """Step 1: Turnstile, rate limits, then Supabase emails a code. The UI calls us from its
-    server, so all users share one IP: the limits are per email plus one site-wide cap."""
+@router.post("/auth/signup")
+def sign_up(body: SignUp):
+    """Create an account: Turnstile, rate limits, then Supabase makes the user and (with
+    "Confirm email" off) hands back a session straight away."""
     if settings.auth_mode != "supabase":
         raise HTTPException(404)
     if not turnstile_ok(body.captcha):
         return error(400, "captcha_failed", "captcha_failed")
     # Per email first: an email over its limit stops here and never uses up the site-wide
-    # cap, so one abuser can't lock everyone out. (No per-IP limit: every caller is the
-    # Streamlit server, so all users share one IP.) limited() stops at the first full key.
-    if limited((f"otp:{email_key(body.email)}", OTP_LIMIT), ("all", ALL_LIMIT)):
+    # cap, so one abuser can't lock everyone out. limited() stops at the first full key.
+    if limited((f"signup:{email_key(body.email)}", SIGNUP_LIMIT), ("all", ALL_LIMIT)):
         return JSONResponse(RATE_LIMITED, status_code=429)
-    r = supabase("otp", {"email": body.email, "create_user": True})
-    if r.status_code == 429:  # Supabase's own email limit
+    try:
+        r = supabase("signup", {"email": body.email, "password": body.password})
+        data = body_of(r)
+    except (httpx.HTTPError, ValueError):  # Supabase down, slow, or not JSON
+        return error(502, "login_failed", "login_failed")
+    if r.status_code == 429:  # Supabase's own rate limit
         return JSONResponse(RATE_LIMITED, status_code=429)
     if r.is_error:
+        why = data.get("error_code")
+        if why == "user_already_exists":
+            return error(409, "email_taken", "email_taken")
+        if why == "weak_password":
+            return error(400, "weak_password", "weak_password")
+        if why == "email_address_invalid":
+            return error(400, "invalid_email", "bad_email")
         return error(502, "login_failed", "login_failed")
-    return {"sent": True}
-
-
-@router.post("/auth/verify")
-def verify_code(body: OtpVerify):
-    """Step 2: the emailed code -> a Supabase access token, checked like any other token."""
-    if settings.auth_mode != "supabase":
-        raise HTTPException(404)
-    if limited((f"verify:{email_key(body.email)}", VERIFY_LIMIT)):
-        return JSONResponse(RATE_LIMITED, status_code=429)
-    r = supabase("verify", {"type": "email", "email": body.email, "token": body.code})
-    token = r.json().get("access_token") if r.is_success else None
-    user_id = read_supabase_token(token) if isinstance(token, str) else None
+    token, user_id = token_user(data)
+    if token is None:  # a user but no session: "Confirm email" is still on in Supabase
+        log.warning("Supabase sign-up returned no session: switch OFF 'Confirm email' "
+                    "(Authentication -> Providers -> Email)")
+        return error(503, "signup_unavailable", "signup_unavailable")
     if not user_id:
-        return error(400, "bad_code", "bad_code")
+        return error(502, "login_failed", "login_failed")
     name = body.name.strip()
     save_user(user_id, name)
     return {"token": token, "user": {"id": str(user_id), "name": name}}
+
+
+@router.post("/auth/login")
+def sign_in(body: SignIn):
+    """Sign in with email + password: Turnstile, a per-email try limit, then Supabase checks
+    the password. A wrong password and an unknown email give the same answer."""
+    if settings.auth_mode != "supabase":
+        raise HTTPException(404)
+    if not turnstile_ok(body.captcha):
+        return error(400, "captcha_failed", "captcha_failed")
+    if limited((f"signin:{email_key(body.email)}", SIGNIN_LIMIT)):
+        return JSONResponse(RATE_LIMITED, status_code=429)
+    try:
+        r = supabase("token?grant_type=password",
+                     {"email": body.email, "password": body.password})
+        data = body_of(r)
+    except (httpx.HTTPError, ValueError):
+        return error(502, "login_failed", "login_failed")
+    if r.status_code == 429:
+        return JSONResponse(RATE_LIMITED, status_code=429)
+    if r.is_error:
+        if r.status_code >= 500:
+            return error(502, "login_failed", "login_failed")
+        return error(400, "bad_credentials", "bad_credentials")
+    _, user_id = token_user(data)
+    if not user_id:
+        return error(502, "login_failed", "login_failed")
+    name = stored_name(user_id) or body.email.split("@")[0]
+    save_user(user_id, name)  # makes sure the row exists: reports and /me need it
+    return {"token": data["access_token"], "user": {"id": str(user_id), "name": name}}
 
 
 @router.get("/me")
