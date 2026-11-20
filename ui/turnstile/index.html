@@ -1,28 +1,74 @@
 <!doctype html>
 <!-- Cloudflare Turnstile as a tiny Streamlit component (no build step, no npm).
      Streamlit talks to a component iframe with postMessage: we say "ready", it sends
-     "render" with our args (the site key), and we send back the widget's token. -->
+     "render" with our args (the site key), and we send back the widget's result.
+     Streamlit sends "render" again on EVERY rerun (each keystroke), so `started` makes sure
+     the widget is created once; a new iframe (new key) starts fresh.
+
+     The value we send to Python is one of:
+       "<token>"                a solved check
+       null                     not solved yet / token expired
+       {"error": "<code>"}      Cloudflare error (e.g. 110200 = this domain is not allowed
+                                for the site key) or "timeout" / "script" (no answer, e.g.
+                                an ad blocker or VPN blocks challenges.cloudflare.com).
+     Python shows the code, so a stuck "Verifying..." is never silent. -->
 <html>
 <body style="margin:0; background:transparent">
 <div id="widget"></div>
 <script>
+  const WATCHDOG_MS = 25000;  // no token after this long = tell the user instead of spinning
   const send = (type, data) =>
     window.parent.postMessage({ isStreamlitMessage: true, type, ...data }, "*");
   const setValue = (value) => send("streamlit:setComponentValue", { value, dataType: "json" });
-  let started = false;
+  const fail = (code) => setValue({ error: String(code) });
+  let started = false, solved = false, watchdog = null;
+
+  function arm() {  // (re)start the "no answer" timer
+    clearTimeout(watchdog);
+    watchdog = setTimeout(() => { if (!solved) fail("timeout"); }, WATCHDOG_MS);
+  }
+
+  function renderWidget(sitekey) {
+    document.getElementById("widget").innerHTML = "";
+    arm();
+    try {
+      turnstile.render("#widget", {
+        sitekey: sitekey,
+        theme: "dark",
+        callback: (token) => { solved = true; clearTimeout(watchdog); setValue(token); },
+        "expired-callback": () => { solved = false; setValue(null); arm(); },
+        "timeout-callback": () => fail("timeout"),
+        "unsupported-callback": () => fail("unsupported"),
+        "error-callback": (code) => {
+          console.warn("Turnstile error:", code);
+          fail(code);
+          return false;  // false = we handled it, don't log the generic console error
+        },
+        retry: "auto",
+        "retry-interval": 3000,
+      });
+    } catch (e) {
+      console.error("Turnstile render failed:", e);
+      fail("render");
+    }
+  }
+
   window.addEventListener("message", (event) => {
     if (event.data.type !== "streamlit:render" || started) return;
     started = true;
-    window.onTurnstileLoad = () => turnstile.render("#widget", {
-      sitekey: event.data.args.sitekey,
-      theme: "dark",
-      callback: setValue,                       // a fresh one-time token
-      "expired-callback": () => setValue(null), // tokens last 5 minutes
-      "error-callback": () => setValue(null),
-    });
+    const sitekey = event.data.args.sitekey;
+
+    // If the Turnstile API is already loaded (cached from a previous iframe), render now.
+    if (window.turnstile) {
+      renderWidget(sitekey);
+      return;
+    }
+    window.onTurnstileLoad = () => renderWidget(sitekey);
     const script = document.createElement("script");
     script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit";
+    script.onerror = () => { console.error("Failed to load Turnstile script"); fail("script"); };
     document.head.appendChild(script);
+    arm();  // covers a script that never answers at all
   });
   send("streamlit:componentReady", { apiVersion: 1 });
   send("streamlit:setFrameHeight", { height: 72 });

@@ -136,6 +136,11 @@ def render_login() -> None:
         render_dev_login()
 
 
+def new_captcha() -> None:
+    """A fresh Turnstile widget (new key = new iframe), e.g. after Cloudflare reported an error."""
+    st.session_state.ts_round = st.session_state.get("ts_round", 0) + 1
+
+
 def render_password_login() -> None:
     """Email + password login, one card with two modes (Sign in / Create account) and the
     Turnstile check. The token then lives only in st.session_state (on the Streamlit server),
@@ -157,23 +162,40 @@ def render_password_login() -> None:
         if creating:
             st.caption(t("password_rule"))
         # A token works once, so every try gets a fresh widget (new key).
-        captcha = turnstile(sitekey=os.getenv("TURNSTILE_SITE_KEY") or TEST_SITE_KEY,
-                            default=None,
-                            key=f"turnstile_{st.session_state.get('ts_round', 0)}")
+        raw = turnstile(sitekey=os.getenv("TURNSTILE_SITE_KEY") or TEST_SITE_KEY,
+                        default=None,
+                        key=f"turnstile_{st.session_state.get('ts_round', 0)}")
+        # The widget sends the token (a string), None (not solved yet) or {"error": code}
+        # when Cloudflare refuses or never answers (wrong domain for the site key, an ad
+        # blocker, a blocked script). Showing the code beats an endless "Verifying...".
+        captcha = raw if isinstance(raw, str) else None
+        captcha_error = raw.get("error") if isinstance(raw, dict) else None
+        if captcha_error:
+            st.warning(t("captcha_error", code=captcha_error))
+            st.button(t("retry_check"), key="retry_check", on_click=new_captcha)
         clicked = st.button(t("create_account" if creating else "sign_in"), type="primary",
                             width="stretch", key="login_go")
         error = st.empty()
         if st.session_state.get("auth_error"):
             error.error(t(st.session_state.auth_error))  # a failed try, shown until the next one
-    if not clicked:
+    # A click made before the security check finished is not lost: we remember it and submit
+    # as soon as the token arrives (that arrival reruns the script and clears any message).
+    pending = bool(st.session_state.get("auth_pending")) and bool(captcha)
+    if not clicked and not pending:
         return
+    st.session_state.pop("auth_pending", None)
     st.session_state.pop("auth_error", None)
     name, email = name.strip(), email.strip()
     problem = ("need_name" if creating and not name else "need_email" if not email
                else "bad_email" if "@" not in email or "." not in email.split("@")[-1]
                else "need_password" if not password
                else "short_password" if creating and len(password) < 8
+               else "captcha_error_short" if not captcha and captcha_error
                else "need_captcha" if not captcha else None)
+    if problem == "need_captcha":
+        st.session_state.auth_pending = True
+        error.info(t("captcha_wait"))
+        return
     if problem:
         error.error(t(problem))
         return

@@ -38,6 +38,11 @@ TEXT = {
     "need_captcha": "Please wait for the security check above to finish.",
     "sign_in": "Sign in",
     "captcha_failed": "The security check failed. Please try again.",
+    "captcha_error": "The security check couldn't finish (code: {code}). Turn off any ad "
+                     "blocker or VPN for this site, then tap Retry.",
+    "captcha_error_short": "The security check didn't finish. Tap Retry and wait for the tick.",
+    "captcha_wait": "Finishing the security check... we'll continue automatically.",
+    "retry_check": "Retry security check",
     "bad_credentials": "Wrong email or password.",
     "email_taken": "This email already has an account. Please use Sign in.",
     "weak_password": "That password is too easy to guess. Please choose a stronger one.",
